@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /webhook/
+
+Sitemap: https://wispplay.com/sitemap.xml

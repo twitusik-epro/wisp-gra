@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>🌿 Wisp — Duch Lasu</title>
+
+<!-- PWA -->
+<meta name="application-name" content="Wisp — Duch Lasu">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Wisp">
+<meta name="theme-color" content="#040a04">
+<meta name="description" content="Przebudź magię zaczarowanego lasu. Prowadź Wispa przez 10 poziomów pełnych tajemnic. Darmowa gra przeglądarkowa na telefon i komputer.">
+<link rel="canonical" href="https://wispplay.com/">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wispplay.com/">
+<meta property="og:title" content="Wisp — Duch Lasu | Darmowa gra mobilna">
+<meta property="og:description" content="Przebudź magię zaczarowanego lasu. Prowadź Wispa przez 10 poziomów pełnych tajemnic.">
+<meta property="og:locale" content="pl_PL">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Wisp — Duch Lasu">
+<meta name="twitter:description" content="Darmowa gra przeglądarkowa. Przebudź magię zaczarowanego lasu.">
+
+<link rel="manifest" href="manifest.json">
+<!-- Ikona SVG inline jako favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23071407'/><ellipse cx='32' cy='30' rx='13' ry='15' fill='%2380ee60'/><circle cx='27' cy='26' r='3' fill='%230a200a'/><circle cx='37' cy='26' r='3' fill='%230a200a'/><circle cx='28' cy='25' r='1.2' fill='white'/><circle cx='38' cy='25' r='1.2' fill='white'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23071407'/><ellipse cx='32' cy='30' rx='13' ry='15' fill='%2380ee60'/></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Lora:ital,wght@0,400;1,300&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;touch-action:none;background:#000;}
+body{display:flex;justify-content:center;}
+#wrap{
+  width:480px;max-width:100vw;
+  height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+}
+#game-area{
+  position:relative;
+  width:100%;
+  flex:1;
+  overflow:hidden;
+}
+canvas{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  display:block;
+}
+#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
+#hud{position:absolute;top:0;left:0;right:0;padding:8px 10px;display:none;justify-content:space-between;align-items:center;gap:6px;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.3) 70%,transparent 100%);}
+#lives-row{display:flex;gap:3px;align-items:center;flex-shrink:0;}
+#hud-center{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+#score-display{font-family:'Uncial Antiqua',cursive;color:#c8f0a0;font-size:13px;text-shadow:0 0 10px rgba(120,255,80,.8),0 1px 3px rgba(0,0,0,.9);white-space:nowrap;}
+#level-display{font-family:'Uncial Antiqua',cursive;font-size:11px;text-shadow:0 0 8px currentColor,0 1px 3px rgba(0,0,0,.9);white-space:nowrap;}
+.heart{font-size:16px;transition:transform 0.3s;}
+.heart.lost{opacity:0.2;transform:scale(0.8);}
+#key-indicator{position:absolute;top:52px;left:16px;font-size:13px;font-family:'Lora',serif;color:#ffd780;opacity:0;transition:opacity 0.3s;text-shadow:0 0 8px rgba(255,200,80,.9);}
+#wind-indicator{position:absolute;top:52px;right:16px;font-size:13px;font-family:'Lora',serif;color:#a0d0ff;opacity:0;transition:opacity 0.3s;}
+
+/* Overlay */
+#overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;pointer-events:all;transition:opacity .4s;}
+#overlay h1{font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;line-height:1.4;margin-bottom:8px;}
+#overlay .sub{font-family:'Lora',serif;font-style:italic;font-size:15px;text-align:center;margin:6px 24px;line-height:1.6;}
+#overlay .big-score{font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;}
+.btn{margin-top:14px;padding:12px 32px;border-radius:30px;font-family:'Uncial Antiqua',cursive;font-size:13px;cursor:pointer;pointer-events:all;transition:all .2s;letter-spacing:.5px;border:none;}
+.btn-green{background:linear-gradient(135deg,#1e4a1e,#2d6e2d);color:#b8eea0;border:1px solid #4a8a3a;box-shadow:0 0 18px rgba(60,180,40,.3);}
+.btn-green:hover{background:linear-gradient(135deg,#2d6e2d,#3a8a3a);transform:scale(1.04);}
+.btn-gold{background:linear-gradient(135deg,#5a3a00,#8a5a00);color:#ffe080;border:1px solid #aa8020;box-shadow:0 0 18px rgba(200,150,0,.35);}
+.btn-gold:hover{background:linear-gradient(135deg,#7a5000,#aa7000);transform:scale(1.04);}
+.btn:active{transform:scale(.96)!important;}
+.shop-row{display:flex;gap:10px;margin-top:6px;align-items:flex-end;}
+.shop-item{padding:10px 18px;border-radius:12px;background:rgba(30,20,0,.7);border:1px solid #604010;color:#ffd070;font-family:'Lora',serif;font-size:13px;text-align:center;cursor:pointer;pointer-events:all;transition:all .2s;position:relative;}
+.shop-item:hover{background:rgba(80,50,0,.8);transform:scale(1.05);}
+.shop-item .price{font-size:18px;display:block;font-family:'Uncial Antiqua',cursive;}
+.shop-item.best{background:linear-gradient(160deg,rgba(60,40,0,.9),rgba(100,60,0,.9));border:2px solid #ffaa00;box-shadow:0 0 18px rgba(255,160,0,.4);transform:scale(1.08);}
+.shop-item.best:hover{transform:scale(1.13);}
+.shop-item.best .price{color:#ffe040;text-shadow:0 0 8px rgba(255,200,0,.8);}
+.best-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,#cc8800,#ffcc00,#cc8800);color:#3a1a00;font-size:9px;font-family:'Uncial Antiqua',cursive;padding:3px 10px;border-radius:20px;white-space:nowrap;letter-spacing:.5px;box-shadow:0 2px 8px rgba(255,180,0,.5);}
+
+/* Difficulty selector */
+.diff-row{display:flex;gap:10px;margin-top:14px;}
+.diff-btn{flex:1;padding:12px 8px;border-radius:14px;border:2px solid transparent;font-family:'Uncial Antiqua',cursive;font-size:12px;cursor:pointer;pointer-events:all;transition:all .2s;text-align:center;line-height:1.5;}
+.diff-btn .diff-icon{font-size:22px;display:block;margin-bottom:4px;}
+.diff-btn .diff-lives{font-size:10px;font-family:'Lora',serif;font-style:italic;opacity:.8;display:block;margin-top:3px;}
+.diff-btn.easy{background:rgba(20,60,20,.8);border-color:#4a8a3a;color:#a0e080;}
+.diff-btn.easy:hover,.diff-btn.easy.selected{background:rgba(40,100,30,.9);border-color:#80cc50;box-shadow:0 0 14px rgba(80,200,50,.4);}
+.diff-btn.medium{background:rgba(50,40,10,.8);border-color:#8a6a20;color:#e0b060;}
+.diff-btn.medium:hover,.diff-btn.medium.selected{background:rgba(90,65,10,.9);border-color:#ccaa30;box-shadow:0 0 14px rgba(200,160,40,.4);}
+.diff-btn.hard{background:rgba(60,10,10,.8);border-color:#8a2020;color:#e08080;}
+.diff-btn.hard:hover,.diff-btn.hard.selected{background:rgba(100,15,15,.9);border-color:#cc3030;box-shadow:0 0 14px rgba(220,50,50,.4);}
+.diff-btn.selected{transform:scale(1.05);}
+
+/* Help bubble */
+#help-bubble{
+  position:absolute;
+  inset:0;
+  background:rgba(4,14,4,.97);
+  border-radius:14px;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px 18px;
+  pointer-events:all;
+  animation:bubbleIn .25s ease;
+  z-index:10;
+}
+@keyframes bubbleIn{
+  from{opacity:0;transform:scale(.92);}
+  to{opacity:1;transform:scale(1);}
+}
+#help-close{
+  position:absolute;top:14px;right:16px;
+  color:#6a9a6a;font-size:20px;cursor:pointer;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid #3a6a3a;
+  transition:all .2s;
+}
+#help-close:hover{background:rgba(60,120,40,.3);color:#a0e080;}
+.help-title{
+  font-family:'Uncial Antiqua',cursive;
+  color:#b8f0a0;font-size:18px;
+  margin-bottom:16px;
+  text-shadow:0 0 10px rgba(100,220,80,.6);
+}
+.help-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:100%;
+  margin-bottom:14px;
+}
+.help-item{
+  display:flex;align-items:flex-start;gap:8px;
+  background:rgba(20,50,20,.6);
+  border:1px solid rgba(60,120,40,.3);
+  border-radius:10px;
+  padding:9px 10px;
+}
+.help-icon{font-size:20px;flex-shrink:0;line-height:1.2;}
+.help-item span:last-child{
+  font-family:'Lora',serif;font-size:11px;
+  color:#90c090;line-height:1.5;
+}
+.help-tip{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:12px;color:#7a9a60;
+  text-align:center;
+  border-top:1px solid rgba(60,120,40,.3);
+  padding-top:12px;width:100%;
+}
+
+
+#ctrl-bar{
+  width:100%;
+  height:110px;
+  background:linear-gradient(180deg,rgba(5,14,5,.92),rgba(2,8,2,.98));
+  border-top:1px solid rgba(60,120,40,.3);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  flex-shrink:0;
+}
+
+/* Joystick */
+#joystick-zone{position:relative;width:90px;height:90px;pointer-events:all;flex-shrink:0;}
+#joystick-base{position:absolute;inset:0;border-radius:50%;background:rgba(30,60,30,.5);border:2px solid rgba(120,200,100,.35);}
+#joystick-knob{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(160,255,130,.75),rgba(60,140,40,.55));border:2px solid rgba(150,230,120,.55);top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 2px 10px rgba(0,0,0,.4);transition:box-shadow .1s;}
+#joystick-knob.active{box-shadow:0 0 16px rgba(100,255,80,.55);}
+#joystick-arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 7px;pointer-events:none;opacity:.4;}
+#joystick-arrows span{color:#a0e080;font-size:15px;}
+
+/* Level transition overlay */
+#transition{
+  position:absolute;inset:0;background:#040a04;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  pointer-events:none;z-index:20;
+}
+#transition .tr-level{font-family:'Uncial Antiqua',cursive;font-size:13px;color:#4a8a4a;letter-spacing:3px;margin-bottom:8px;}
+#transition .tr-name{font-family:'Uncial Antiqua',cursive;font-size:22px;color:#b8f0a0;text-shadow:0 0 20px rgba(100,220,80,.8);text-align:center;margin-bottom:6px;}
+#transition .tr-sub{font-family:'Lora',serif;font-style:italic;font-size:13px;color:#5a8a5a;}
+@keyframes trFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes trFadeOut{from{opacity:1}to{opacity:0}}
+
+/* Achievement toast */
+#achievement-toast{
+  position:absolute;top:54px;left:50%;
+  transform:translateX(-50%) translateY(-80px);
+  background:linear-gradient(135deg,rgba(20,50,10,.97),rgba(40,80,20,.97));
+  border:1px solid rgba(100,200,60,.5);border-radius:14px;
+  padding:10px 16px;display:flex;align-items:center;gap:10px;
+  min-width:220px;max-width:300px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 20px rgba(80,200,40,.15);
+  pointer-events:none;
+  transition:transform .4s cubic-bezier(.175,.885,.32,1.275),opacity .3s;
+  opacity:0;z-index:30;
+}
+#achievement-toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.ach-icon{font-size:26px;flex-shrink:0;}
+.ach-text{flex:1;}
+.ach-label{font-family:'Uncial Antiqua',cursive;font-size:9px;color:#80c060;letter-spacing:1px;margin-bottom:2px;}
+.ach-name{font-family:'Lora',serif;font-size:13px;color:#c8f0a0;font-weight:bold;}
+.ach-desc{font-family:'Lora',serif;font-style:italic;font-size:10px;color:#7aaa60;margin-top:2px;}
+
+/* Achievements bubble */
+#ach-bubble{
+  position:absolute;inset:0;background:rgba(4,12,4,.97);
+  border-radius:14px;display:none;flex-direction:column;
+  align-items:center;padding:18px 16px;
+  pointer-events:all;overflow-y:auto;
+  animation:bubbleIn .25s ease;z-index:10;
+}
+#ach-bubble h2{font-family:'Uncial Antiqua',cursive;color:#c8f0a0;font-size:20px;margin-bottom:4px;}
+#ach-close{position:absolute;top:14px;right:16px;color:#6a8a6a;font-size:20px;cursor:pointer;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid #3a5a3a;transition:all .2s;}
+#ach-close:hover{background:rgba(60,100,40,.3);color:#a0d080;}
+.ach-row{display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 12px;border-radius:10px;margin-bottom:6px;
+  background:rgba(20,40,15,.7);border:1px solid rgba(50,90,30,.3);}
+.ach-row.unlocked{border-color:rgba(100,200,50,.4);background:rgba(30,70,15,.8);}
+.ach-row.locked{opacity:.4;filter:grayscale(.8);}
+.ach-row-icon{font-size:22px;width:30px;text-align:center;flex-shrink:0;}
+.ach-row-name{font-family:'Lora',serif;font-size:13px;color:#c0e0a0;font-weight:bold;}
+.ach-row-desc{font-family:'Lora',serif;font-style:italic;font-size:11px;color:#6a9060;margin-top:2px;}
+.ach-row-check{font-size:16px;flex-shrink:0;}
+
+/* Jump button */
+#jump-btn{width:74px;height:74px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 35% 35%,rgba(120,220,255,.55),rgba(30,80,140,.45));
+  border:2px solid rgba(100,180,255,.45);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:rgba(180,230,255,.85);
+  pointer-events:all;user-select:none;-webkit-user-select:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s;}
+#jump-btn.active{transform:scale(.91);box-shadow:0 0 18px rgba(100,200,255,.55);}
+
+/* HUD buttons: pause + mute — w pasku HUD */
+#hud-btns{display:flex;gap:5px;align-items:center;pointer-events:all;}
+.hud-btn{width:32px;height:32px;border-radius:50%;background:rgba(0,20,0,.85);border:1px solid rgba(80,160,60,.6);
+  display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;
+  transition:all .15s;color:rgba(200,255,180,.95);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.7);}
+.hud-btn:hover{background:rgba(40,90,30,.8);transform:scale(1.1);}
+
+/* Pause screen */
+#pause-screen{position:absolute;inset:0;background:rgba(4,12,4,.94);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:all;border-radius:0;}
+#pause-screen h2{font-family:'Uncial Antiqua',cursive;color:#b8f0a0;font-size:26px;margin-bottom:20px;
+  text-shadow:0 0 14px rgba(100,220,80,.7);}
+
+/* Free life timer */
+#free-life-bar{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  font-family:'Lora',serif;font-size:10px;color:#7aaa60;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .3s;}
+
+/* Heart break animation */
+@keyframes heartBreak{
+  0%{transform:scale(1);}
+  30%{transform:scale(1.5);filter:brightness(2);}
+  60%{transform:scale(0.6) rotate(20deg);opacity:.5;}
+  100%{transform:scale(0.8);opacity:.2;}
+}
+.heart.breaking{animation:heartBreak .5s ease forwards;}
+
+/* Ranking bubble */
+#ranking-bubble{
+  position:absolute;inset:0;
+  background:rgba(4,10,20,.97);
+  border-radius:14px;
+  display:none;flex-direction:column;
+  align-items:center;padding:18px 16px;
+  pointer-events:all;overflow-y:auto;
+  animation:bubbleIn .25s ease;z-index:10;
+}
+#ranking-bubble h2{font-family:'Uncial Antiqua',cursive;color:#ffd080;font-size:20px;
+  margin-bottom:4px;text-shadow:0 0 10px rgba(255,200,80,.6);}
+#ranking-bubble .rank-sub{font-family:'Lora',serif;font-size:11px;color:#7a7a50;margin-bottom:14px;font-style:italic;}
+#ranking-close{position:absolute;top:14px;right:16px;color:#6a7a6a;font-size:20px;cursor:pointer;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid #3a5a3a;transition:all .2s;}
+#ranking-close:hover{background:rgba(60,100,40,.3);color:#a0d080;}
+.rank-row{display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 12px;border-radius:10px;margin-bottom:6px;
+  background:rgba(20,35,20,.7);border:1px solid rgba(50,90,40,.3);transition:all .2s;}
+.rank-row.me{background:rgba(40,80,20,.8);border-color:rgba(120,200,60,.5);
+  box-shadow:0 0 12px rgba(80,180,40,.2);}
+.rank-pos{font-family:'Uncial Antiqua',cursive;font-size:16px;width:28px;text-align:center;flex-shrink:0;}
+.rank-medal{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.rank-name{flex:1;font-family:'Lora',serif;font-size:13px;color:#c0d0b0;}
+.rank-score{font-family:'Uncial Antiqua',cursive;font-size:13px;color:#ffd080;}
+.rank-diff{font-size:10px;font-family:'Lora',serif;color:#7a9a60;margin-left:4px;}
+.rank-empty{font-family:'Lora',serif;font-style:italic;color:#4a6a4a;font-size:13px;margin-top:20px;}
+.rank-you-pos{font-family:'Uncial Antiqua',cursive;font-size:13px;color:#a0d060;
+  margin-top:10px;padding:8px 16px;background:rgba(40,80,20,.6);
+  border-radius:20px;border:1px solid rgba(80,160,40,.4);}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="game-area">
+    <canvas id="c"></canvas>
+    <div id="ui">
+      <div id="hud">
+        <div id="lives-row"></div>
+        <div id="hud-center">
+          <div id="score-display">⭐ 0</div>
+          <div id="level-display">POZIOM 1</div>
+        </div>
+        <div id="hud-btns">
+          <div class="hud-btn" id="user-badge" style="display:none;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;"></div>
+          <div class="hud-btn" id="lang-btn" onclick="toggleLang()" title="Language">🇬🇧 EN</div>
+          <div class="hud-btn" id="btn-mute" onclick="toggleMute()" title="Wycisz">🔊</div>
+          <div class="hud-btn" id="btn-pause" onclick="togglePause()" title="Pauza">⏸</div>
+          <div class="hud-btn" onclick="showRanking()" title="Ranking">🏆</div>
+        </div>
+      </div>
+      <div id="free-life-bar"></div>
+
+      <!-- Pauza -->
+      <div id="pause-screen">
+        <h2 id="pause-title">⏸ Pauza</h2>
+        <button class="btn btn-green" id="pause-resume" onclick="togglePause()">▶ Wróć do gry</button>
+        <button class="btn" onclick="showRanking()" style="margin-top:10px;background:rgba(40,30,0,.8);color:#ffd080;border:1px solid #806020;padding:10px 28px;" id="pause-ranking">🏆 Ranking</button>
+        <button class="btn" onclick="showAchievements()" style="margin-top:10px;background:rgba(10,30,40,.8);color:#80d0ff;border:1px solid #206080;padding:10px 28px;" id="pause-badges">🏅 Odznaki</button>
+        <button class="btn" onclick="goToMainMenu()" style="margin-top:10px;background:rgba(40,10,10,.8);color:#e08080;border:1px solid #802020;padding:10px 28px;font-size:11px;" id="pause-menu">↩ Menu główne</button>
+      </div>
+
+      <!-- Animacja przejścia -->
+      <div id="transition">
+        <div class="tr-level" id="tr-level-num"></div>
+        <div class="tr-name" id="tr-name"></div>
+        <div class="tr-sub" id="tr-sub"></div>
+      </div>
+
+      <!-- Achievement toast -->
+      <div id="achievement-toast">
+        <div class="ach-icon" id="ach-toast-icon">🏅</div>
+        <div class="ach-text">
+          <div class="ach-label">NOWA ODZNAKA!</div>
+          <div class="ach-name" id="ach-toast-name"></div>
+          <div class="ach-desc" id="ach-toast-desc"></div>
+        </div>
+      </div>
+
+      <!-- Odznaki bubble -->
+      <div id="ach-bubble">
+        <div id="ach-close" onclick="hideAchievements()">✕</div>
+        <h2>🏅 Odznaki</h2>
+        <div class="rank-sub" style="color:#5a8a5a;margin-bottom:14px;">Twoje osiągnięcia w grze</div>
+        <div id="ach-list"></div>
+      </div>
+
+      <!-- Ranking -->
+      <div id="ranking-bubble">
+        <div id="ranking-close" onclick="hideRanking()">✕</div>
+        <h2>🏆 Ranking</h2>
+        <div class="rank-sub">Lokalne wyniki — Top 10</div>
+        <div id="ranking-list"></div>
+        <div id="ranking-mypos"></div>
+      </div>
+      <div id="key-indicator">🗝️ Klucz zebrany!</div>
+      <div id="wind-indicator"></div>
+      <div id="overlay" style="background:rgba(4,10,4,.92);">
+        <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
+        <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
+        <div class="sub" id="menu-choosediff" style="color:#5a8a5a;margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
+        <div class="diff-row">
+          <div class="diff-btn easy" id="diff-easy" onclick="selectDiff('easy')">
+            <span class="diff-icon">😊</span>Łatwy
+            <span class="diff-lives">5 żyć na start</span>
+          </div>
+          <div class="diff-btn medium selected" id="diff-medium" onclick="selectDiff('medium')">
+            <span class="diff-icon">😐</span>Średni
+            <span class="diff-lives">3 życia na start</span>
+          </div>
+          <div class="diff-btn hard" id="diff-hard" onclick="selectDiff('hard')">
+            <span class="diff-icon">💀</span>Trudny
+            <span class="diff-lives">1 życie na start</span>
+          </div>
+        </div>
+        <button class="btn btn-green" id="start-btn" onclick="startGame()" style="margin-top:16px;">▶ ZAGRAJ</button>
+        <div id="continue-wrap"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn" id="btn-help" onclick="showHelp()" style="background:rgba(20,40,60,.7);color:#90c0e0;border:1px solid #406080;padding:8px 12px;font-size:11px;">❓ Instrukcja</button>
+          <button class="btn" id="btn-ranking" onclick="showRanking()" style="background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:8px 12px;font-size:11px;">🏆 Ranking</button>
+          <button class="btn" id="btn-badges" onclick="showAchievements()" style="background:rgba(10,30,40,.7);color:#80d0ff;border:1px solid #206080;padding:8px 12px;font-size:11px;">🏅 Odznaki</button>
+        </div>
+        <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#3a6a3a;">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
+        <!-- AUTH PANEL -->
+        <div id="auth-panel" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- Ekran wyników (win/dead/finish) — OSOBNY od menu głównego -->
+      <div id="result-screen" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;border-radius:14px;z-index:15;"></div>
+
+      <!-- Chmurka z instrukcją -->
+      <div id="help-bubble">
+        <div id="help-close" onclick="hideHelp()">✕</div>
+        <div class="help-title">📖 Jak grać?</div>
+        <div class="help-grid">
+          <div class="help-item"><span class="help-icon">🕹️</span><span>Joystick (lewy dół)<br>lub ← → — ruch</span></div>
+          <div class="help-item"><span class="help-icon">⬆️</span><span>Przycisk (prawy dół)<br>lub Spacja — skok</span></div>
+          <div class="help-item"><span class="help-icon">💎</span><span>Zbieraj świetliki<br>+100 pkt każdy</span></div>
+          <div class="help-item"><span class="help-icon">🗝️</span><span>Klucz otwiera<br>portal wyjścia</span></div>
+          <div class="help-item"><span class="help-icon">👾</span><span>Skocz na wroga<br>by go pokonać</span></div>
+          <div class="help-item"><span class="help-icon">🔴</span><span>Unikaj kolców<br>i wrogów z boku</span></div>
+          <div class="help-item"><span class="help-icon">✦</span><span>Dotrzyj do portalu<br>— koniec poziomu!</span></div>
+          <div class="help-item"><span class="help-icon">❤️</span><span>Tracisz życie<br>przy każdej śmierci</span></div>
+        </div>
+        <div class="help-tip">💡 Im wyższy poziom, tym silniejszy wiatr i szybsi wrogowie!</div>
+      </div>
+    </div>
+  </div>
+  <div id="ctrl-bar">
+    <div id="joystick-zone">
+      <div id="joystick-base"></div>
+      <div id="joystick-arrows"><span>◀</span><span>▶</span></div>
+      <div id="joystick-knob"></div>
+    </div>
+    <div id="jump-btn">↑</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  WISP — Duch Lasu  |  v2.1  |  10 levels + AUDIO
+// ═══════════════════════════════════════════════
+
+// ── Audio Engine (Web Audio API — zero external files) ──
+const Audio = (() => {
+  let ctx = null;
+  let musicNodes = [];
+  let musicGain = null;
+  let currentTheme = -1;
+  let musicScheduled = false;
+  let masterGain = null;
+
+  function init() {
+    if (ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 0.7;
+    masterGain.connect(ctx.destination);
+    musicGain = ctx.createGain();
+    musicGain.gain.value = 0.22;
+    musicGain.connect(masterGain);
+  }
+
+  // ── Utility: play a single tone ──
+  function tone(freq, type, vol, attack, sustain, release, delay=0, dest=null) {
+    if (!ctx) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, ctx.currentTime + delay);
+    g.gain.linearRampToValueAtTime(vol, ctx.currentTime + delay + attack);
+    g.gain.setValueAtTime(vol, ctx.currentTime + delay + attack + sustain);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + attack + sustain + release);
+    o.connect(g);
+    g.connect(dest || masterGain);
+    o.start(ctx.currentTime + delay);
+    o.stop(ctx.currentTime + delay + attack + sustain + release + 0.05);
+    return { o, g };
+  }
+
+  // ── Noise burst (for effects) ──
+  function noise(vol, duration, freq, q, delay=0) {
+    if (!ctx) return;
+    const bufSize = ctx.sampleRate * duration;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'bandpass';
+    filt.frequency.value = freq;
+    filt.Q.value = q;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(masterGain);
+    src.start(ctx.currentTime + delay);
+    src.stop(ctx.currentTime + delay + duration + 0.05);
+  }
+
+  // ── SFX ──────────────────────────────────────
+  function sfxJump() {
+    tone(220, 'sine', 0.18, 0.01, 0.05, 0.12);
+    tone(440, 'sine', 0.10, 0.01, 0.02, 0.10, 0.01);
+    tone(660, 'sine', 0.06, 0.01, 0.01, 0.08, 0.03);
+  }
+
+  function sfxGem() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((f, i) => tone(f, 'sine', 0.14, 0.01, 0.04, 0.14, i * 0.06));
+  }
+
+  function sfxKey() {
+    const notes = [392, 494, 587, 740, 988];
+    notes.forEach((f, i) => tone(f, 'triangle', 0.15, 0.01, 0.06, 0.18, i * 0.07));
+    tone(1976, 'sine', 0.08, 0.01, 0.1, 0.3, 0.35);
+  }
+
+  function sfxDie() {
+    // Descending wail
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(440, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.7);
+    g.gain.setValueAtTime(0.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    o.connect(g); g.connect(masterGain);
+    o.start(); o.stop(ctx.currentTime + 0.85);
+    noise(0.15, 0.4, 200, 0.5, 0.05);
+  }
+
+  function sfxEnemyKill() {
+    tone(880, 'square', 0.12, 0.005, 0.02, 0.08);
+    tone(660, 'square', 0.10, 0.005, 0.02, 0.08, 0.04);
+    tone(440, 'sine',   0.08, 0.005, 0.02, 0.12, 0.08);
+    noise(0.1, 0.15, 400, 1, 0);
+  }
+
+  function sfxLevelComplete() {
+    // Triumphant fanfare
+    const melody = [
+      [523,0],[659,0.12],[784,0.24],[1047,0.36],
+      [784,0.52],[880,0.64],[1047,0.76],[1319,0.90],
+      [1047,1.10],[1319,1.25],[1568,1.40]
+    ];
+    melody.forEach(([f, t]) => tone(f, 'sine', 0.18, 0.02, 0.08, 0.15, t));
+    // Harmony
+    const harm = [
+      [330,0],[415,0.12],[494,0.24],[659,0.36],
+      [659,0.90],[830,1.10],[1047,1.40]
+    ];
+    harm.forEach(([f, t]) => tone(f, 'triangle', 0.09, 0.02, 0.08, 0.2, t));
+    // Bass
+    [130, 165, 196, 261].forEach((f, i) => tone(f, 'sine', 0.12, 0.02, 0.1, 0.2, i * 0.36));
+  }
+
+  function sfxBuyLives() {
+    // Magical chime + coin sound
+    const chime = [1047, 1319, 1568, 2093, 1568, 1319, 1047];
+    chime.forEach((f, i) => tone(f, 'sine', 0.15, 0.01, 0.05, 0.2, i * 0.08));
+    // Coin jingle
+    [1760, 2093, 2637].forEach((f, i) => tone(f, 'triangle', 0.10, 0.005, 0.03, 0.15, 0.6 + i * 0.07));
+    noise(0.08, 0.1, 3000, 2, 0.6);
+  }
+
+  function sfxLand() {
+    noise(0.06, 0.08, 150, 0.8);
+    tone(80, 'sine', 0.08, 0.005, 0.02, 0.06);
+  }
+
+  // ── Ambient music ────────────────────────────
+  // Different generative music per theme group
+  // Themes: 0-2=forest, 3-4=dusk, 5-6=night, 7-8=ice, 9=finale
+
+  function stopMusic() {
+    musicNodes.forEach(n => { try { n.stop(); } catch(e){} });
+    musicNodes = [];
+    musicScheduled = false;
+    currentTheme = -1;
+  }
+
+  function playAmbientLoop(themeIdx) {
+    if (!ctx) return;
+    if (currentTheme === themeIdx && musicScheduled) return;
+    stopMusic();
+    currentTheme = themeIdx;
+    musicScheduled = true;
+
+    const g = themeIdx;
+
+    if (g <= 2) scheduleForest();
+    else if (g <= 4) scheduleDusk();
+    else if (g <= 6) scheduleNight();
+    else if (g <= 8) scheduleIce();
+    else scheduleFinale();
+  }
+
+  // FOREST: gentle arpeggios + bird-like chirps
+  function scheduleForest() {
+    const scale = [261, 294, 330, 349, 392, 440, 494, 523];
+    let t = ctx.currentTime + 0.1;
+    const loop = () => {
+      if (currentTheme > 2) return;
+      // Pad chord
+      [261, 330, 392].forEach(f => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.06, t + 0.3);
+        g.gain.setValueAtTime(0.06, t + 1.8);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 2.4);
+        o.connect(g); g.connect(musicGain);
+        o.start(t); o.stop(t + 2.5);
+        musicNodes.push(o);
+      });
+      // Arpeggio
+      for (let i = 0; i < 8; i++) {
+        const f = scale[Math.floor(Math.random() * scale.length)] * (Math.random() > 0.7 ? 2 : 1);
+        const o = ctx.createOscillator();
+        const gn = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = f;
+        const st = t + i * 0.28 + Math.random() * 0.05;
+        gn.gain.setValueAtTime(0, st);
+        gn.gain.linearRampToValueAtTime(0.04, st + 0.04);
+        gn.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
+        o.connect(gn); gn.connect(musicGain);
+        o.start(st); o.stop(st + 0.3);
+        musicNodes.push(o);
+      }
+      // Bird chirp
+      if (Math.random() > 0.4) {
+        const f = 800 + Math.random() * 600;
+        const o = ctx.createOscillator();
+        const gn = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t + 1.5);
+        o.frequency.exponentialRampToValueAtTime(f * 1.3, t + 1.65);
+        o.frequency.exponentialRampToValueAtTime(f, t + 1.8);
+        gn.gain.setValueAtTime(0, t + 1.5);
+        gn.gain.linearRampToValueAtTime(0.05, t + 1.55);
+        gn.gain.exponentialRampToValueAtTime(0.001, t + 1.85);
+        o.connect(gn); gn.connect(musicGain);
+        o.start(t + 1.5); o.stop(t + 1.9);
+        musicNodes.push(o);
+      }
+      t += 2.4;
+      setTimeout(() => { if (currentTheme <= 2 && musicScheduled) loop(); }, 2200);
+    };
+    loop();
+  }
+
+  // DUSK: slower, minor, eerie pads
+  function scheduleDusk() {
+    const scale = [233, 277, 311, 370, 415, 466];
+    let t = ctx.currentTime + 0.1;
+    const loop = () => {
+      if (currentTheme < 3 || currentTheme > 4) return;
+      [233, 277, 349].forEach(f => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.055, t + 0.6);
+        g.gain.setValueAtTime(0.055, t + 2.4);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 3.2);
+        o.connect(g); g.connect(musicGain);
+        o.start(t); o.stop(t + 3.3);
+        musicNodes.push(o);
+      });
+      for (let i = 0; i < 5; i++) {
+        const f = scale[Math.floor(Math.random() * scale.length)] * (Math.random() > 0.5 ? 2 : 1);
+        const o = ctx.createOscillator();
+        const gn = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = f;
+        const st = t + i * 0.5 + Math.random() * 0.1;
+        gn.gain.setValueAtTime(0, st);
+        gn.gain.linearRampToValueAtTime(0.038, st + 0.1);
+        gn.gain.exponentialRampToValueAtTime(0.001, st + 0.4);
+        o.connect(gn); gn.connect(musicGain);
+        o.start(st); o.stop(st + 0.5);
+        musicNodes.push(o);
+      }
+      t += 3.0;
+      setTimeout(() => { if (currentTheme >= 3 && currentTheme <= 4 && musicScheduled) loop(); }, 2800);
+    };
+    loop();
+  }
+
+  // NIGHT/STORM: low drones, tremolo, tension
+  function scheduleNight() {
+    let t = ctx.currentTime + 0.1;
+    const loop = () => {
+      if (currentTheme < 5 || currentTheme > 6) return;
+      // Low drone
+      [55, 82, 110].forEach((f, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sawtooth';
+        // Tremolo via LFO
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        lfo.frequency.value = 4 + i;
+        lfoG.gain.value = 0.012;
+        lfo.connect(lfoG); lfoG.connect(g.gain);
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.04, t);
+        g.gain.setValueAtTime(0.04, t + 3.5);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 4.2);
+        o.connect(g); g.connect(musicGain);
+        o.start(t); lfo.start(t);
+        o.stop(t + 4.3); lfo.stop(t + 4.3);
+        musicNodes.push(o, lfo);
+      });
+      // Dissonant hits
+      [220, 233, 246].forEach((f, i) => {
+        const st = t + 1.5 + i * 0.6;
+        tone(f, 'square', 0.03, 0.01, 0.1, 0.4, st - ctx.currentTime, musicGain);
+      });
+      t += 4.0;
+      setTimeout(() => { if (currentTheme >= 5 && currentTheme <= 6 && musicScheduled) loop(); }, 3800);
+    };
+    loop();
+  }
+
+  // ICE: crystalline high notes, sparse
+  function scheduleIce() {
+    const scale = [523, 622, 698, 831, 1047, 1245];
+    let t = ctx.currentTime + 0.1;
+    const loop = () => {
+      if (currentTheme < 7 || currentTheme > 8) return;
+      // Cold pad
+      [130, 165, 196].forEach(f => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.045, t + 1.0);
+        g.gain.setValueAtTime(0.045, t + 2.5);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 4.0);
+        o.connect(g); g.connect(musicGain);
+        o.start(t); o.stop(t + 4.1);
+        musicNodes.push(o);
+      });
+      // Crystal pings
+      for (let i = 0; i < 4; i++) {
+        const f = scale[Math.floor(Math.random() * scale.length)];
+        const st = t + i * 0.9 + Math.random() * 0.3;
+        const o = ctx.createOscillator();
+        const gn = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        gn.gain.setValueAtTime(0.07, st);
+        gn.gain.exponentialRampToValueAtTime(0.001, st + 1.2);
+        o.connect(gn); gn.connect(musicGain);
+        o.start(st); o.stop(st + 1.3);
+        musicNodes.push(o);
+      }
+      t += 3.8;
+      setTimeout(() => { if (currentTheme >= 7 && currentTheme <= 8 && musicScheduled) loop(); }, 3600);
+    };
+    loop();
+  }
+
+  // FINALE: intense, dark, dramatic
+  function scheduleFinale() {
+    let t = ctx.currentTime + 0.1;
+    const loop = () => {
+      if (currentTheme !== 9) return;
+      // Heavy bass pulse
+      [55, 55, 41, 49].forEach((f, i) => {
+        const st = t + i * 0.5;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.09, st);
+        g.gain.exponentialRampToValueAtTime(0.001, st + 0.45);
+        o.connect(g); g.connect(musicGain);
+        o.start(st); o.stop(st + 0.5);
+        musicNodes.push(o);
+      });
+      // High tension strings
+      [440, 466, 415, 392].forEach((f, i) => {
+        const st = t + i * 0.5;
+        tone(f, 'sawtooth', 0.04, 0.01, 0.3, 0.15, st - ctx.currentTime, musicGain);
+      });
+      // Pulse noise
+      noise(0.04, 0.1, 300, 1, t - ctx.currentTime);
+      noise(0.04, 0.1, 300, 1, t + 1.0 - ctx.currentTime);
+      noise(0.04, 0.1, 300, 1, t + 1.5 - ctx.currentTime);
+      t += 2.0;
+      setTimeout(() => { if (currentTheme === 9 && musicScheduled) loop(); }, 1900);
+    };
+    loop();
+  }
+
+  function suspendAudio(){ if(ctx && ctx.state==='running') ctx.suspend(); }
+  function resumeAudio(){  if(ctx && ctx.state==='suspended') ctx.resume(); }
+
+  return { init, sfxJump, sfxGem, sfxKey, sfxDie, sfxEnemyKill, sfxLevelComplete, sfxBuyLives, sfxLand, stopMusic, playAmbientLoop,
+    setMasterVol: (v) => { if(masterGain) masterGain.gain.value = v; },
+    suspend: suspendAudio,
+    resume:  resumeAudio,
+  };
+})();
+
+const C = document.getElementById('c');
+const ctx = C.getContext('2d');
+let W = 480, H = 620;
+
+const CTRL_BAR_H = 110;
+function resizeCanvas(){
+  W = Math.floor(C.parentElement.clientWidth) || 480;
+  H = Math.floor(window.innerHeight - CTRL_BAR_H);
+  C.width  = W;
+  C.height = H;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ── Difficulty ───────────────────────────────────
+const DIFF_CONFIG = {
+  easy:   { lives:5, gravMult:0.82, spdMult:0.80, windMult:0.50, enemySpdMult:0.70, label:'😊 Łatwy' },
+  medium: { lives:3, gravMult:1.00, spdMult:1.00, windMult:1.00, enemySpdMult:1.00, label:'😐 Średni' },
+  hard:   { lives:1, gravMult:1.22, spdMult:1.20, windMult:1.50, enemySpdMult:1.35, label:'💀 Trudny' },
+};
+let DIFF = 'medium';
+
+function selectDiff(d){
+  DIFF = d;
+  ['easy','medium','hard'].forEach(x=>{
+    document.getElementById('diff-'+x).classList.toggle('selected', x===d);
+  });
+  saveProgress();
+}
+
+// ── localStorage ─────────────────────────────────
+const SAVE_KEY = 'wisp_save';
+
+function saveProgress(){
+  const data = {
+    diff:     DIFF,
+    level:    GS.level,
+    score:    GS.score,
+    lives:    GS.lives,
+    savedAt:  Date.now(),
+  };
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e){}
+}
+
+function loadProgress(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+
+function clearProgress(){
+  try { localStorage.removeItem(SAVE_KEY); } catch(e){}
+}
+
+function initMenu(){
+  const save = loadProgress();
+  if(save){
+    // Przywróć wybrany poziom trudności
+    DIFF = save.diff || 'medium';
+    selectDiff(DIFF);
+    // Pokaż przycisk "Kontynuuj" jeśli gracz ma zapisany postęp
+    if(save.level > 1 || save.score > 0){
+      const wrap = document.getElementById('continue-wrap');
+      wrap.innerHTML = `
+        <button class="btn btn-gold" onclick="continueGame()" style="margin-top:6px;">
+          ${LANG.continueBtn(save.level, save.score)}
+        </button>
+        <div class="sub" style="font-size:10px;color:#6a5a30;margin-top:4px;cursor:pointer;" onclick="clearSave()">
+          ${LANG.clearSave}
+        </div>`;
+    }
+  }
+}
+
+window.clearSave = function(){
+  clearProgress();
+  document.getElementById('continue-wrap').innerHTML='';
+};
+
+window.continueGame = function(){
+  const save = loadProgress();
+  if(!save) return;
+  Audio.init();
+  DIFF = save.diff || 'medium';
+  GS = { state:'playing', lives:save.lives, score:save.score, level:save.level, totalScore:save.score };
+  applyDifficulty();
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  hideResultScreen();
+  loadLevel(GS.level);
+  updateHUD();
+};
+
+function applyDifficulty(){
+  const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
+  // Nadpisz globalne stałe fizyki
+  window._GRAV = 0.52 * d.gravMult;
+  window._SPD  = 3.8  * d.spdMult;
+  window._WIND_MULT    = d.windMult;
+  window._ENEMY_MULT   = d.enemySpdMult;
+}
+
+// ── i18n — Internacjonalizacja ───────────────────
+const LANGS = {
+  pl: {
+    title:        'Wisp',
+    subtitle:     'Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.',
+    chooseDiff:   'Wybierz poziom trudności:',
+    easy:         'Łatwy',
+    medium:       'Średni',
+    hard:         'Trudny',
+    livesEasy:    '5 żyć na start',
+    livesMedium:  '3 życia na start',
+    livesHard:    '1 życie na start',
+    play:         '▶ ZAGRAJ',
+    continueBtn:  (lvl,sc) => `▶ Kontynuuj (Poziom ${lvl}, ⭐${sc})`,
+    clearSave:    '🗑 Usuń zapis i zacznij od nowa',
+    help:         '❓ Instrukcja',
+    ranking:      '🏆 Ranking',
+    badges:       '🏅 Odznaki',
+    controls:     'Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie',
+    helpTitle:    '📖 Jak grać?',
+    helpItems: [
+      ['🕹️','Joystick (lewy dół)<br>lub ← → — ruch'],
+      ['⬆️','Przycisk (prawy dół)<br>lub Spacja — skok'],
+      ['💎','Zbieraj świetliki<br>+100 pkt każdy'],
+      ['🗝️','Klucz otwiera<br>portal wyjścia'],
+      ['👾','Skocz na wroga<br>by go pokonać'],
+      ['🔴','Unikaj kolców<br>i wrogów z boku'],
+      ['✦','Dotrzyj do portalu<br>— koniec poziomu!'],
+      ['❤️','Tracisz życie<br>przy każdej śmierci'],
+    ],
+    helpTip:      '💡 Im wyższy poziom, tym silniejszy wiatr i szybsi wrogowie!',
+    keyCollected: '🗝️ Klucz zebrany!',
+    windLight:    '💨 Lekki wiatr',
+    windStrong:   '🌬️ Silny wiatr',
+    windIce:      '❄️ Lodowa burza',
+    pauseTitle:   '⏸ Pauza',
+    resume:       '▶ Wróć do gry',
+    mainMenu:     '↩ Menu główne',
+    dead:         '💀 Upadłeś...',
+    deadSub:      (lives) => `Wisp rozpłynął się w ciemności.<br>${lives>0?'Masz jeszcze '+lives+' ❤️ prób.':'Skończyły się życia...'}`,
+    retry:        '↺ Spróbuj ponownie',
+    levelDone:    (n) => `✨ Poziom ${n}<br>Ukończony!`,
+    nextLevel:    '▶ Następny Poziom',
+    seeRanking:   '🏆 Zobacz ranking',
+    finish:       '🌿 Las Ocalony!',
+    finishSub:    'Przywróciłeś światło do wszystkich zakątków<br>zaczarowanego lasu. Jesteś legendą.',
+    playAgain:    '▶ Zagraj Ponownie',
+    shopSub:      'Zakup dodatkowe życia, aby kontynuować!',
+    fromScratch:  'Od nowa (bez zakupu)',
+    rankTitle:    '🏆 Ranking',
+    rankSub:      'Lokalne wyniki — Top 10',
+    rankEmpty:    'Brak wyników — zagraj i zostaw ślad w lesie! 🌿',
+    rankYou:      (pos,total) => `Twoja pozycja: #${pos} z ${total} graczy`,
+    rankPlay:     'Zagraj aby trafić do rankingu!',
+    achTitle:     '🏅 Odznaki',
+    achSub:       'Twoje osiągnięcia w grze',
+    newBadge:     'NOWA ODZNAKA!',
+    freeLifeSoon: (h,m) => `🎁 Darmowe życie za ${h>0?h+'h ':''}${m}min`,
+    freeLifeGet:  '🎁 Otrzymałeś darmowe życie! ❤️',
+    yourPos:      (n) => `🏆 Pozycja #${n} w rankingu!`,
+    diffLabel:    { easy:'😊 Łatwy', medium:'😐 Średni', hard:'💀 Trudny' },
+    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności'],
+    levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.'],
+    achievements: [
+      {name:'Pierwszy Świetlik',    desc:'Zbierz swój pierwszy świetlik'},
+      {name:'Kolekcjoner Blasku',   desc:'Zbierz łącznie 50 świetlików'},
+      {name:'Perfekcja!',           desc:'Zbierz wszystkie świetliki na poziomie 1'},
+      {name:'Nietykalny',           desc:'Ukończ poziom bez utraty życia'},
+      {name:'Łowca Duchów',         desc:'Pokonaj pierwszego wroga'},
+      {name:'Pogromca Ciemności',   desc:'Pokonaj 10 wrogów'},
+      {name:'W Głąb Lasu',          desc:'Dotrzyj do poziomu 5'},
+      {name:'Legenda Lasu',         desc:'Ukończ wszystkie 10 poziomów'},
+      {name:'Tysiącznik',           desc:'Zdobądź 1000 punktów'},
+      {name:'Mistrz Lasu',          desc:'Zdobądź 5000 punktów'},
+      {name:'Strażnik Kluczy',      desc:'Zbierz klucz i otwórz portal'},
+      {name:'Wspierający',          desc:'Zakup dodatkowe życia'},
+    ],
+  },
+  en: {
+    title:        'Wisp',
+    subtitle:     'Spirit of the lost forest.<br>Awaken the magic — save your world.',
+    chooseDiff:   'Choose difficulty:',
+    easy:         'Easy',
+    medium:       'Medium',
+    hard:         'Hard',
+    livesEasy:    '5 lives to start',
+    livesMedium:  '3 lives to start',
+    livesHard:    '1 life to start',
+    play:         '▶ PLAY',
+    continueBtn:  (lvl,sc) => `▶ Continue (Level ${lvl}, ⭐${sc})`,
+    clearSave:    '🗑 Delete save & start over',
+    help:         '❓ How to play',
+    ranking:      '🏆 Ranking',
+    badges:       '🏅 Badges',
+    controls:     'Arrow keys + Space &nbsp;|&nbsp; On-screen joystick',
+    helpTitle:    '📖 How to play?',
+    helpItems: [
+      ['🕹️','Joystick (bottom left)<br>or ← → — move'],
+      ['⬆️','Button (bottom right)<br>or Space — jump'],
+      ['💎','Collect wisps<br>+100 pts each'],
+      ['🗝️','Key unlocks<br>the exit portal'],
+      ['👾','Jump on enemies<br>to defeat them'],
+      ['🔴','Avoid spikes<br>and enemies from the side'],
+      ['✦','Reach the portal<br>— level complete!'],
+      ['❤️','You lose a life<br>on each death'],
+    ],
+    helpTip:      '💡 Higher levels = stronger wind & faster enemies!',
+    keyCollected: '🗝️ Key collected!',
+    windLight:    '💨 Light wind',
+    windStrong:   '🌬️ Strong wind',
+    windIce:      '❄️ Ice storm',
+    pauseTitle:   '⏸ Paused',
+    resume:       '▶ Resume',
+    mainMenu:     '↩ Main Menu',
+    dead:         '💀 You fell...',
+    deadSub:      (lives) => `Wisp faded into the darkness.<br>${lives>0?'You have '+lives+' ❤️ left.':'No more lives...'}`,
+    retry:        '↺ Try Again',
+    levelDone:    (n) => `✨ Level ${n}<br>Complete!`,
+    nextLevel:    '▶ Next Level',
+    seeRanking:   '🏆 See ranking',
+    finish:       '🌿 Forest Saved!',
+    finishSub:    'You restored light to every corner<br>of the enchanted forest. You are a legend.',
+    playAgain:    '▶ Play Again',
+    shopSub:      'Buy extra lives to keep going!',
+    fromScratch:  'Start over (no purchase)',
+    rankTitle:    '🏆 Ranking',
+    rankSub:      'Local scores — Top 10',
+    rankEmpty:    'No scores yet — play and leave your mark! 🌿',
+    rankYou:      (pos,total) => `Your position: #${pos} of ${total} players`,
+    rankPlay:     'Play to appear in the ranking!',
+    achTitle:     '🏅 Badges',
+    achSub:       'Your in-game achievements',
+    newBadge:     'NEW BADGE!',
+    freeLifeSoon: (h,m) => `🎁 Free life in ${h>0?h+'h ':''}${m}min`,
+    freeLifeGet:  '🎁 You got a free life! ❤️',
+    yourPos:      (n) => `🏆 Ranking position #${n}!`,
+    diffLabel:    { easy:'😊 Easy', medium:'😐 Medium', hard:'💀 Hard' },
+    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness'],
+    levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.'],
+    achievements: [
+      {name:'First Wisp',           desc:'Collect your first wisp'},
+      {name:'Glow Collector',       desc:'Collect 50 wisps in total'},
+      {name:'Perfection!',          desc:'Collect all wisps on level 1'},
+      {name:'Untouchable',          desc:'Complete a level without dying'},
+      {name:'Ghost Hunter',         desc:'Defeat your first enemy'},
+      {name:'Darkness Slayer',      desc:'Defeat 10 enemies'},
+      {name:'Into the Woods',       desc:'Reach level 5'},
+      {name:'Forest Legend',        desc:'Complete all 10 levels'},
+      {name:'Thousander',           desc:'Score 1000 points'},
+      {name:'Forest Master',        desc:'Score 5000 points'},
+      {name:'Key Guardian',         desc:'Collect a key and open the portal'},
+      {name:'Supporter',            desc:'Purchase extra lives'},
+    ],
+  },
+
+  de: {
+    title:        'Wisp',
+    subtitle:     'Geist des verlorenen Waldes.<br>Erwecke die Magie — rette deine Welt.',
+    chooseDiff:   'Schwierigkeitsgrad wählen:',
+    easy:         'Leicht',
+    medium:       'Mittel',
+    hard:         'Schwer',
+    livesEasy:    '5 Leben zu Beginn',
+    livesMedium:  '3 Leben zu Beginn',
+    livesHard:    '1 Leben zu Beginn',
+    play:         '▶ SPIELEN',
+    continueBtn:  (lvl,sc) => `▶ Weiter (Level ${lvl}, ⭐${sc})`,
+    clearSave:    '🗑 Speicher löschen & neu starten',
+    help:         '❓ Anleitung',
+    ranking:      '🏆 Rangliste',
+    badges:       '🏅 Abzeichen',
+    controls:     'Pfeiltasten + Leertaste &nbsp;|&nbsp; Joystick auf dem Bildschirm',
+    helpTitle:    '📖 Wie spielt man?',
+    helpItems: [
+      ['🕹️','Joystick (unten links)<br>oder ← → — Bewegen'],
+      ['⬆️','Taste (unten rechts)<br>oder Leertaste — Springen'],
+      ['💎','Irrlichter sammeln<br>+100 Punkte je'],
+      ['🗝️','Schlüssel öffnet<br>das Ausgangsportal'],
+      ['👾','Auf Feinde springen<br>um sie zu besiegen'],
+      ['🔴','Stacheln und<br>seitliche Feinde meiden'],
+      ['✦','Portal erreichen<br>— Level geschafft!'],
+      ['❤️','Bei jedem Tod<br>verlierst du ein Leben'],
+    ],
+    helpTip:      '💡 Höhere Level = stärkerer Wind & schnellere Feinde!',
+    keyCollected: '🗝️ Schlüssel gefunden!',
+    windLight:    '💨 Leichter Wind',
+    windStrong:   '🌬️ Starker Wind',
+    windIce:      '❄️ Eissturm',
+    pauseTitle:   '⏸ Pause',
+    resume:       '▶ Weiterspielen',
+    mainMenu:     '↩ Hauptmenü',
+    dead:         '💀 Du bist gefallen...',
+    deadSub:      (lives) => `Wisp löste sich in der Dunkelheit auf.<br>${lives>0?'Du hast noch '+lives+' ❤️ Leben.':'Keine Leben mehr...'}`,
+    retry:        '↺ Nochmal versuchen',
+    levelDone:    (n) => `✨ Level ${n}<br>Geschafft!`,
+    nextLevel:    '▶ Nächstes Level',
+    seeRanking:   '🏆 Rangliste ansehen',
+    finish:       '🌿 Wald gerettet!',
+    finishSub:    'Du hast das Licht in jeden Winkel<br>des verzauberten Waldes zurückgebracht. Du bist eine Legende.',
+    playAgain:    '▶ Nochmal spielen',
+    shopSub:      'Kauf zusätzliche Leben um weiterzumachen!',
+    fromScratch:  'Von vorne (ohne Kauf)',
+    rankTitle:    '🏆 Rangliste',
+    rankSub:      'Lokale Ergebnisse — Top 10',
+    rankEmpty:    'Noch keine Ergebnisse — spiel und hinterlasse eine Spur! 🌿',
+    rankYou:      (pos,total) => `Deine Position: #${pos} von ${total} Spielern`,
+    rankPlay:     'Spiel um in die Rangliste zu kommen!',
+    achTitle:     '🏅 Abzeichen',
+    achSub:       'Deine Spielerfolge',
+    newBadge:     'NEUES ABZEICHEN!',
+    freeLifeSoon: (h,m) => `🎁 Gratis-Leben in ${h>0?h+'h ':''}${m}Min`,
+    freeLifeGet:  '🎁 Du hast ein Gratis-Leben erhalten! ❤️',
+    yourPos:      (n) => `🏆 Ranglistenposition #${n}!`,
+    diffLabel:    { easy:'😊 Leicht', medium:'😐 Mittel', hard:'💀 Schwer' },
+    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis'],
+    levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.'],
+    achievements: [
+      {name:'Erstes Irrlicht',       desc:'Sammle dein erstes Irrlicht'},
+      {name:'Glanzsammler',          desc:'Sammle insgesamt 50 Irrlichter'},
+      {name:'Perfektion!',           desc:'Alle Irrlichter auf Level 1 sammeln'},
+      {name:'Unantastbar',           desc:'Level ohne Lebensverlust abschließen'},
+      {name:'Geisterjäger',          desc:'Besiege deinen ersten Feind'},
+      {name:'Finsternis-Bezwinger',  desc:'Besiege 10 Feinde'},
+      {name:'Tief in den Wald',      desc:'Erreiche Level 5'},
+      {name:'Waldlegende',           desc:'Alle 10 Level abschließen'},
+      {name:'Tausender',             desc:'1000 Punkte erreichen'},
+      {name:'Waldmeister',           desc:'5000 Punkte erreichen'},
+      {name:'Schlüsselhüter',        desc:'Schlüssel sammeln und Portal öffnen'},
+      {name:'Unterstützer',          desc:'Zusätzliche Leben kaufen'},
+    ],
+  },
+
+  es: {
+    title:        'Wisp',
+    subtitle:     'Espíritu del bosque perdido.<br>Despierta la magia — salva tu mundo.',
+    chooseDiff:   'Elige la dificultad:',
+    easy:         'Fácil',
+    medium:       'Normal',
+    hard:         'Difícil',
+    livesEasy:    '5 vidas al inicio',
+    livesMedium:  '3 vidas al inicio',
+    livesHard:    '1 vida al inicio',
+    play:         '▶ JUGAR',
+    continueBtn:  (lvl,sc) => `▶ Continuar (Nivel ${lvl}, ⭐${sc})`,
+    clearSave:    '🗑 Borrar guardado y empezar de nuevo',
+    help:         '❓ Instrucciones',
+    ranking:      '🏆 Clasificación',
+    badges:       '🏅 Insignias',
+    controls:     'Flechas + Espacio &nbsp;|&nbsp; Joystick en pantalla',
+    helpTitle:    '📖 ¿Cómo jugar?',
+    helpItems: [
+      ['🕹️','Joystick (abajo izquierda)<br>o ← → — mover'],
+      ['⬆️','Botón (abajo derecha)<br>o Espacio — saltar'],
+      ['💎','Recoge destellos<br>+100 pts cada uno'],
+      ['🗝️','La llave abre<br>el portal de salida'],
+      ['👾','Salta sobre enemigos<br>para derrotarlos'],
+      ['🔴','Evita pinchos<br>y enemigos de lado'],
+      ['✦','Llega al portal<br>— ¡nivel completo!'],
+      ['❤️','Pierdes una vida<br>con cada muerte'],
+    ],
+    helpTip:      '💡 ¡A mayor nivel, más viento y enemigos más rápidos!',
+    keyCollected: '🗝️ ¡Llave recogida!',
+    windLight:    '💨 Viento suave',
+    windStrong:   '🌬️ Viento fuerte',
+    windIce:      '❄️ Tormenta de hielo',
+    pauseTitle:   '⏸ Pausa',
+    resume:       '▶ Continuar',
+    mainMenu:     '↩ Menú principal',
+    dead:         '💀 Has caído...',
+    deadSub:      (lives) => `Wisp se desvaneció en la oscuridad.<br>${lives>0?'Te quedan '+lives+' ❤️ vidas.':'Sin más vidas...'}`,
+    retry:        '↺ Intentar de nuevo',
+    levelDone:    (n) => `✨ ¡Nivel ${n}<br>completado!`,
+    nextLevel:    '▶ Siguiente nivel',
+    seeRanking:   '🏆 Ver clasificación',
+    finish:       '🌿 ¡Bosque salvado!',
+    finishSub:    'Restauraste la luz en cada rincón<br>del bosque encantado. Eres una leyenda.',
+    playAgain:    '▶ Jugar de nuevo',
+    shopSub:      '¡Compra vidas extra para continuar!',
+    fromScratch:  'Empezar de nuevo (sin compra)',
+    rankTitle:    '🏆 Clasificación',
+    rankSub:      'Puntuaciones locales — Top 10',
+    rankEmpty:    '¡Sin puntuaciones aún — juega y deja tu huella! 🌿',
+    rankYou:      (pos,total) => `Tu posición: #${pos} de ${total} jugadores`,
+    rankPlay:     '¡Juega para aparecer en la clasificación!',
+    achTitle:     '🏅 Insignias',
+    achSub:       'Tus logros en el juego',
+    newBadge:     '¡NUEVA INSIGNIA!',
+    freeLifeSoon: (h,m) => `🎁 Vida gratis en ${h>0?h+'h ':''}${m}min`,
+    freeLifeGet:  '🎁 ¡Recibiste una vida gratis! ❤️',
+    yourPos:      (n) => `🏆 ¡Posición #${n} en la clasificación!`,
+    diffLabel:    { easy:'😊 Fácil', medium:'😐 Normal', hard:'💀 Difícil' },
+    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas'],
+    levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.'],
+    achievements: [
+      {name:'Primer Destello',       desc:'Recoge tu primer destello'},
+      {name:'Coleccionista de Luz',  desc:'Recoge 50 destellos en total'},
+      {name:'¡Perfección!',          desc:'Recoge todos los destellos del nivel 1'},
+      {name:'Intocable',             desc:'Completa un nivel sin morir'},
+      {name:'Cazador de Fantasmas',  desc:'Derrota a tu primer enemigo'},
+      {name:'Destructor de Sombras', desc:'Derrota a 10 enemigos'},
+      {name:'Adentrándose',          desc:'Llega al nivel 5'},
+      {name:'Leyenda del Bosque',    desc:'Completa los 10 niveles'},
+      {name:'Milero',                desc:'Consigue 1000 puntos'},
+      {name:'Maestro del Bosque',    desc:'Consigue 5000 puntos'},
+      {name:'Guardián de Llaves',    desc:'Recoge una llave y abre el portal'},
+      {name:'Seguidor',              desc:'Compra vidas extra'},
+    ],
+  },
+
+  fr: {
+    title:        'Wisp',
+    subtitle:     'Esprit de la forêt perdue.<br>Réveillez la magie — sauvez votre monde.',
+    chooseDiff:   'Choisissez la difficulté :',
+    easy:         'Facile',
+    medium:       'Normal',
+    hard:         'Difficile',
+    livesEasy:    '5 vies au départ',
+    livesMedium:  '3 vies au départ',
+    livesHard:    '1 vie au départ',
+    play:         '▶ JOUER',
+    continueBtn:  (lvl,sc) => `▶ Continuer (Niveau ${lvl}, ⭐${sc})`,
+    clearSave:    '🗑 Supprimer la sauvegarde',
+    help:         '❓ Instructions',
+    ranking:      '🏆 Classement',
+    badges:       '🏅 Badges',
+    controls:     'Flèches + Espace &nbsp;|&nbsp; Joystick à l\'écran',
+    helpTitle:    '📖 Comment jouer ?',
+    helpItems: [
+      ['🕹️','Joystick (bas gauche)<br>ou ← → — déplacer'],
+      ['⬆️','Bouton (bas droite)<br>ou Espace — sauter'],
+      ['💎','Collectez des feux follets<br>+100 pts chacun'],
+      ['🗝️','La clé ouvre<br>le portail de sortie'],
+      ['👾','Sautez sur les ennemis<br>pour les vaincre'],
+      ['🔴','Évitez les piques<br>et les ennemis de côté'],
+      ['✦','Atteignez le portail<br>— niveau terminé !'],
+      ['❤️','Vous perdez une vie<br>à chaque mort'],
+    ],
+    helpTip:      '💡 Plus le niveau est élevé, plus le vent est fort et les ennemis rapides !',
+    keyCollected: '🗝️ Clé récupérée !',
+    windLight:    '💨 Vent léger',
+    windStrong:   '🌬️ Vent fort',
+    windIce:      '❄️ Tempête de glace',
+    pauseTitle:   '⏸ Pause',
+    resume:       '▶ Reprendre',
+    mainMenu:     '↩ Menu principal',
+    dead:         '💀 Vous êtes tombé...',
+    deadSub:      (lives) => `Wisp s'est dissous dans l'obscurité.<br>${lives>0?'Il vous reste '+lives+' ❤️ vie(s).':'Plus de vies...'}`,
+    retry:        '↺ Réessayer',
+    levelDone:    (n) => `✨ Niveau ${n}<br>Terminé !`,
+    nextLevel:    '▶ Niveau suivant',
+    seeRanking:   '🏆 Voir le classement',
+    finish:       '🌿 Forêt sauvée !',
+    finishSub:    'Vous avez restauré la lumière dans chaque recoin<br>de la forêt enchantée. Vous êtes une légende.',
+    playAgain:    '▶ Rejouer',
+    shopSub:      'Achetez des vies supplémentaires pour continuer !',
+    fromScratch:  'Recommencer (sans achat)',
+    rankTitle:    '🏆 Classement',
+    rankSub:      'Scores locaux — Top 10',
+    rankEmpty:    'Aucun score — jouez et laissez votre trace ! 🌿',
+    rankYou:      (pos,total) => `Votre position : #${pos} sur ${total} joueurs`,
+    rankPlay:     'Jouez pour apparaître dans le classement !',
+    achTitle:     '🏅 Badges',
+    achSub:       'Vos succès en jeu',
+    newBadge:     'NOUVEAU BADGE !',
+    freeLifeSoon: (h,m) => `🎁 Vie gratuite dans ${h>0?h+'h ':''}${m}min`,
+    freeLifeGet:  '🎁 Vous avez reçu une vie gratuite ! ❤️',
+    yourPos:      (n) => `🏆 Position #${n} au classement !`,
+    diffLabel:    { easy:'😊 Facile', medium:'😐 Normal', hard:'💀 Difficile' },
+    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres'],
+    levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.'],
+    achievements: [
+      {name:'Premier Feu Follet',    desc:'Collectez votre premier feu follet'},
+      {name:'Collecteur de Lumière', desc:'Collectez 50 feux follets au total'},
+      {name:'Perfection !',          desc:'Collectez tous les feux follets du niveau 1'},
+      {name:'Intouchable',           desc:'Terminez un niveau sans mourir'},
+      {name:'Chasseur de Fantômes',  desc:'Vainquez votre premier ennemi'},
+      {name:'Pourfendeur des Ombres',desc:'Vainquez 10 ennemis'},
+      {name:'Dans les Profondeurs',  desc:'Atteignez le niveau 5'},
+      {name:'Légende de la Forêt',   desc:'Terminez les 10 niveaux'},
+      {name:'Millionnaire',          desc:'Obtenez 1000 points'},
+      {name:'Maître de la Forêt',    desc:'Obtenez 5000 points'},
+      {name:'Gardien des Clés',      desc:'Collectez une clé et ouvrez le portail'},
+      {name:'Soutien',               desc:'Achetez des vies supplémentaires'},
+    ],
+  },
+};
+
+// Wykryj język przeglądarki, fallback na angielski
+const browserLang = (navigator.language||'en').slice(0,2);
+let LANG = LANGS[browserLang] || LANGS['en'];
+let LANG_CODE = LANGS[browserLang] ? browserLang : 'en';
+
+const LANG_CYCLE = ['pl','en','de','es','fr'];
+const LANG_FLAGS = {pl:'🇵🇱',en:'🇬🇧',de:'🇩🇪',es:'🇪🇸',fr:'🇫🇷'};
+
+function toggleLang(){
+  const idx = LANG_CYCLE.indexOf(LANG_CODE);
+  LANG_CODE = LANG_CYCLE[(idx+1) % LANG_CYCLE.length];
+  LANG = LANGS[LANG_CODE];
+  try{ localStorage.setItem('wisp_lang', LANG_CODE); }catch(e){}
+  applyLang();
+}
+window.toggleLang = toggleLang;
+
+function applyLang(){
+  // Ustaw lang na <html>
+  document.documentElement.lang = LANG_CODE;
+
+  // Menu główne
+  document.querySelector('#overlay h1').textContent = '🌿 ' + LANG.title;
+  const menuSub = document.getElementById('menu-subtitle');
+  if(menuSub) menuSub.innerHTML = LANG.subtitle;
+  const menuDiff = document.getElementById('menu-choosediff');
+  if(menuDiff) menuDiff.textContent = LANG.chooseDiff;
+  const btnHelp = document.getElementById('btn-help');
+  if(btnHelp) btnHelp.textContent = LANG.help;
+  const btnRanking = document.getElementById('btn-ranking');
+  if(btnRanking) btnRanking.textContent = LANG.ranking;
+  const btnBadges = document.getElementById('btn-badges');
+  if(btnBadges) btnBadges.textContent = LANG.badges;
+  const menuControls = document.getElementById('menu-controls');
+  if(menuControls) menuControls.innerHTML = LANG.controls;
+
+  // Przyciski trudności
+  document.getElementById('diff-easy').innerHTML   = `<span class="diff-icon">😊</span>${LANG.easy}<span class="diff-lives">${LANG.livesEasy}</span>`;
+  document.getElementById('diff-medium').innerHTML = `<span class="diff-icon">😐</span>${LANG.medium}<span class="diff-lives">${LANG.livesMedium}</span>`;
+  document.getElementById('diff-hard').innerHTML   = `<span class="diff-icon">💀</span>${LANG.hard}<span class="diff-lives">${LANG.livesHard}</span>`;
+
+  // Przyciski menu
+  document.getElementById('start-btn').textContent = LANG.play;
+
+  // Instrukcja
+  document.querySelector('.help-title').textContent = LANG.helpTitle;
+  const helpGrid = document.querySelector('.help-grid');
+  if(helpGrid){
+    helpGrid.innerHTML = LANG.helpItems.map(([icon,text])=>
+      `<div class="help-item"><span class="help-icon">${icon}</span><span>${text}</span></div>`
+    ).join('');
+  }
+  document.querySelector('.help-tip').textContent = LANG.helpTip;
+
+  // Wskaźniki
+  document.getElementById('key-indicator').textContent = LANG.keyCollected;
+
+  // Odznaki bubble
+  document.querySelector('#ach-bubble h2').textContent = LANG.achTitle;
+
+  // Ranking bubble
+  document.querySelector('#ranking-bubble h2').textContent = LANG.rankTitle;
+  document.querySelector('.rank-sub').textContent = LANG.rankSub;
+
+  // Pauza
+  const pauseTitle = document.getElementById('pause-title');
+  if(pauseTitle) pauseTitle.textContent = LANG.pauseTitle;
+  const pauseResume = document.getElementById('pause-resume');
+  if(pauseResume) pauseResume.textContent = LANG.resume;
+  const pauseRanking = document.getElementById('pause-ranking');
+  if(pauseRanking) pauseRanking.textContent = LANG.ranking;
+  const pauseBadges = document.getElementById('pause-badges');
+  if(pauseBadges) pauseBadges.textContent = LANG.badges;
+  const pauseMenu = document.getElementById('pause-menu');
+  if(pauseMenu) pauseMenu.textContent = LANG.mainMenu;
+
+  // Przycisk języka — pokazuje AKTUALNY język
+  const lb = document.getElementById('lang-btn');
+  if(lb){
+    lb.textContent = LANG_FLAGS[LANG_CODE] + ' ' + LANG_CODE.toUpperCase();
+  }
+
+  // DIFF_CONFIG labels
+  DIFF_CONFIG.easy.label   = LANG.diffLabel.easy;
+  DIFF_CONFIG.medium.label = LANG.diffLabel.medium;
+  DIFF_CONFIG.hard.label   = LANG.diffLabel.hard;
+
+  // THEMES names z i18n
+  LANG.levelNames.forEach((name,i)=>{ if(THEMES[i]) THEMES[i].name=name; });
+}
+
+// ── Game state ──────────────────────────────────
+let GS = { state:'menu', lives:3, score:0, level:1, totalScore:0 };
+let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false;
+let particles=[], camera={y:0}, frameT=0;
+
+// ── Player ──────────────────────────────────────
+const P = {
+  x:80,y:600,w:26,h:34,
+  vx:0,vy:0,onGround:false,dead:false,
+  animT:0, trail:[], hasKey:false, invincible:0
+};
+const GRAV=0.52, SPD=3.8, JUMP=-13.2;
+// Aktualne wartości z trudnością (nadpisywane przez applyDifficulty)
+window._GRAV=GRAV; window._SPD=SPD; window._WIND_MULT=1; window._ENEMY_MULT=1;
+
+// ── Level themes ────────────────────────────────
+const THEMES = [
+  // 1-3: lush forest (green)
+  {sky:['#040a04','#071407','#0a1a0a'], fog:'rgba(10,30,10,', platform:'#2d5a1a', ptop:'#4a8a28', name:'Zaczarowany Las'},
+  {sky:['#040a04','#071407','#0a1a0a'], fog:'rgba(10,30,10,', platform:'#2d5a1a', ptop:'#4a8a28', name:'Głęboki Las'},
+  {sky:['#040a04','#071407','#0a1a0a'], fog:'rgba(10,30,10,', platform:'#2d5a1a', ptop:'#4a8a28', name:'Pradawny Gaj'},
+  // 4-5: dusk / dark forest
+  {sky:['#080410','#100820','#0a0510'], fog:'rgba(20,10,30,', platform:'#3a1a5a', ptop:'#6a3a9a', name:'Las o Zmierzchu'},
+  {sky:['#080410','#100820','#0a0510'], fog:'rgba(20,10,30,', platform:'#3a1a5a', ptop:'#6a3a9a', name:'Purpurowa Kniei'},
+  // 6-7: storm / night
+  {sky:['#050510','#080818','#030308'], fog:'rgba(10,10,20,', platform:'#1a1a3a', ptop:'#3a3a7a', name:'Nocna Burza'},
+  {sky:['#050510','#080818','#030308'], fog:'rgba(10,10,20,', platform:'#1a1a3a', ptop:'#3a3a7a', name:'Czarna Godzina'},
+  // 8-9: ice / winter
+  {sky:['#040810','#06101a','#040c14'], fog:'rgba(10,20,40,', platform:'#1a3a5a', ptop:'#60a0d0', name:'Zamarznięty Las'},
+  {sky:['#040810','#06101a','#040c14'], fog:'rgba(10,20,40,', platform:'#1a3a5a', ptop:'#60a0d0', name:'Lodowa Puszcza'},
+  // 10: finale
+  {sky:['#100404','#1a0606','#0a0202'], fog:'rgba(30,5,5,', platform:'#5a1a1a', ptop:'#aa3030', name:'Serce Ciemności'},
+];
+
+// ── Level colours per theme ─────────────────────
+function themeGemColor(t){
+  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060'];
+  return cols[t]||'#80ff60';
+}
+function themeEnemyColor(t){
+  const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020'];
+  return cols[t]||'#ff6040';
+}
+
+// ── Level definitions ───────────────────────────
+function buildLevel(n){
+  // Returns {platforms, spikes, gems, goal, enemies, wind, needsKey, startX, startY}
+  const lvl = n-1;
+  const hasWind   = n>=4;
+  const hasEnemy  = n>=4;
+  const needsKey  = n>=5 && n%2===1; // odd levels 5,7,9
+  const windStr   = n>=8 ? 1.4 : n>=6 ? 0.9 : n>=4 ? 0.5 : 0;
+
+  // Base platform configs per level
+  const configs = [
+    // 1
+    {plat:[
+      [0,680,480,20,'g'],[60,560,120,16],[240,500,100,16],[100,420,90,16],
+      [280,360,110,16],[60,290,80,16],[220,220,130,16],[80,150,100,16],[260,90,120,16]],
+     spk:[[190,664,30],[340,664,40]],
+     gem:[[100,540],[270,480],[130,400],[310,340],[90,270],[260,200],[110,130],[300,70]],
+     goal:[290,50], sx:80, sy:620},
+    // 2
+    {plat:[
+      [0,680,180,20,'g'],[300,680,180,20,'g'],
+      [140,610,80,16,1,60,1.5],[50,530,90,16],[220,480,70,16,1,80,2],[330,530,80,16],
+      [130,410,100,16],[290,350,90,16,1,70,1.8],[60,280,80,16],[230,210,110,16],
+      [80,140,90,16],[260,80,120,16]],
+     spk:[[185,664,110],[100,514,20],[330,514,20]],
+     gem:[[170,590],[280,460],[80,510],[360,510],[155,390],[310,330],[85,260],[265,190],[105,120],[295,60]],
+     goal:[300,40], sx:60, sy:630},
+    // 3
+    {plat:[
+      [0,680,100,20,'g'],[380,680,100,20,'g'],
+      [80,620,60,16,1,80,2.2],[280,600,60,16,1,60,2],
+      [150,530,70,16],[310,490,70,16,1,90,2.5],
+      [60,430,80,16],[240,380,80,16,1,100,2],
+      [100,310,70,16],[290,260,80,16],
+      [140,200,70,16,1,70,2.2],[280,150,80,16],
+      [100,90,90,16],[270,40,120,16]],
+     spk:[[105,664,270],[220,514,20]],
+     gem:[[110,600],[310,580],[175,510],[340,470],[85,410],[265,360],[120,290],[310,240],[155,180],[300,130],[120,70],[305,20]],
+     goal:[300,0], sx:30, sy:640},
+    // 4 — dark, wind starts, enemies
+    {plat:[
+      [0,680,150,20,'g'],[330,680,150,20,'g'],
+      [100,610,80,16,1,70,1.8],[250,580,70,16],
+      [50,510,80,16],[200,460,90,16,1,80,2],
+      [320,490,60,16],[100,400,70,16],
+      [260,340,90,16,1,90,2.2],[60,270,80,16],
+      [220,210,100,16],[80,140,80,16],
+      [250,80,120,16]],
+     spk:[[155,664,170],[180,444,20],[310,474,20]],
+     gem:[[130,590],[280,560],[80,490],[230,440],[345,470],[125,380],[285,320],[85,250],[245,190],[100,120],[275,60]],
+     goal:[280,40], sx:50, sy:640,
+     enemies:[[200,610,60,1.2],[300,400,80,1.5]]},
+    // 5 — key + door
+    {plat:[
+      [0,680,120,20,'g'],[360,680,120,20,'g'],
+      [120,620,70,16],[250,590,80,16,1,60,2],
+      [60,520,70,16],[210,470,80,16],
+      [320,500,70,16,1,80,2.2],[100,400,80,16],
+      [260,350,70,16,1,70,1.8],[50,280,90,16],
+      [230,220,80,16],[100,160,70,16],
+      [260,100,100,16],[80,40,120,16]],
+     spk:[[125,664,230],[85,504,20],[225,454,20]],
+     gem:[[145,600],[270,570],[85,500],[235,450],[345,480],[120,380],[280,330],[70,260],[250,200],[120,140],[280,80],[100,20]],
+     goal:[100,0], sx:40, sy:640, needsKey:true,
+     keyPos:[290,60],
+     enemies:[[180,600,80,1.3],[260,460,70,1.6],[150,270,90,1.4]]},
+    // 6 — storm night
+    {plat:[
+      [0,680,100,20,'g'],[380,680,100,20,'g'],
+      [90,620,60,16,1,90,2.5],[280,600,60,16,1,70,2],
+      [60,530,70,16],[220,480,70,16,1,100,2.5],
+      [340,510,60,16],[100,420,70,16,1,80,2.2],
+      [260,360,80,16],[60,290,70,16],
+      [220,230,80,16,1,90,2],[90,170,70,16],
+      [260,110,90,16],[80,50,110,16]],
+     spk:[[105,664,270],[235,464,20],[105,404,20]],
+     gem:[[115,600],[300,580],[85,510],[245,460],[360,490],[125,400],[280,340],[85,270],[245,210],[110,150],[280,90],[100,30]],
+     goal:[100,10], sx:40, sy:640,
+     enemies:[[160,610,80,1.5],[310,480,70,1.8],[180,360,90,1.6],[260,230,80,1.7]]},
+    // 7 — night + key
+    {plat:[
+      [0,680,90,20,'g'],[390,680,90,20,'g'],
+      [80,615,60,16,1,80,2.8],[290,595,60,16,1,70,2.5],
+      [55,530,65,16],[210,475,70,16,1,90,2.6],
+      [330,505,60,16],[90,415,65,16,1,85,2.4],
+      [255,355,75,16],[55,285,70,16],
+      [215,225,75,16,1,95,2.2],[85,165,65,16],
+      [255,105,85,16],[75,45,105,16]],
+     spk:[[95,664,290],[95,399,20],[225,459,20],[270,339,20]],
+     gem:[[105,595],[310,575],[80,510],[235,455],[350,485],[115,395],[275,335],[80,265],[240,205],[105,145],[275,85],[95,25]],
+     goal:[95,5], sx:35, sy:645, needsKey:true,
+     keyPos:[280,80],
+     enemies:[[150,605,85,1.6],[300,475,75,1.9],[170,355,90,1.7],[250,225,80,1.8]]},
+    // 8 — ice
+    {plat:[
+      [0,680,80,20,'g'],[400,680,80,20,'g'],
+      [75,610,55,16,1,85,3],[295,590,55,16,1,75,2.8],
+      [50,525,60,16],[205,470,65,16,1,95,3],
+      [335,500,55,16],[85,410,60,16,1,90,2.8],
+      [250,350,70,16],[50,280,65,16],
+      [210,220,70,16,1,100,2.6],[80,160,60,16],
+      [250,100,80,16],[70,40,100,16]],
+     spk:[[85,664,310],[220,454,20],[90,394,20],[265,334,20]],
+     gem:[[100,590],[315,570],[75,505],[230,450],[355,480],[110,390],[270,330],[75,260],[235,200],[100,140],[270,80],[90,20]],
+     goal:[90,0], sx:30, sy:650,
+     enemies:[[145,600,90,1.8],[305,470,80,2],[165,350,95,1.9],[255,220,85,2.1],[170,100,75,1.7]]},
+    // 9 — deep ice + key
+    {plat:[
+      [0,680,70,20,'g'],[410,680,70,20,'g'],
+      [70,605,50,16,1,90,3.2],[300,585,50,16,1,80,3],
+      [45,520,55,16],[200,465,60,16,1,100,3.2],
+      [330,495,50,16],[80,405,55,16,1,95,3],
+      [245,345,65,16],[45,275,60,16],
+      [205,215,65,16,1,105,2.8],[75,155,55,16],
+      [245,95,75,16],[65,35,95,16]],
+     spk:[[75,664,330],[215,449,20],[85,389,20],[260,329,20],[210,199,20]],
+     gem:[[95,585],[320,565],[70,500],[225,445],[350,475],[105,385],[265,325],[70,255],[230,195],[95,135],[265,75],[85,15]],
+     goal:[85,0], sx:25, sy:655, needsKey:true,
+     keyPos:[265,60],
+     enemies:[[140,595,95,2],[310,465,85,2.2],[160,345,100,2],[250,215,90,2.3],[155,95,80,1.9]]},
+    // 10 — finale
+    {plat:[
+      [0,680,60,20,'g'],[420,680,60,20,'g'],
+      [65,600,45,16,1,95,3.5],[310,580,45,16,1,85,3.3],
+      [40,515,50,16],[195,460,55,16,1,105,3.5],
+      [335,490,45,16],[75,400,50,16,1,100,3.2],
+      [240,340,60,16],[40,270,55,16],
+      [200,210,60,16,1,110,3],[70,150,50,16],
+      [240,90,70,16],[60,30,90,16]],
+     spk:[[65,664,350],[70,384,20],[210,444,20],[255,324,20],[205,194,20],[75,134,20]],
+     gem:[[90,580],[325,560],[65,495],[220,440],[355,470],[100,380],[260,320],[65,250],[225,190],[90,130],[260,70],[80,10]],
+     goal:[80,0], sx:20, sy:660,
+     enemies:[[135,590,100,2.3],[315,460,90,2.5],[155,340,105,2.2],[245,210,95,2.6],[150,90,85,2.1],[270,340,80,2.4]]},
+  ];
+
+  const cfg = configs[lvl] || configs[0];
+  const platforms = cfg.plat.map((p,i)=>({
+    x:p[0], y:p[1], w:p[2], h:p[3],
+    type: p[4]==='g' ? 'ground' : 'wood',
+    moving: p[4]===1,
+    origX: p[0], mx: p[5]||0, ms: p[6]||1, t: i*0.7
+  }));
+
+  const enemies = (cfg.enemies||[]).map(e=>({
+    x:e[0], y:e[1], range:e[2], spd:e[3],
+    origX:e[0], dir:1, t:0, alive:true,
+    color: themeEnemyColor(lvl)
+  }));
+
+  return {
+    platforms,
+    spikes: (cfg.spk||[]).map(s=>({x:s[0],y:s[1],w:s[2]})),
+    gems: (cfg.gem||[]).map(g=>({x:g[0],y:g[1],alive:true,pulse:Math.random()*Math.PI*2})),
+    goal: {x:cfg.goal[0], y:cfg.goal[1], pulse:0},
+    enemies,
+    wind: hasWind ? windStr : 0,
+    needsKey: cfg.needsKey||false,
+    keyPos: cfg.keyPos||null,
+    keyCollected: false,
+    startX: cfg.sx, startY: cfg.sy,
+    theme: THEMES[lvl]||THEMES[0],
+    gemColor: themeGemColor(lvl),
+  };
+}
+
+let LVL = null;
+const BASE_H = 720; // oryginalna wysokość na której projektowano poziomy
+
+// ── Load level ──────────────────────────────────
+function loadLevel(n){
+  LVL = buildLevel(n);
+
+  // Skaluj wszystkie współrzędne Y do aktualnej wysokości canvasa
+  const scaleY = H / BASE_H;
+  LVL.platforms.forEach(pl=>{ pl.y=Math.round(pl.y*scaleY); pl.origY=pl.y; });
+  LVL.spikes.forEach(s=>{ s.y=Math.round(s.y*scaleY); });
+  LVL.gems.forEach(g=>{ g.y=Math.round(g.y*scaleY); });
+  LVL.goal.y = Math.round(LVL.goal.y*scaleY);
+  if(LVL.keyPos) LVL.keyPos[1]=Math.round(LVL.keyPos[1]*scaleY);
+  LVL.enemies.forEach(e=>{ e.y=Math.round(e.y*scaleY); });
+  LVL.startY = Math.round(LVL.startY*scaleY);
+
+  P.x=LVL.startX; P.y=LVL.startY;
+  P.vx=0; P.vy=0; P.dead=false; P.hasKey=false;
+  P.trail=[]; P.invincible=0;
+  camera.y=0; particles=[];
+  updateHUD();
+  document.getElementById('key-indicator').style.opacity='0';
+  showWindIndicator();
+  // Start ambient music for this theme group
+  const themeIdx = Math.min(n-1, 9);
+  Audio.playAmbientLoop(themeIdx);
+}
+
+// ── HUD ─────────────────────────────────────────
+function updateHUD(){
+  const lr = document.getElementById('lives-row');
+  lr.innerHTML='';
+  const maxShow = Math.min(GS.lives, 8); // max 8 serc na ekranie
+  for(let i=0;i<maxShow;i++){
+    const h=document.createElement('span');
+    h.className='heart';
+    h.textContent='❤️';
+    lr.appendChild(h);
+  }
+  if(GS.lives>8){
+    const extra=document.createElement('span');
+    extra.style.cssText='font-family:Lora,serif;font-size:11px;color:#e08080;margin-left:2px;';
+    extra.textContent='+'+( GS.lives-8);
+    lr.appendChild(extra);
+  }
+  document.getElementById('score-display').textContent='⭐ '+GS.score;
+  const ld=document.getElementById('level-display');
+  ld.textContent='POZIOM '+GS.level;
+  ld.style.color = GS.level>=8?'#80c0ff':GS.level>=6?'#c0a0ff':GS.level>=4?'#d0a0ff':'#a0d080';
+  ld.style.textShadow='0 0 8px '+ld.style.color;
+}
+
+function showWindIndicator(){
+  const wi=document.getElementById('wind-indicator');
+  if(!LVL||!LVL.wind){wi.style.opacity='0';return;}
+  const str = LVL.wind<0.7 ? LANG.windLight : LVL.wind<1.2 ? LANG.windStrong : LANG.windIce;
+  wi.textContent=str;
+  wi.style.opacity='1';
+}
+
+// ── Result screen (win/dead/finish) — OSOBNY od menu głównego ──
+function showResultScreen(type){
+  const rs = document.getElementById('result-screen');
+  const th = LVL ? LVL.theme : THEMES[0];
+  rs.style.display = 'flex';
+
+  if(type==='dead'){
+    rs.style.background='rgba(15,3,3,.95)';
+    rs.innerHTML=`
+      <h1 style="color:#ff8060;font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;">${LANG.dead}</h1>
+      <div class="sub" style="color:#aa6050">${LANG.deadSub(GS.lives)}</div>
+      <div style="font-size:11px;color:#886040;font-family:Lora,serif;margin-top:4px;">${DIFF_CONFIG[DIFF].label}</div>
+      <div class="big-score" style="color:#ffd080;font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;">⭐ ${GS.score}</div>
+      ${GS.lives>0
+        ?`<button class="btn btn-green" onclick="restartLevel()">${LANG.retry}</button>`
+        :showShopButtons()
+      }
+      <button class="btn" onclick="goToMainMenu()" style="margin-top:10px;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #802020;padding:8px 24px;font-size:11px;">${LANG.mainMenu}</button>`;
+  } else if(type==='win'){
+    const rank = getRanking();
+    const myIdx = rank.findIndex(r=>r.isMe);
+    const posStr = myIdx>=0 ? `<div style="font-size:11px;color:#7aaa60;font-family:Lora,serif;margin-top:4px;">${LANG.yourPos(myIdx+1)}</div>` : '';
+    rs.style.background='linear-gradient(160deg,rgba(4,10,4,.95),rgba(10,20,10,.95))';
+    rs.innerHTML=`
+      <h1 style="color:#b0f080;font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;">${LANG.levelDone(GS.level)}</h1>
+      <div class="sub" style="color:#78aa60">${th.name}</div>
+      <div class="big-score" style="color:#ffd080;font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;">⭐ ${GS.score}</div>
+      ${posStr}
+      <button class="btn btn-green" onclick="nextLevel()">${LANG.nextLevel}</button>
+      <button class="btn" onclick="showRanking()" style="margin-top:8px;background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:8px 24px;font-size:11px;">${LANG.seeRanking}</button>
+      <button class="btn" onclick="goToMainMenu()" style="margin-top:8px;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #802020;padding:8px 24px;font-size:11px;">${LANG.mainMenu}</button>`;
+  } else if(type==='finish'){
+    const rank = getRanking();
+    const myIdx = rank.findIndex(r=>r.isMe);
+    rs.style.background='linear-gradient(160deg,rgba(10,4,4,.96),rgba(4,4,10,.96))';
+    rs.innerHTML=`
+      <h1 style="color:#ffe080;font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;">${LANG.finish}</h1>
+      <div class="sub" style="color:#aaa060">${LANG.finishSub}</div>
+      <div class="big-score" style="color:#ffd080;font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;">⭐ ${GS.score}</div>
+      ${myIdx>=0?`<div style="font-size:12px;color:#a0d060;font-family:Lora,serif;">${LANG.yourPos(myIdx+1)}</div>`:''}
+      <button class="btn btn-green" onclick="showRanking()" style="margin-top:14px;">${LANG.seeRanking}</button>
+      <button class="btn btn-green" onclick="goToMainMenu()" style="margin-top:8px;font-size:11px;padding:8px 24px;">${LANG.playAgain}</button>`;
+  }
+}
+function hideResultScreen(){
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'none';
+  rs.innerHTML = '';
+}
+// Alias dla kompatybilności wstecznej
+function showOverlay(type){ showResultScreen(type); }
+
+function showShopButtons(){
+  return `
+    <div class="sub" style="color:#aa9050;margin-top:12px">${LANG.shopSub}</div>
+    <div class="shop-row">
+      <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span>1,00 zł</div>
+      <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span>2,50 zł</div>
+      <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span>5,00 zł</div>
+    </div>
+    <button class="btn btn-green" onclick="restartGame()" style="margin-top:14px;font-size:11px;padding:8px 20px">${LANG.fromScratch}</button>`;
+}
+
+function buyLives(n){
+  Audio.sfxBuyLives();
+  GS.lives+=n;
+  achStats.lifesPurchased+=n;
+  saveAchievements();
+  checkAchievements();
+  updateHUD();
+  restartLevel();
+}
+
+// ── Game flow ────────────────────────────────────
+function startGame(){
+  Audio.init();
+  const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
+  GS={state:'playing', lives:d.lives, score:0, level:1, totalScore:0};
+  applyDifficulty();
+  clearProgress();
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  hideResultScreen();
+  loadLevel(1);
+}
+function restartLevel(){
+  hideResultScreen();
+  GS.state='playing';
+  loadLevel(GS.level);
+}
+function nextLevel(){
+  GS.level++;
+  GS.state='transition';
+  hideResultScreen();
+  isPaused = false;
+  document.getElementById('pause-screen').style.display='none';
+  saveProgress();
+  updateHUD();
+  const theme = THEMES[Math.min(GS.level-1, THEMES.length-1)];
+  playTransition(GS.level, theme.name, ()=>{
+    GS.state='playing';
+    loadLevel(GS.level);
+  });
+}
+function restartGame(){
+  GS={state:'playing',lives:3,score:0,level:1,totalScore:0};
+  hideResultScreen();
+  loadLevel(1);
+  updateHUD();
+}
+function goToMainMenu(){
+  isPaused = false;
+  GS.state = 'menu';
+  Audio.stopMusic();
+  Audio.resume();
+  document.getElementById('pause-screen').style.display='none';
+  document.getElementById('btn-pause').textContent='⏸';
+  hideResultScreen();
+  document.getElementById('overlay').style.display='flex';
+  document.getElementById('hud').style.display='none';
+  applyLang();
+  initMenu();
+}
+window.startGame=startGame;
+window.restartLevel=restartLevel;
+window.nextLevel=nextLevel;
+window.restartGame=restartGame;
+window.goToMainMenu=goToMainMenu;
+window.buyLives=buyLives;
+
+// ── Level transition animation ────────────────────
+function playTransition(levelNum, themeName, onDone){
+  const el   = document.getElementById('transition');
+  const num  = document.getElementById('tr-level-num');
+  const name = document.getElementById('tr-name');
+  const sub  = document.getElementById('tr-sub');
+
+  num.textContent  = `— ${LANG_CODE==='pl'?'POZIOM':'LEVEL'} ${levelNum} —`;
+  name.textContent = themeName;
+  sub.textContent  = LANG.levelQuotes[Math.min(levelNum-1, LANG.levelQuotes.length-1)];
+
+  el.style.display    = 'flex';
+  el.style.animation  = 'trFadeIn .5s ease forwards';
+  el.style.opacity    = '0';
+
+  setTimeout(()=>{
+    el.style.animation = 'trFadeOut .5s ease forwards';
+    setTimeout(()=>{
+      el.style.display='none';
+      el.style.opacity='1';
+      onDone();
+    }, 500);
+  }, 1600);
+}
+
+// ── Achievements ──────────────────────────────────
+const ACH_KEY = 'wisp_achievements';
+
+const ACHIEVEMENTS = [
+  { id:'first_gem',   icon:'💎', name:'Pierwszy Świetlik',    desc:'Zbierz swój pierwszy świetlik',          check: s => s.totalGems >= 1 },
+  { id:'gem_hoarder', icon:'✨', name:'Kolekcjoner Blasku',   desc:'Zbierz łącznie 50 świetlików',           check: s => s.totalGems >= 50 },
+  { id:'perfect_1',   icon:'⭐', name:'Perfekcja!',           desc:'Zbierz wszystkie świetliki na poziomie 1',check: s => s.perfectLevels.includes(1) },
+  { id:'no_death_1',  icon:'🛡️', name:'Nietykalny',           desc:'Ukończ poziom bez utraty życia',         check: s => s.noDeathLevel },
+  { id:'enemy_kill',  icon:'👾', name:'Łowca Duchów',         desc:'Pokonaj pierwszego wroga',               check: s => s.enemyKills >= 1 },
+  { id:'hunter_10',   icon:'⚔️', name:'Pogromca Ciemności',   desc:'Pokonaj 10 wrogów',                     check: s => s.enemyKills >= 10 },
+  { id:'level_5',     icon:'🌙', name:'W Głąb Lasu',          desc:'Dotrzyj do poziomu 5',                  check: s => s.maxLevel >= 5 },
+  { id:'level_10',    icon:'🔥', name:'Legenda Lasu',         desc:'Ukończ wszystkie 10 poziomów',           check: s => s.maxLevel >= 10 },
+  { id:'score_1000',  icon:'🏅', name:'Tysiącznik',           desc:'Zdobądź 1000 punktów',                  check: s => s.bestScore >= 1000 },
+  { id:'score_5000',  icon:'🏆', name:'Mistrz Lasu',          desc:'Zdobądź 5000 punktów',                  check: s => s.bestScore >= 5000 },
+  { id:'key_master',  icon:'🗝️', name:'Strażnik Kluczy',      desc:'Zbierz klucz i otwórz portal',          check: s => s.keysCollected >= 1 },
+  { id:'buy_lives',   icon:'❤️', name:'Wspierający',          desc:'Zakup dodatkowe życia',                  check: s => s.lifesPurchased >= 1 },
+];
+
+let achStats = {
+  totalGems:0, perfectLevels:[], noDeathLevel:false,
+  enemyKills:0, maxLevel:1, bestScore:0,
+  keysCollected:0, lifesPurchased:0,
+};
+let unlockedAch = new Set();
+
+function loadAchievements(){
+  try{
+    const d = localStorage.getItem(ACH_KEY);
+    if(d){
+      const parsed = JSON.parse(d);
+      achStats    = parsed.stats    || achStats;
+      unlockedAch = new Set(parsed.unlocked || []);
+    }
+  }catch(e){}
+}
+
+function saveAchievements(){
+  try{
+    localStorage.setItem(ACH_KEY, JSON.stringify({
+      stats: achStats, unlocked: [...unlockedAch]
+    }));
+  }catch(e){}
+}
+
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(unlockedAch.has(a.id)) return;
+    if(a.check(achStats)){
+      unlockedAch.add(a.id);
+      saveAchievements();
+      showAchievementToast(a);
+    }
+  });
+}
+
+let toastQueue = [], toastShowing = false;
+function showAchievementToast(a){
+  toastQueue.push(a);
+  if(!toastShowing) nextToast();
+}
+function nextToast(){
+  if(!toastQueue.length){ toastShowing=false; return; }
+  toastShowing = true;
+  const a = toastQueue.shift();
+  const idx = ACHIEVEMENTS.findIndex(x=>x.id===a.id);
+  const loc = (idx>=0 && LANG.achievements[idx]) ? LANG.achievements[idx] : {name:a.name, desc:a.desc};
+  const toast = document.getElementById('achievement-toast');
+  document.getElementById('ach-toast-icon').textContent = a.icon;
+  document.getElementById('ach-toast-name').textContent = loc.name;
+  document.getElementById('ach-toast-desc').textContent = loc.desc;
+  document.querySelector('.ach-label').textContent = LANG.newBadge;
+  toast.classList.add('show');
+  setTimeout(()=>{
+    toast.classList.remove('show');
+    setTimeout(nextToast, 400);
+  }, 3000);
+}
+
+function showAchievements(){
+  const list = document.getElementById('ach-list');
+  document.querySelector('#ach-bubble h2').textContent = LANG.achTitle;
+  list.innerHTML = ACHIEVEMENTS.map((a,i)=>{
+    const unlocked = unlockedAch.has(a.id);
+    const loc = LANG.achievements[i] || {name:a.name, desc:a.desc};
+    return `<div class="ach-row ${unlocked?'unlocked':'locked'}">
+      <div class="ach-row-icon">${a.icon}</div>
+      <div style="flex:1">
+        <div class="ach-row-name">${loc.name}</div>
+        <div class="ach-row-desc">${unlocked ? loc.desc : '???'}</div>
+      </div>
+      <div class="ach-row-check">${unlocked?'✅':'🔒'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('ach-bubble').style.display='flex';
+}
+function hideAchievements(){
+  document.getElementById('ach-bubble').style.display='none';
+}
+window.showAchievements = showAchievements;
+window.hideAchievements = hideAchievements;
+
+// ── Pause ────────────────────────────────────────
+let isPaused = false;
+function togglePause(){
+  if(GS.state!=='playing') return;
+  isPaused = !isPaused;
+  document.getElementById('pause-screen').style.display = isPaused ? 'flex' : 'none';
+  document.getElementById('btn-pause').textContent = isPaused ? '▶' : '⏸';
+  if(isPaused){ Audio.suspend(); } else { Audio.resume(); _flLastTick = Date.now(); }
+}
+window.togglePause = togglePause;
+
+// ── Mute ─────────────────────────────────────────
+let isMuted = false;
+function toggleMute(){
+  isMuted = !isMuted;
+  document.getElementById('btn-mute').textContent = isMuted ? '🔇' : '🔊';
+  try {
+    const ctx = Audio._getCtx && Audio._getCtx();
+    // Globalny gain obsługuje mute
+    if(isMuted) Audio.setMasterVol(0);
+    else         Audio.setMasterVol(0.7);
+  } catch(e){}
+  try{ localStorage.setItem('wisp_mute', isMuted?'1':'0'); }catch(e){}
+}
+window.toggleMute = toggleMute;
+
+// ── Heart break animation ────────────────────────
+function animateHeartLoss(){
+  const hearts = document.querySelectorAll('.heart:not(.breaking)');
+  if(hearts.length > 0){
+    const last = hearts[hearts.length-1];
+    last.classList.add('breaking');
+    setTimeout(()=>{ updateHUD(); }, 520);
+  }
+}
+
+// ── Ranking system ───────────────────────────────
+const RANK_KEY = 'wisp_ranking';
+const MAX_RANK = 10;
+
+function getRanking(){
+  try{
+    const r = localStorage.getItem(RANK_KEY);
+    return r ? JSON.parse(r) : [];
+  }catch(e){ return []; }
+}
+
+const NICK_KEY = 'wisp_nickname';
+
+function getPlayerNick(){
+  try{ return localStorage.getItem(NICK_KEY) || ''; }catch(e){ return ''; }
+}
+function setPlayerNick(n){ try{ localStorage.setItem(NICK_KEY, n); }catch(e){} }
+
+function promptNickname(callback){
+  // Jeśli nick już zapisany — użyj od razu
+  const saved = getPlayerNick();
+  if(saved){ callback(saved); return; }
+
+  // Pobierz sugestię z Google (jeśli zalogowany)
+  const gUser = (window.WispAuth && window.WispAuth.getUser) ? window.WispAuth.getUser() : null;
+  const suggestion = gUser ? (gUser.nick || gUser.email || '') : '';
+
+  // Stwórz modal
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  const label = LANG_CODE==='pl' ? 'Podaj swój pseudonim do rankingu:' : 'Enter your nickname for the ranking:';
+  const placeholder = LANG_CODE==='pl' ? 'np. Leśny Duch' : 'e.g. Forest Ghost';
+  const btnLabel = LANG_CODE==='pl' ? '✅ Zapisz' : '✅ Save';
+  modal.innerHTML = `<div style="background:#0d1f0d;border:1px solid #3a6a3a;border-radius:14px;padding:24px 28px;max-width:300px;width:90%;text-align:center;">
+    <div style="font-family:'Uncial Antiqua',cursive;color:#b8f0a0;font-size:16px;margin-bottom:14px;">${label}</div>
+    <input id="nick-input" type="text" maxlength="20" value="${suggestion.split(' ')[0]||''}" placeholder="${placeholder}"
+      style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #4a8a4a;background:#071407;color:#c8f0a0;font-size:14px;text-align:center;outline:none;">
+    <button id="nick-save" style="margin-top:14px;padding:8px 28px;background:#2a5a2a;color:#c8f0a0;border:1px solid #4a8a4a;border-radius:8px;font-size:13px;cursor:pointer;">${btnLabel}</button>
+  </div>`;
+  document.body.appendChild(modal);
+  const inp = modal.querySelector('#nick-input');
+  inp.focus();
+  inp.select();
+  const save = ()=>{
+    const nick = (inp.value||'').trim().slice(0,20) || (LANG_CODE==='pl'?'Gracz':'Player');
+    setPlayerNick(nick);
+    modal.remove();
+    callback(nick);
+  };
+  modal.querySelector('#nick-save').onclick = save;
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') save(); });
+}
+
+function saveToRanking(score, level, diff){
+  if(score <= 0) return;
+  const ranking = getRanking();
+  const savedNick = getPlayerNick();
+  const name = savedNick || '?';
+  ranking.push({ name, score, level, diff, date: Date.now(), isMe: true });
+  // Dodaj boty jeśli ranking pusty (dla efektu rywalizacji)
+  if(ranking.filter(r=>!r.isMe).length === 0 && ranking.length === 1){
+    const bots = [
+      {name:'Mgielka',  score:Math.round(score*2.1), level:8, diff:'hard',  date:Date.now()-86400000},
+      {name:'Leśny Duch',score:Math.round(score*1.7), level:7, diff:'medium',date:Date.now()-72000000},
+      {name:'Rusałka',  score:Math.round(score*1.4), level:6, diff:'medium',date:Date.now()-50000000},
+      {name:'Borowy',   score:Math.round(score*1.1), level:5, diff:'easy',  date:Date.now()-36000000},
+      {name:'Mroczen',  score:Math.round(score*0.85),level:4, diff:'hard',  date:Date.now()-20000000},
+    ];
+    bots.forEach(b=>ranking.push(b));
+  }
+  ranking.sort((a,b)=>b.score-a.score);
+  const top = ranking.slice(0, MAX_RANK);
+  try{ localStorage.setItem(RANK_KEY, JSON.stringify(top)); }catch(e){}
+  return top;
+}
+
+function showRanking(){
+  const ranking = getRanking();
+  const list = document.getElementById('ranking-list');
+  const mypos = document.getElementById('ranking-mypos');
+  const medals = ['🥇','🥈','🥉'];
+  document.querySelector('#ranking-bubble h2').textContent = LANG.rankTitle;
+  document.querySelector('.rank-sub').textContent = LANG.rankSub;
+
+  if(ranking.length === 0){
+    list.innerHTML = `<div class="rank-empty">${LANG.rankEmpty}</div>`;
+    mypos.innerHTML = '';
+  } else {
+    list.innerHTML = ranking.slice(0,10).map((r,i)=>{
+      const medal = medals[i] || '';
+      const diffLabel = r.diff==='easy'?'😊':r.diff==='hard'?'💀':'😐';
+      return `<div class="rank-row${r.isMe?' me':''}">
+        <span class="rank-pos" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#6a8a6a'}">${i+1}</span>
+        <span class="rank-medal">${medal}</span>
+        <span class="rank-name">${r.name}${r.isMe?' <b style="color:#a0e060">(You)</b>':''}</span>
+        <span class="rank-diff">${diffLabel}</span>
+        <span class="rank-score">⭐${r.score}</span>
+      </div>`;
+    }).join('');
+    const myIdx = ranking.findIndex(r=>r.isMe);
+    if(myIdx >= 0){
+      mypos.innerHTML = `<div class="rank-you-pos">${LANG.rankYou(myIdx+1, ranking.length)}</div>`;
+    } else {
+      mypos.innerHTML = `<div class="rank-you-pos" style="color:#6a8a6a;">${LANG.rankPlay}</div>`;
+    }
+  }
+  document.getElementById('ranking-bubble').style.display='flex';
+}
+
+function hideRanking(){
+  document.getElementById('ranking-bubble').style.display='none';
+}
+window.showRanking = showRanking;
+window.hideRanking = hideRanking;
+
+// ── Free life timer (co 4 godziny) ──────────────
+// Darmowe życie co 30 min AKTYWNEJ gry (czas biegnie tylko gdy karta widoczna i state=playing)
+const FREE_LIFE_KEY   = 'wisp_freelife_active'; // ms aktywnie spędzonych
+const FREE_LIFE_INTERVAL = 30 * 60 * 1000; // 30 minut aktywnej gry
+
+let _flLastTick = null; // timestamp ostatniego ticka
+
+function _flTick(){
+  if(document.hidden || GS.state !== 'playing' || isPaused) return;
+  const now = Date.now();
+  if(_flLastTick){
+    const delta = Math.min(now - _flLastTick, 5000); // max 5s delta (zabezpieczenie)
+    try{
+      const acc = parseInt(localStorage.getItem(FREE_LIFE_KEY)||'0') + delta;
+      if(acc >= FREE_LIFE_INTERVAL){
+        GS.lives++;
+        updateHUD();
+        localStorage.setItem(FREE_LIFE_KEY, '0');
+        showFreeLifeToast();
+      } else {
+        localStorage.setItem(FREE_LIFE_KEY, acc.toString());
+      }
+    }catch(e){}
+  }
+  _flLastTick = now;
+}
+
+function checkFreeLife(){
+  _flTick();
+  try{
+    const acc = parseInt(localStorage.getItem(FREE_LIFE_KEY)||'0');
+    updateFreeLifeBar(acc);
+  }catch(e){}
+}
+
+function startFreeLifeTimer(){
+  _flLastTick = Date.now();
+  setInterval(()=>{
+    _flTick();
+    try{
+      const acc = parseInt(localStorage.getItem(FREE_LIFE_KEY)||'0');
+      updateFreeLifeBar(acc);
+    }catch(e){}
+  }, 10000); // tick co 10s
+}
+
+function updateFreeLifeBar(elapsed){
+  const bar = document.getElementById('free-life-bar');
+  if(!bar) return;
+  if(GS.state!=='playing'){ bar.style.opacity='0'; return; }
+  const remaining = Math.max(0, FREE_LIFE_INTERVAL - elapsed);
+  if(remaining === 0){ bar.style.opacity='0'; return; }
+  const h = Math.floor(remaining/3600000);
+  const m = Math.floor((remaining%3600000)/60000);
+  bar.textContent = LANG.freeLifeSoon(h, m);
+  bar.style.opacity = '0.8';
+}
+
+function showFreeLifeToast(){
+  const bar = document.getElementById('free-life-bar');
+  if(!bar) return;
+  bar.textContent = LANG.freeLifeGet;
+  bar.style.opacity='1';
+  bar.style.color='#ffd080';
+  setTimeout(()=>{ bar.style.color='#7aaa60'; updateFreeLifeBar(0); },3000);
+}
+
+// ── Die ──────────────────────────────────────────
+function playerDie(){
+  if(P.dead||P.invincible>0) return;
+  P.dead=true;
+  GS.lives--;
+  Audio.sfxDie();
+  animateHeartLoss();
+  spawnBurst(P.x+P.w/2, P.y+P.h/2, '#80ff60', 16);
+  setTimeout(()=>{
+    updateHUD();
+    showOverlay('dead');
+  }, 900);
+}
+
+function levelComplete(){
+  if(GS.state!=='playing') return;
+  GS.state='win';
+  GS.score+=500+(GS.level*50);
+  Audio.sfxLevelComplete();
+  spawnBurst(P.x+P.w/2, P.y+P.h/2, '#ffe080', 20);
+  updateHUD();
+  saveProgress();
+  // Odznaki
+  const allGems = LVL.gems.every(g=>!g.alive);
+  if(allGems && !achStats.perfectLevels.includes(GS.level)){
+    achStats.perfectLevels.push(GS.level);
+  }
+  if(achStats.noDeathLevel === false) achStats.noDeathLevel = !P.dead;
+  achStats.maxLevel = Math.max(achStats.maxLevel, GS.level);
+  achStats.bestScore = Math.max(achStats.bestScore, GS.score);
+  saveAchievements();
+  checkAchievements();
+  // Najpierw nick, potem overlay — żeby uniknąć click-through
+  const _lvl = GS.level;
+  promptNickname(nick=>{
+    saveToRanking(GS.score, _lvl, DIFF);
+    setTimeout(()=>{
+      if(_lvl>=10) showOverlay('finish');
+      else showOverlay('win');
+    }, 400);
+  });
+}
+
+// ── Physics ──────────────────────────────────────
+function updatePhysics(){
+  if(P.dead) return;
+  if(P.invincible>0) P.invincible--;
+
+  const left  = keys['ArrowLeft'] ||keys['a']||tL;
+  const right = keys['ArrowRight']||keys['d']||tR;
+  const jump  = keys['ArrowUp']   ||keys[' ']||keys['w']||tJ;
+
+  // Wind
+  const wind = (LVL.wind || 0) * window._WIND_MULT;
+
+  if(left)       P.vx = -window._SPD;
+  else if(right) P.vx =  window._SPD;
+  else           P.vx *= 0.68;
+
+  // Apply wind
+  P.vx += wind * 0.12;
+  P.vx = Math.max(-window._SPD*1.8, Math.min(window._SPD*1.8, P.vx));
+
+  P.vy += window._GRAV;
+  P.vy = Math.min(P.vy, 20);
+
+  P.x += P.vx;
+  P.y += P.vy;
+  P.onGround = false;
+
+  // Platform collisions
+  LVL.platforms.forEach(pl=>{
+    const px = pl.moving ? pl.origX + Math.sin(pl.t)*pl.mx : pl.x;
+    if(P.x+P.w>px && P.x<px+pl.w &&
+       P.y+P.h>pl.y && P.y+P.h<pl.y+pl.h+Math.abs(P.vy)+3 && P.vy>=0){
+      P.y=pl.y-P.h; P.vy=0; P.onGround=true;
+    }
+  });
+
+  if(jump && P.onGround && !jumpUsed){ P.vy=JUMP; jumpUsed=true; Audio.sfxJump(); }
+  if(!jump) jumpUsed=false;
+
+  // Wrap horizontally
+  if(P.x>W) P.x=-P.w;
+  if(P.x+P.w<0) P.x=W;
+
+  // Kamera śledzi gracza w obu kierunkach
+  const targetY = P.y - H * 0.45;
+  camera.y += (targetY - camera.y) * 0.09;
+  // Nie wychodź poza górę poziomu
+  camera.y = Math.min(camera.y, 0);
+
+  // Spike death
+  LVL.spikes.forEach(s=>{
+    if(P.x+P.w>s.x && P.x<s.x+s.w &&
+       P.y+P.h>s.y-16 && P.y<s.y) playerDie();
+  });
+
+  // Enemy collision
+  LVL.enemies.forEach(e=>{
+    if(!e.alive) return;
+    const ex = e.origX + Math.sin(e.t)*e.range;
+    if(Math.abs((P.x+P.w/2)-(ex+10))<22 &&
+       Math.abs((P.y+P.h/2)-(e.y+10))<22){
+      // Jump on top = kill enemy
+      if(P.vy>1 && P.y+P.h < e.y+14){
+        e.alive=false;
+        P.vy=JUMP*0.55;
+        GS.score+=150;
+        Audio.sfxEnemyKill();
+        spawnBurst(ex+10, e.y, e.color, 10);
+        achStats.enemyKills++;
+        checkAchievements();
+        updateHUD();
+      } else {
+        playerDie();
+      }
+    }
+  });
+
+  // Key pickup
+  if(LVL.needsKey && !LVL.keyCollected && LVL.keyPos){
+    const kx=LVL.keyPos[0], ky=LVL.keyPos[1];
+    if(Math.abs((P.x+P.w/2)-kx)<20 && Math.abs((P.y+P.h/2)-ky)<20){
+      LVL.keyCollected=true;
+      P.hasKey=true;
+      GS.score+=200;
+      Audio.sfxKey();
+      spawnBurst(kx,ky,'#ffd700',14);
+      achStats.keysCollected++;
+      checkAchievements();
+      updateHUD();
+      const ki=document.getElementById('key-indicator');
+      ki.style.opacity='1';
+      setTimeout(()=>ki.style.opacity='0',2000);
+    }
+  }
+
+  // Gem pickup
+  LVL.gems.forEach(g=>{
+    if(!g.alive) return;
+    if(Math.abs((P.x+P.w/2)-g.x)<18 && Math.abs((P.y+P.h/2)-g.y)<18){
+      g.alive=false;
+      GS.score+=100;
+      Audio.sfxGem();
+      spawnBurst(g.x,g.y,LVL.gemColor,8);
+      achStats.totalGems++;
+      checkAchievements();
+      updateHUD();
+    }
+  });
+
+  // Fall off bottom
+  if(P.y-camera.y>H+80) playerDie();
+
+  // Goal
+  const canFinish = !LVL.needsKey || LVL.keyCollected;
+  if(canFinish &&
+     Math.abs((P.x+P.w/2)-(LVL.goal.x+16))<28 &&
+     Math.abs((P.y+P.h/2)-(LVL.goal.y+20))<28){
+    levelComplete();
+  }
+}
+
+function updateEnemies(){
+  LVL.enemies.forEach(e=>{
+    if(!e.alive) return;
+    e.t += 0.015 * e.spd * window._ENEMY_MULT;
+  });
+  LVL.platforms.forEach(pl=>{
+    if(!pl.moving) return;
+    pl.t += 0.018*(pl.ms||1);
+    pl.x = pl.origX + Math.sin(pl.t)*pl.mx;
+  });
+}
+
+// ── Particles ────────────────────────────────────
+function spawnBurst(x,y,color,n){
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2;
+    particles.push({
+      x,y:y-camera.y,
+      vx:Math.cos(a)*(1+Math.random()*2.5),
+      vy:Math.sin(a)*(1+Math.random()*2.5)-1.2,
+      r:3+Math.random()*2.5, life:35, maxLife:35, color
+    });
+  }
+}
+
+function updateParticles(){
+  particles=particles.filter(p=>p.life>0);
+  particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.1;p.life--;});
+}
+
+// ── Drawing ──────────────────────────────────────
+function drawBg(){
+  const th=LVL.theme;
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,th.sky[0]);
+  g.addColorStop(0.5,th.sky[1]);
+  g.addColorStop(1,th.sky[2]);
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,W,H);
+
+  // Stars / atmosphere
+  const t=frameT/60;
+  for(let i=0;i<50;i++){
+    const sx=((i*137+50)%W);
+    const sy=((i*91+20)%(H*2))-camera.y*0.15;
+    const alpha=0.25+0.2*Math.sin(t*1.3+i*0.7);
+    const col = GS.level>=8 ? `rgba(180,220,255,${alpha})` :
+                GS.level>=6 ? `rgba(180,180,255,${alpha})` :
+                GS.level>=4 ? `rgba(220,180,255,${alpha})` :
+                              `rgba(180,255,160,${alpha})`;
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.arc(sx,(sy%H+H)%H,1.2,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // Fog / atmosphere layer
+  if(GS.level>=6){
+    const fg=ctx.createLinearGradient(0,0,0,H);
+    fg.addColorStop(0,th.fog+'0)');
+    fg.addColorStop(0.5,th.fog+'0.08)');
+    fg.addColorStop(1,th.fog+'0.18)');
+    ctx.fillStyle=fg;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // Tree silhouettes
+  const tc = GS.level>=8?'rgba(10,20,40,.6)':GS.level>=6?'rgba(5,5,20,.65)':GS.level>=4?'rgba(20,5,30,.6)':'rgba(10,30,10,.65)';
+  ctx.fillStyle=tc;
+  for(let i=0;i<7;i++){
+    const tx=(i*80+10)%W;
+    const th2=90+(i*53)%70;
+    const ty=H-th2+camera.y*0.04;
+    ctx.beginPath();
+    ctx.moveTo(tx,ty+th2);
+    ctx.lineTo(tx+25,ty);
+    ctx.lineTo(tx+50,ty+th2);
+    ctx.fill();
+  }
+}
+
+function drawPlatform(pl){
+  const py=pl.y-camera.y;
+  if(py<-50||py>H+50) return;
+  const px=pl.moving ? pl.origX+Math.sin(pl.t)*pl.mx : pl.x;
+  const th=LVL.theme;
+
+  const g=ctx.createLinearGradient(0,py,0,py+pl.h);
+  g.addColorStop(0,pl.type==='ground'?th.platform:darken(th.platform,20));
+  g.addColorStop(1,darken(th.platform,40));
+  ctx.fillStyle=g;
+  if(pl.type==='ground'){
+    ctx.fillRect(px,py,pl.w,pl.h);
+  } else {
+    ctx.beginPath();
+    ctx.roundRect(px,py,pl.w,pl.h,5);
+    ctx.fill();
+  }
+  // top edge
+  ctx.fillStyle=th.ptop;
+  if(pl.type==='ground'){
+    ctx.fillRect(px,py,pl.w,4);
+  } else {
+    ctx.beginPath();
+    ctx.roundRect(px,py,pl.w,3,[3,3,0,0]);
+    ctx.fill();
+  }
+  // Moving platform glow
+  if(pl.moving){
+    ctx.strokeStyle='rgba(255,200,100,0.25)';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.roundRect(px,py,pl.w,pl.h,5);
+    ctx.stroke();
+  }
+}
+
+function darken(hex, amt){
+  // Simple hex darkening
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`;
+}
+
+function drawSpike(s){
+  const sy=s.y-camera.y;
+  if(sy<-30||sy>H+30) return;
+  const n=Math.floor(s.w/14);
+  const sw=s.w/n;
+  // Glow for higher levels
+  if(GS.level>=6){ctx.shadowColor='rgba(255,50,50,.4)';ctx.shadowBlur=8;}
+  ctx.fillStyle=GS.level>=8?'#4060aa':GS.level>=6?'#6030aa':'#8a2020';
+  for(let i=0;i<n;i++){
+    ctx.beginPath();
+    ctx.moveTo(s.x+i*sw,sy);
+    ctx.lineTo(s.x+i*sw+sw/2,sy-16);
+    ctx.lineTo(s.x+(i+1)*sw,sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.shadowBlur=0;
+}
+
+function drawGem(g){
+  if(!g.alive) return;
+  const gy=g.y-camera.y;
+  if(gy<-20||gy>H+20) return;
+  g.pulse+=0.05;
+  const s=1+0.15*Math.sin(g.pulse);
+  ctx.save();
+  ctx.translate(g.x,gy);
+  ctx.scale(s,s);
+  ctx.shadowColor=LVL.gemColor;
+  ctx.shadowBlur=10;
+  ctx.fillStyle=LVL.gemColor;
+  ctx.beginPath();
+  ctx.moveTo(0,-8);ctx.lineTo(6,0);ctx.lineTo(0,8);ctx.lineTo(-6,0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.5)';
+  ctx.lineWidth=1;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawKey(){
+  if(!LVL.needsKey||LVL.keyCollected||!LVL.keyPos) return;
+  const kx=LVL.keyPos[0], ky=LVL.keyPos[1]-camera.y;
+  if(ky<-20||ky>H+20) return;
+  const t=frameT*0.04;
+  ctx.save();
+  ctx.translate(kx,ky+Math.sin(t)*4);
+  ctx.shadowColor='#ffd700';
+  ctx.shadowBlur=14;
+  ctx.font='20px serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('🗝️',0,0);
+  ctx.restore();
+}
+
+function drawGoal(){
+  const gx=LVL.goal.x, gy=LVL.goal.y-camera.y;
+  LVL.goal.pulse+=0.04;
+  const canUse=!LVL.needsKey||LVL.keyCollected;
+  ctx.save();
+  ctx.translate(gx+16,gy+20);
+  ctx.shadowColor=canUse?'rgba(100,220,255,.9)':'rgba(150,150,150,.5)';
+  ctx.shadowBlur=20;
+  const r=20+3*Math.sin(LVL.goal.pulse);
+  const gr=ctx.createRadialGradient(0,0,2,0,0,r);
+  const c1=canUse?'rgba(180,255,255,.9)':'rgba(180,180,180,.5)';
+  const c2=canUse?'rgba(60,180,220,.6)':'rgba(80,80,80,.3)';
+  gr.addColorStop(0,c1);gr.addColorStop(0.5,c2);gr.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=gr;
+  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=canUse?'#ffffff':'#888888';
+  ctx.shadowBlur=6;
+  ctx.font='20px serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(canUse?'✦':'🔒',0,0);
+  ctx.restore();
+}
+
+function drawEnemy(e){
+  if(!e.alive) return;
+  const ex=e.origX+Math.sin(e.t)*e.range;
+  const ey=e.y-camera.y;
+  if(ey<-30||ey>H+30) return;
+  const ft=frameT*0.08;
+  ctx.save();
+  ctx.translate(ex+10,ey+10+Math.sin(ft+e.origX)*3);
+  ctx.shadowColor=e.color;
+  ctx.shadowBlur=12;
+  // Body
+  const bg=ctx.createRadialGradient(-2,-2,2,0,0,12);
+  bg.addColorStop(0,'rgba(255,255,255,.9)');
+  bg.addColorStop(0.4,e.color);
+  bg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.ellipse(0,0,11,11,0,0,Math.PI*2);
+  ctx.fill();
+  // Wings
+  ctx.strokeStyle=e.color+'aa';
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.ellipse(-14,0,8,4,Math.PI/6+Math.sin(ft*3)*0.3,0,Math.PI*2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(14,0,8,4,-Math.PI/6-Math.sin(ft*3)*0.3,0,Math.PI*2);
+  ctx.stroke();
+  // Eyes
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#1a0000';
+  ctx.beginPath();ctx.arc(-3,-1,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(3,-1,2,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawPlayer(){
+  if(P.dead) return;
+  const px=P.x, py=P.y-camera.y;
+  P.animT+=0.15;
+
+  // Invincibility flicker
+  if(P.invincible>0 && frameT%6<3) return;
+
+  // Trail
+  P.trail.push({x:px+P.w/2,y:py+P.h/2,a:.45});
+  if(P.trail.length>9) P.trail.shift();
+  P.trail.forEach((tr,i)=>{
+    tr.a-=0.05;
+    if(tr.a<=0) return;
+    ctx.save();
+    ctx.globalAlpha=tr.a*(i/P.trail.length);
+    const tc=GS.level>=8?'#60c0ff':GS.level>=6?'#c080ff':GS.level>=4?'#d090ff':'#80ff60';
+    ctx.fillStyle=tc;
+    ctx.shadowColor=tc;
+    ctx.shadowBlur=5;
+    ctx.beginPath();
+    ctx.arc(tr.x,tr.y,4,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  ctx.save();
+  ctx.translate(px+P.w/2,py+P.h/2);
+
+  const bodyCol = GS.level>=8?'#60c0ff':GS.level>=6?'#c080ff':GS.level>=4?'#d0a0ff':'#80ee60';
+  ctx.shadowColor=bodyCol+'cc';
+  ctx.shadowBlur=16;
+
+  const bg=ctx.createRadialGradient(-2,-4,2,0,0,14);
+  bg.addColorStop(0,'#e8ffe0');
+  bg.addColorStop(0.4,bodyCol);
+  bg.addColorStop(1,'rgba(20,100,10,.3)');
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.ellipse(0,0,13,15,0,0,Math.PI*2);
+  ctx.fill();
+
+  // Key glow if carrying
+  if(P.hasKey){
+    ctx.strokeStyle='rgba(255,215,0,.6)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.arc(0,0,17,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#0a200a';
+  ctx.beginPath();ctx.arc(-4,-3,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(4,-3,2.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='white';
+  ctx.beginPath();ctx.arc(-3,-4,1,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(5,-4,1,0,Math.PI*2);ctx.fill();
+
+  // Tail
+  ctx.strokeStyle=bodyCol+'66';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(0,12);
+  ctx.quadraticCurveTo(6*Math.sin(P.animT),20,0,26);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawParticles(){
+  particles.forEach(p=>{
+    const alpha=p.life/p.maxLife;
+    ctx.save();
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color;
+    ctx.shadowBlur=6;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r*alpha,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawWindEffect(){
+  if(!LVL||!LVL.wind) return;
+  const t=frameT;
+  ctx.save();
+  ctx.strokeStyle=GS.level>=8?'rgba(150,200,255,.07)':'rgba(200,230,255,.05)';
+  ctx.lineWidth=1;
+  for(let i=0;i<6;i++){
+    const wy=((i*130+t*2)%H);
+    const wx=(t*LVL.wind*2+i*80)%W;
+    ctx.beginPath();
+    ctx.moveTo(wx,wy);
+    ctx.lineTo(wx+60,wy+10);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── Main loop ────────────────────────────────────
+function loop(){
+  // Pauza — nie aktualizuj logiki gry
+  if(isPaused){ requestAnimationFrame(loop); return; }
+
+  frameT++;
+  ctx.clearRect(0,0,W,H);
+
+  if(LVL && (GS.state==='playing'||GS.state==='win'||GS.state==='dead_anim')){
+    drawBg();
+    drawWindEffect();
+    LVL.platforms.forEach(drawPlatform);
+    LVL.spikes.forEach(drawSpike);
+    LVL.gems.forEach(drawGem);
+    drawKey();
+    drawGoal();
+    LVL.enemies.forEach(drawEnemy);
+    drawParticles();
+    drawPlayer();
+
+    if(GS.state==='playing' && !isPaused){
+      updatePhysics();
+      updateEnemies();
+      updateParticles();
+    }
+  } else if(GS.state==='menu'){
+    // Animate background on menu
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#040a04');g.addColorStop(1,'#0a1a0a');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // Floating particles on menu
+    const t=frameT*0.02;
+    for(let i=0;i<20;i++){
+      const x=((i*137+50)%W);
+      const y=((i*91+frameT*0.3+20)%H);
+      ctx.fillStyle=`rgba(120,255,90,${0.2+0.15*Math.sin(t+i)})`;
+      ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+// ── Input ────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  keys[e.key]=true;
+  e.preventDefault&&['ArrowUp','ArrowDown',' '].includes(e.key)&&e.preventDefault();
+  // Escape / P = pauza
+  if(e.key==='Escape'||e.key==='p'||e.key==='P') togglePause();
+  // 🔑 Admin skrót: N = następny poziom
+  if(e.key==='n' || e.key==='N'){
+    if(GS.state==='playing'){
+      if(GS.level>=10) showOverlay('finish');
+      else { GS.level++; loadLevel(GS.level); updateHUD(); }
+    }
+  }
+});
+document.addEventListener('keyup',e=>{keys[e.key]=false;});
+
+// ── Joystick ─────────────────────────────────────
+const jZone  = document.getElementById('joystick-zone');
+const jKnob  = document.getElementById('joystick-knob');
+const jBtn   = document.getElementById('jump-btn');
+
+const JOY_RADIUS = 32; // max przesunięcie gałki
+let jActive = false;
+let jStartX = 0;
+let jCenterX = 0;
+let jCenterY = 0;
+
+function jGetCenter(){
+  const r = jZone.getBoundingClientRect();
+  jCenterX = r.left + r.width  / 2;
+  jCenterY = r.top  + r.height / 2;
+}
+
+function jMove(cx){
+  const dx = Math.max(-JOY_RADIUS, Math.min(JOY_RADIUS, cx - jCenterX));
+  // Przesuń gałkę wizualnie
+  jKnob.style.left = (55 + dx) + 'px';   // 55 = środek 110px strefy
+  jKnob.style.top  = '50%';
+  jKnob.style.transform = 'translateY(-50%)';
+
+  const dead = 10; // martwa strefa w pikselach
+  tL = dx < -dead;
+  tR = dx >  dead;
+  jKnob.classList.toggle('active', tL || tR);
+}
+
+function jReset(){
+  jActive = false;
+  tL = false; tR = false;
+  jKnob.style.left = '50%';
+  jKnob.style.top  = '50%';
+  jKnob.style.transform = 'translate(-50%,-50%)';
+  jKnob.classList.remove('active');
+}
+
+jZone.addEventListener('touchstart', e=>{
+  e.preventDefault();
+  jActive = true;
+  jGetCenter();
+  jMove(e.touches[0].clientX);
+},{passive:false});
+
+jZone.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  if(jActive) jMove(e.touches[0].clientX);
+},{passive:false});
+
+jZone.addEventListener('touchend',  e=>{ e.preventDefault(); jReset(); },{passive:false});
+jZone.addEventListener('touchcancel',e=>{ e.preventDefault(); jReset(); },{passive:false});
+
+// Mysz (do testów na PC)
+jZone.addEventListener('mousedown', e=>{ jActive=true; jGetCenter(); jMove(e.clientX); });
+document.addEventListener('mousemove', e=>{ if(jActive) jMove(e.clientX); });
+document.addEventListener('mouseup',   ()=>jReset());
+
+// ── Przycisk skoku ────────────────────────────────
+jBtn.addEventListener('touchstart', e=>{ e.preventDefault(); tJ=true;  jBtn.classList.add('active');    },{passive:false});
+jBtn.addEventListener('touchend',   e=>{ e.preventDefault(); tJ=false; jBtn.classList.remove('active'); },{passive:false});
+jBtn.addEventListener('mousedown',  ()=>{ tJ=true;  jBtn.classList.add('active');    });
+jBtn.addEventListener('mouseup',    ()=>{ tJ=false; jBtn.classList.remove('active'); });
+
+window.showHelp = function(){
+  const b = document.getElementById('help-bubble');
+  b.style.display='flex';
+};
+window.hideHelp = function(){
+  const b = document.getElementById('help-bubble');
+  b.style.display='none';
+};
+
+// Zainicjuj menu (wczytaj zapis, pokaż "Kontynuuj" jeśli jest)
+loadAchievements();
+
+// Wczytaj zapisany język (jeśli gracz ręcznie zmienił)
+try{
+  const savedLang = localStorage.getItem('wisp_lang');
+  if(savedLang && LANGS[savedLang]){
+    LANG_CODE = savedLang;
+    LANG = LANGS[savedLang];
+  }
+}catch(e){}
+
+applyLang();
+initMenu();
+startFreeLifeTimer();
+
+// Rejestracja Service Workera (PWA)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+startFreeLifeTimer();
+
+// Przywróć stan wyciszenia
+try{
+  if(localStorage.getItem('wisp_mute')==='1'){
+    isMuted=true;
+    document.getElementById('btn-mute').textContent='🔇';
+  }
+}catch(e){}
+
+loop();
+
+// Obsługa przycisku wstecz na Androidzie
+history.pushState(null, '', window.location.href);
+window.addEventListener('popstate', () => {
+  history.pushState(null, '', window.location.href); // zablokuj wyjście
+  if(GS.state === 'playing'){
+    togglePause();
+  } else if(GS.state === 'menu'){
+    // w menu — pozwól wyjść (nic nie rób, przeglądarka wyjdzie)
+    history.back();
+  } else {
+    goToMainMenu();
+  }
+});
+
+// Auto-pauza gdy ekran wygaszony lub zakładka nieaktywna
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    if(GS.state === 'playing' && !isPaused) togglePause();
+    else Audio.suspend();
+  } else {
+    if(!isPaused) Audio.resume();
+    _flLastTick = Date.now(); // reset ticka — nie naliczaj czasu nieaktywności
+  }
+});
+
+// ── WispAuth — integracja z backendem ─────────────────────────────────────
+const WispAuth = (function(){
+  const TOKEN_KEY = 'wisp_jwt';
+  const USER_KEY  = 'wisp_user';
+
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY); }catch(e){ return null; } }
+  function getUser(){  try{ return JSON.parse(localStorage.getItem(USER_KEY)||'null'); }catch(e){ return null; } }
+  function setToken(t){ try{ localStorage.setItem(TOKEN_KEY, t); }catch(e){} }
+  function setUser(u){  try{ localStorage.setItem(USER_KEY, JSON.stringify(u)); }catch(e){} }
+  function clearAuth(){ try{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }catch(e){} }
+
+  async function apiGet(path){
+    const t = getToken();
+    if(!t) return null;
+    try{
+      const r = await fetch(path, { headers:{ Authorization:'Bearer '+t } });
+      if(!r.ok) return null;
+      return r.json();
+    }catch(e){ return null; }
+  }
+
+  async function apiPost(path, body){
+    const t = getToken();
+    if(!t) return null;
+    try{
+      const r = await fetch(path, {
+        method:'POST',
+        headers:{ Authorization:'Bearer '+t, 'Content-Type':'application/json' },
+        body: JSON.stringify(body),
+      });
+      if(!r.ok) return null;
+      return r.json();
+    }catch(e){ return null; }
+  }
+
+  function login(){ window.location.href = '/auth/google'; }
+  function logout(){ clearAuth(); updateAuthUI(); }
+
+  async function syncMe(){
+    const data = await apiGet('/auth/me');
+    if(data){ setUser(data); return data; }
+    return null;
+  }
+
+  async function syncLives(){
+    const data = await apiGet('/api/lives');
+    if(data && typeof data.lives === 'number'){
+      GS.lives = Math.max(GS.lives, data.lives);
+      updateHUD();
+    }
+  }
+
+  async function pushProgress(){
+    await apiPost('/api/progress', {
+      level:      GS.level || 1,
+      score:      GS.score || GS.totalScore || 0,
+      lives:      GS.lives || 3,
+      difficulty: DIFF || 'medium',
+    });
+  }
+
+  async function syncProgress(){
+    const server = await apiGet('/api/progress');
+    if(!server) return;
+    const local = loadProgress();
+    const sLvl  = server.level || 1;
+    const lLvl  = local ? (local.level || 1) : 1;
+    const sScr  = server.score || 0;
+    const lScr  = local ? (local.score || 0) : 0;
+    // Serwer wygrywa jeśli ma wyższy poziom, lub ten sam poziom ale wyższy wynik
+    if(sLvl > lLvl || (sLvl === lLvl && sScr > lScr)){
+      const merged = {
+        diff:    server.difficulty || 'medium',
+        level:   sLvl,
+        score:   sScr,
+        lives:   server.lives || 3,
+        savedAt: Date.now(),
+      };
+      try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
+      // Odśwież menu (przycisk Kontynuuj)
+      initMenu();
+    }
+  }
+
+  async function saveScore(){
+    await apiPost('/api/score', {
+      score:      GS.score || GS.totalScore || 0,
+      level:      GS.level || 1,
+      difficulty: DIFF || 'medium',
+    });
+  }
+
+  // Nadpisz buyLives — jeśli zalogowany → Stripe, jeśli nie → pokaż info o logowaniu
+  const _origBuyLives = window.buyLives;
+  window.buyLives = function(n){
+    const token = getToken();
+    if(!token){
+      const msg = LANG_CODE==='pl'
+        ? 'Zaloguj się Google aby kupić życia i zapisać postęp!'
+        : (LANG_CODE==='de' ? 'Melde dich an um Leben zu kaufen!'
+        : (LANG_CODE==='es' ? '¡Inicia sesión para comprar vidas!'
+        : (LANG_CODE==='fr' ? 'Connectez-vous pour acheter des vies !'
+        : 'Log in with Google to buy lives and save your progress!')));
+      // Pokaż info z przyciskiem logowania
+      const panel = document.getElementById('auth-panel');
+      if(panel){ panel.innerHTML = `<div style="color:#ffd080;font-size:12px;background:rgba(80,50,0,.7);border:1px solid #806020;border-radius:8px;padding:8px 14px;margin-top:6px;">${msg}<br><button class="btn" onclick="WispAuth.login()" style="margin-top:6px;padding:5px 14px;font-size:11px;background:rgba(255,255,255,.9);color:#333;">🔑 Google</button></div>`; }
+      return;
+    }
+    // Zalogowany → Stripe Checkout
+    const pkgMap = { 10:'pack_10', 25:'pack_25', 50:'pack_50' };
+    const pkg = pkgMap[n];
+    if(!pkg){ _origBuyLives(n); return; }
+    fetch('/api/buy', {
+      method: 'POST',
+      headers: { Authorization:'Bearer '+token, 'Content-Type':'application/json' },
+      body: JSON.stringify({ package_id: pkg }),
+    })
+    .then(r => r.json())
+    .then(d => { if(d.url) window.location.href = d.url; })
+    .catch(() => _origBuyLives(n)); // fallback lokalnie jeśli backend niedostępny
+  };
+
+  function updateAuthUI(){
+    const user  = getUser();
+    const panel = document.getElementById('auth-panel');
+    const badge = document.getElementById('user-badge');
+
+    if(user && getToken()){
+      // Zalogowany
+      const logoutLabel = LANG_CODE==='pl'?'✕ Wyloguj':(LANG_CODE==='de'?'✕ Abmelden':(LANG_CODE==='es'?'✕ Salir':(LANG_CODE==='fr'?'✕ Déconnexion':'✕ Sign out')));
+      const playerLabel = LANG_CODE==='pl'?'Gracz':(LANG_CODE==='de'?'Spieler':(LANG_CODE==='es'?'Jugador':(LANG_CODE==='fr'?'Joueur':'Player')));
+      if(panel) panel.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90d090;background:rgba(0,60,0,.4);border:1px solid #306030;border-radius:8px;padding:5px 12px;">${user.avatar_url?`<img src="${user.avatar_url}" style="width:22px;height:22px;border-radius:50%;">`:''}<span>${user.nick||user.email||playerLabel}</span> <button class="btn" onclick="WispAuth.logout()" style="padding:3px 8px;font-size:10px;background:rgba(80,20,20,.7);color:#e09090;border:1px solid #602020;">${logoutLabel}</button></div>`;
+      if(badge){ badge.textContent = '👤 '+(user.nick||'?'); badge.style.display='flex'; }
+    } else {
+      // Niezalogowany
+      const loginLabel = LANG_CODE==='pl'?'🔑 Zaloguj przez Google':(LANG_CODE==='de'?'🔑 Mit Google anmelden':(LANG_CODE==='es'?'🔑 Iniciar con Google':(LANG_CODE==='fr'?'🔑 Connexion Google':'🔑 Sign in with Google')));
+      if(panel) panel.innerHTML = `<button class="btn" onclick="WispAuth.login()" style="margin-top:4px;padding:6px 16px;font-size:12px;background:rgba(255,255,255,.12);color:#c0e0c0;border:1px solid #4a7a4a;">${loginLabel}</button>`;
+      if(badge){ badge.style.display='none'; }
+    }
+  }
+
+  // ── Inicjalizacja po załadowaniu strony ───────────────────────────────────
+  (async function init(){
+    const params = new URLSearchParams(window.location.search);
+
+    // Odebranie tokenu po OAuth callbacku
+    const token = params.get('token');
+    if(token){
+      setToken(token);
+      // Wyczyść token z URL
+      const clean = window.location.pathname;
+      history.replaceState({}, '', clean);
+    }
+
+    // Komunikat po zakupie
+    const purchase = params.get('purchase');
+    if(purchase === 'success'){
+      history.replaceState({}, '', window.location.pathname);
+      // Sync z serwerem po chwili (Stripe webhook mógł nie przyjść jeszcze)
+      setTimeout(async ()=>{
+        await syncLives();
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a4a1a;color:#90f090;border:1px solid #306030;border-radius:10px;padding:12px 24px;font-size:14px;z-index:9999;';
+        toast.textContent = LANG_CODE==='pl'?'✅ Zakup udany! Życia dodane do konta.':(LANG_CODE==='de'?'✅ Kauf erfolgreich! Leben hinzugefügt.':(LANG_CODE==='es'?'✅ ¡Compra exitosa! Vidas añadidas.':(LANG_CODE==='fr'?'✅ Achat réussi ! Vies ajoutées.':'✅ Purchase successful! Lives added to your account.')));
+        document.body.appendChild(toast);
+        setTimeout(()=>toast.remove(), 4000);
+      }, 2000);
+    }
+    if(purchase === 'cancel'){
+      history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Komunikat błędu auth
+    const authErr = params.get('auth');
+    if(authErr === 'error'){
+      history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Jeśli mamy token — pobierz dane użytkownika i zsynchronizuj postęp
+    if(getToken()){
+      const user = await syncMe();
+      if(user){
+        await syncLives();
+        await syncProgress(); // załaduj postęp z serwera (wyższy poziom wygrywa)
+      } else {
+        clearAuth(); // token wygasł
+      }
+    }
+
+    updateAuthUI();
+
+    // Zapisz postęp na serwer po ukończeniu poziomu
+    const _origNextLevel = window.nextLevel;
+    window.nextLevel = function(){
+      if(getToken()){
+        saveScore().catch(()=>{});
+        pushProgress().catch(()=>{});
+      }
+      _origNextLevel();
+    };
+
+    // Zapisz postęp na serwer po utracie życia / game over
+    const _origGameOver = window.gameOver;
+    if(typeof _origGameOver === 'function'){
+      window.gameOver = function(){
+        if(getToken()) pushProgress().catch(()=>{});
+        _origGameOver();
+      };
+    }
+  })();
+
+  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI };
+})();
+window.WispAuth = WispAuth;
+</script>
+</body>
+</html>

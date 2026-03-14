@@ -1,0 +1,65 @@
+# Wisp — Duch Lasu | Nginx server block
+# Zainstaluj: cp /home/wisp/wisp.nginx /etc/nginx/sites-available/wisp
+#             ln -s /etc/nginx/sites-available/wisp /etc/nginx/sites-enabled/wisp
+#             nginx -t && systemctl reload nginx
+
+upstream wisp_backend {
+    server 127.0.0.1:3001;
+}
+
+server {
+    listen 80;
+    server_name wispplay.com www.wispplay.com;
+
+    # Cloudflared/certbot — automatyczne HTTPS przez cloudflared tunnel
+    # Nie potrzeba tu HTTPS — cloudflared obsługuje TLS na zewnątrz
+
+    client_max_body_size 10M;
+
+    # Stripe webhook — raw body (nie cachować!)
+    location /webhook/stripe {
+        proxy_pass http://wisp_backend;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-store";
+    }
+
+    # API i Auth — bez cache
+    location ~ ^/(api|auth)/ {
+        proxy_pass http://wisp_backend;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-store";
+    }
+
+    # HTML — bez cache (game.html się zmienia)
+    location ~* \.html$ {
+        proxy_pass http://wisp_backend;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+
+    # Statyczne pliki — z cache
+    location ~* \.(js|css|png|jpg|webp|svg|ico|json|woff2?)$ {
+        proxy_pass http://wisp_backend;
+        proxy_set_header Host $host;
+        add_header Cache-Control "public, max-age=3600";
+    }
+
+    # Domyślnie — proxy do backend
+    location / {
+        proxy_pass http://wisp_backend;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+}
