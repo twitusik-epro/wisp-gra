@@ -338,6 +338,7 @@ app.post('/api/progress', requireAuth, (req, res) => {
     progressTs,
     req.user.id
   );
+  console.log(`📊 progress uid=${req.user.id} lives=${lives} level=${level} ua=${req.headers['user-agent']?.slice(0,60)}`);
   res.json({ ok: true });
 });
 
