@@ -361,33 +361,42 @@ app.post('/api/buy', requireAuth, (req, res) => {
 // ─── Paddle Webhook ──────────────────────────────────────────────────────────
 async function handlePaddleWebhook(req, res) {
   console.log('📦 Paddle webhook odebrany');
-  if (!paddle || !PADDLE_WEBHOOK_SECRET) {
-    console.error('Paddle webhook: brak paddle lub secret');
+  if (!PADDLE_WEBHOOK_SECRET) {
     return res.status(503).json({ error: 'Webhook nie skonfigurowany' });
+  }
+
+  // Weryfikacja podpisu HMAC-SHA256 bez SDK
+  const sig = req.headers['paddle-signature'];
+  if (!sig) return res.status(400).json({ error: 'Brak podpisu' });
+  try {
+    const [tsPart, h1Part] = sig.split(';');
+    const ts = tsPart.split('=')[1];
+    const h1 = h1Part.split('=')[1];
+    const body = req.body.toString();
+    const computed = require('crypto').createHmac('sha256', PADDLE_WEBHOOK_SECRET)
+      .update(`${ts}:${body}`).digest('hex');
+    if (computed !== h1) {
+      console.error('Paddle webhook: nieprawidłowy podpis');
+      return res.status(400).json({ error: 'Invalid signature' });
+    }
+  } catch (err) {
+    console.error('Paddle webhook signature error:', err.message);
+    return res.status(400).json({ error: err.message });
   }
 
   let event;
   try {
-    const sig = req.headers['paddle-signature'];
-    console.log('Paddle sig:', sig ? sig.slice(0, 30) + '...' : 'BRAK');
-    event = paddle.webhooks.unmarshal(req.body.toString(), PADDLE_WEBHOOK_SECRET, sig);
-    const evType = event ? (event.eventType || event.event_type) : null;
-    console.log('Paddle event type:', evType, '| keys:', event ? Object.keys(event).join(',') : 'null');
+    event = JSON.parse(req.body.toString());
   } catch (err) {
-    console.error('Paddle webhook signature error:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  if (!event) {
-    console.error('Paddle webhook: event null (błąd podpisu?)');
-    return res.json({ received: true });
-  }
+  console.log('Paddle event_type:', event.event_type);
 
-  const evType = event.eventType || event.event_type;
-  if (evType === 'transaction.completed') {
+  if (event.event_type === 'transaction.completed') {
     const txn = event.data;
-    const customData = txn ? (txn.customData || txn.custom_data || {}) : {};
-    console.log('Paddle txn id:', txn && txn.id, 'customData:', JSON.stringify(customData));
+    const customData = txn.custom_data || {};
+    console.log('Paddle txn id:', txn.id, 'customData:', JSON.stringify(customData));
     try {
       const userId  = parseInt(customData.user_id);
       const pkgId   = customData.package_id;
