@@ -924,9 +924,6 @@ window.continueGame = function(){
   Audio.init();
   DIFF = save.diff || 'medium';
   GS = { state:'playing', lives:save.lives, score:save.score, level:save.level, totalScore:save.score };
-  // Zastosuj życia z serwera jeśli więcej niż w zapisie
-  const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  if(typeof sl === 'number') GS.lives = Math.max(GS.lives, sl);
   applyDifficulty();
   document.getElementById('overlay').style.display='none';
   document.getElementById('hud').style.display='flex';
@@ -1824,6 +1821,7 @@ function restartGame(){
 }
 function goToMainMenu(){
   isPaused = false;
+  if(GS.state === 'playing') saveProgress(); // zapisz aktualny stan (w tym lives) przed wyjściem
   GS.state = 'menu';
   Audio.stopMusic();
   Audio.resume();
