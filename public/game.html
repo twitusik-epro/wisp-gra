@@ -278,7 +278,7 @@ canvas{
   display:none;flex-direction:column;
   align-items:center;padding:18px 16px;
   pointer-events:all;overflow-y:auto;
-  animation:bubbleIn .25s ease;z-index:10;
+  animation:bubbleIn .25s ease;z-index:20;
 }
 #ranking-bubble h2{font-family:'Uncial Antiqua',cursive;color:#ffd080;font-size:20px;
   margin-bottom:4px;text-shadow:0 0 10px rgba(255,200,80,.6);}
@@ -835,7 +835,16 @@ function selectDiff(d){
   ['easy','medium','hard'].forEach(x=>{
     document.getElementById('diff-'+x).classList.toggle('selected', x===d);
   });
-  saveProgress();
+  if(GS.state === 'playing'){
+    // Podczas gry — zapisz pełny stan
+    saveProgress();
+  } else {
+    // W menu — zaktualizuj tylko pole diff, nie nadpisuj poziomu/wyniku/żyć
+    try{
+      const ex = loadProgress();
+      if(ex){ ex.diff = d; localStorage.setItem(SAVE_KEY, JSON.stringify(ex)); }
+    }catch(e){}
+  }
 }
 
 // ── localStorage ─────────────────────────────────
@@ -1778,10 +1787,15 @@ function goToMainMenu(){
   document.getElementById('pause-screen').style.display='none';
   document.getElementById('btn-pause').textContent='⏸';
   hideResultScreen();
-  document.getElementById('overlay').style.display='flex';
+  hideRanking();
+  const ov = document.getElementById('overlay');
+  ov.style.pointerEvents = 'none';
+  ov.style.display = 'flex';
   document.getElementById('hud').style.display='none';
   applyLang();
   initMenu();
+  // Krótkie opóźnienie — blokuje click-through z ekranu wyników
+  setTimeout(() => { ov.style.pointerEvents = 'all'; }, 300);
 }
 window.startGame=startGame;
 window.restartLevel=restartLevel;
