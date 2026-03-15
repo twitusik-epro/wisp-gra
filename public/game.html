@@ -1805,6 +1805,7 @@ function startGame(){
 function restartLevel(){
   hideResultScreen();
   GS.state='playing';
+  if(window.WispAuth && window.WispAuth.getToken()) window.WispAuth.pushProgress().catch(()=>{});
   loadLevel(GS.level);
 }
 function nextLevel(){
