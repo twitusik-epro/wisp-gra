@@ -104,7 +104,7 @@ const stmts = {
     RETURNING user_id, lives
   `),
   getPurchaseBySession: db.prepare('SELECT * FROM purchases WHERE stripe_session_id = ?'),
-  saveProgress: db.prepare('UPDATE users SET lives = MAX(lives, ?), level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
+  saveProgress: db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
 
   // Admin
   listUsers:       db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users ORDER BY last_login DESC LIMIT 200`),
