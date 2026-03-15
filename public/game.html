@@ -924,6 +924,9 @@ window.continueGame = function(){
   Audio.init();
   DIFF = save.diff || 'medium';
   GS = { state:'playing', lives:save.lives, score:save.score, level:save.level, totalScore:save.score };
+  // Zastosuj życia z serwera jeśli admin dodał więcej (aktualizowane przez setServerLives przy wyjściu do menu)
+  const _slC = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
+  if(typeof _slC === 'number' && _slC > GS.lives) GS.lives = _slC;
   applyDifficulty();
   document.getElementById('overlay').style.display='none';
   document.getElementById('hud').style.display='flex';
@@ -1821,7 +1824,11 @@ function restartGame(){
 }
 function goToMainMenu(){
   isPaused = false;
-  if(GS.state === 'playing') saveProgress(); // zapisz aktualny stan (w tym lives) przed wyjściem
+  if(GS.state === 'playing'){
+    saveProgress(); // zapisz aktualny stan (w tym lives) przed wyjściem
+    // Zaktualizuj _serverLives do aktualnych żyć — żeby Math.max w continueGame nie przywrócił starszej wartości
+    if(window.WispAuth && window.WispAuth.setServerLives) window.WispAuth.setServerLives(GS.lives);
+  }
   GS.state = 'menu';
   Audio.stopMusic();
   Audio.resume();
@@ -3101,7 +3108,7 @@ const WispAuth = (function(){
     }
   })();
 
-  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, getServerLives: () => _serverLives };
+  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, getServerLives: () => _serverLives, setServerLives: (n) => { _serverLives = n; } };
 })();
 window.WispAuth = WispAuth;
 </script>
