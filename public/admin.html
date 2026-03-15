@@ -76,13 +76,11 @@ td .actions{display:flex;gap:6px;}
       <div class="card"><div class="val" id="s-7d">—</div><div class="lbl">Aktywnych (7 dni)</div></div>
       <div class="card"><div class="val" id="s-30d">—</div><div class="lbl">Aktywnych (30 dni)</div></div>
       <div class="card"><div class="val" id="s-new7d">—</div><div class="lbl">Nowych (7 dni)</div></div>
-      <div class="card"><div class="val" id="s-revenue">—</div><div class="lbl">Przychód (zł)</div><div class="sub2" id="s-purchases">zakupy: —</div></div>
+      <div class="card"><div class="val" id="s-revenue">—</div><div class="lbl">Przychód</div><div class="sub2" id="s-purchases">zakupy: —</div></div>
     </div>
-    <div style="color:#3a6a3a;font-size:12px;" id="refresh-time"></div>
-  </div>
+    <div style="color:#3a6a3a;font-size:12px;margin-bottom:16px;" id="refresh-time"></div>
 
-  <!-- USERS -->
-  <div id="section-users" class="section">
+    <!-- Lista użytkowników bezpośrednio na dashboardzie -->
     <div class="toolbar">
       <input type="text" id="user-search" placeholder="Szukaj po nicku lub e-mailu…" oninput="searchUsers()">
       <button class="btn" onclick="loadUsers()">↺ Odśwież</button>
@@ -101,6 +99,9 @@ td .actions{display:flex;gap:6px;}
       </table>
     </div>
   </div>
+
+  <!-- USERS — ukryta (lista przeniesiona na dashboard) -->
+  <div id="section-users" class="section"></div>
 
   <!-- PURCHASES -->
   <div id="section-purchases" class="section">
@@ -149,8 +150,8 @@ function showSection(name) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   event.target.classList.add('active');
-  if (name === 'dashboard') loadStats();
-  if (name === 'users') loadUsers();
+  if (name === 'dashboard') { loadStats(); loadUsers(); }
+  if (name === 'users') { showSection('dashboard'); return; } // przekieruj na dashboard
   if (name === 'purchases') loadPurchases();
 }
 
@@ -299,16 +300,13 @@ document.getElementById('modal-lives-delta').addEventListener('keydown', e => { 
 
 // Start
 loadStats();
+loadUsers();
 
 // Auto-odświeżanie co 60 sekund
 setInterval(() => {
   const active = document.querySelector('.section.active');
   if(!active) return;
-  if(active.id === 'section-dashboard') loadStats();
-  else if(active.id === 'section-users'){
-    const q = document.getElementById('user-search').value.trim();
-    loadUsers(q || undefined);
-  }
+  if(active.id === 'section-dashboard') { loadStats(); loadUsers(); }
   else if(active.id === 'section-purchases') loadPurchases();
 }, 60000);
 </script>
