@@ -1828,6 +1828,8 @@ function goToMainMenu(){
     saveProgress(); // zapisz aktualny stan (w tym lives) przed wyjściem
     // Zaktualizuj _serverLives do aktualnych żyć — żeby Math.max w continueGame nie przywrócił starszej wartości
     if(window.WispAuth && window.WispAuth.setServerLives) window.WispAuth.setServerLives(GS.lives);
+    // Wyślij na serwer — żeby telefon/drugi device dostał aktualne życia
+    if(window.WispAuth && window.WispAuth.getToken()) window.WispAuth.pushProgress().catch(()=>{});
   }
   GS.state = 'menu';
   Audio.stopMusic();
