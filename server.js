@@ -327,10 +327,12 @@ app.post('/api/progress', requireAuth, (req, res) => {
   if (typeof level !== 'number' || typeof score !== 'number') {
     return res.status(400).json({ error: 'Nieprawidłowe dane' });
   }
-  // ts od klienta jest w ms (Date.now()), konwertujemy do sekund Unix
   const progressTs = typeof ts === 'number' ? Math.floor(ts / 1000) : Math.floor(Date.now() / 1000);
+  // Nigdy nie zmniejszaj lives poniżej tego co jest w DB — chroni zakupione życia
+  const current = stmts.getUserById.get(req.user.id);
+  const safeLives = Math.max(Math.max(1, lives || 3), current ? current.lives : 1);
   stmts.saveProgress.run(
-    Math.max(1, lives || 3),
+    safeLives,
     Math.max(1, level),
     Math.max(0, score),
     difficulty || 'medium',

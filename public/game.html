@@ -3069,12 +3069,13 @@ const WispAuth = (function(){
       // Sync z serwerem po chwili (Paddle webhook mógł nie przyjść jeszcze)
       setTimeout(async ()=>{
         await syncLives();
+        await syncProgress(); // odśwież localStorage z nową ilością żyć po webhook
         const toast = document.createElement('div');
         toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a4a1a;color:#90f090;border:1px solid #306030;border-radius:10px;padding:12px 24px;font-size:14px;z-index:9999;';
         toast.textContent = LANG_CODE==='pl'?'✅ Zakup udany! Życia dodane do konta.':(LANG_CODE==='de'?'✅ Kauf erfolgreich! Leben hinzugefügt.':(LANG_CODE==='es'?'✅ ¡Compra exitosa! Vidas añadidas.':(LANG_CODE==='fr'?'✅ Achat réussi ! Vies ajoutées.':'✅ Purchase successful! Lives added to your account.')));
         document.body.appendChild(toast);
         setTimeout(()=>toast.remove(), 4000);
-      }, 2000);
+      }, 3000);
     }
     if(purchase === 'cancel'){
       history.replaceState({}, '', window.location.pathname);
