@@ -360,7 +360,7 @@ app.post('/api/buy', requireAuth, (req, res) => {
 
 // ─── Paddle Webhook ──────────────────────────────────────────────────────────
 async function handlePaddleWebhook(req, res) {
-  console.log('📦 Paddle webhook odebrany');
+  console.log('📦 Paddle webhook');
   if (!PADDLE_WEBHOOK_SECRET) {
     return res.status(503).json({ error: 'Webhook nie skonfigurowany' });
   }
@@ -391,12 +391,9 @@ async function handlePaddleWebhook(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  console.log('Paddle event_type:', event.event_type);
-
   if (event.event_type === 'transaction.completed') {
     const txn = event.data;
     const customData = txn.custom_data || {};
-    console.log('Paddle txn id:', txn.id, 'customData:', JSON.stringify(customData));
     try {
       const userId  = parseInt(customData.user_id);
       const pkgId   = customData.package_id;
