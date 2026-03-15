@@ -2992,18 +2992,6 @@ const WispAuth = (function(){
     });
   }
 
-  // Inicjalizacja Paddle.js (sandbox lub production wg meta tagu)
-  const _paddleEnv = document.querySelector('meta[name="paddle-env"]')?.content || 'sandbox';
-  const _paddleClientToken = document.querySelector('meta[name="paddle-token"]')?.content || '';
-  if(window.Paddle){
-    if(_paddleEnv === 'production'){
-      Paddle.Initialize({ token: _paddleClientToken });
-    } else {
-      Paddle.Environment.set('sandbox');
-      Paddle.Initialize({ token: _paddleClientToken });
-    }
-  }
-
   // Nadpisz buyLives — jeśli zalogowany → Paddle overlay, jeśli nie → pokaż info
   const _origBuyLives = window.buyLives;
   window.buyLives = function(n){
@@ -3128,6 +3116,16 @@ const WispAuth = (function(){
       };
     }
   })();
+
+  // Inicjalizacja Paddle.js — po override buyLives, w try-catch żeby błąd nie blokował gry
+  try {
+    const _paddleEnv   = document.querySelector('meta[name="paddle-env"]')?.content || 'sandbox';
+    const _paddleToken = document.querySelector('meta[name="paddle-token"]')?.content || '';
+    if(window.Paddle && _paddleToken){
+      if(_paddleEnv !== 'production') Paddle.Environment.set('sandbox');
+      Paddle.Initialize({ token: _paddleToken });
+    }
+  } catch(e){ console.warn('Paddle init error:', e); }
 
   return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, getServerLives: () => _serverLives, setServerLives: (n) => { _serverLives = n; } };
 })();
