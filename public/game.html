@@ -2207,7 +2207,7 @@ function playerDie(){
   if(P.dead||P.invincible>0) return;
   P.dead=true;
   GS.lives--;
-  pushProgress(); // sync lives to server immediately — webhook adds to correct value
+  if(window.WispAuth && window.WispAuth.getToken()) window.WispAuth.pushProgress().catch(()=>{});
   Audio.sfxDie();
   animateHeartLoss();
   spawnBurst(P.x+P.w/2, P.y+P.h/2, '#80ff60', 16);
