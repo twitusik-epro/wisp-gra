@@ -2949,16 +2949,8 @@ const WispAuth = (function(){
     const data = await apiGet('/api/lives');
     if(data && typeof data.lives === 'number'){
       _serverLives = data.lives;
-      GS.lives = Math.max(GS.lives || 0, data.lives);
-      // Zaktualizuj localStorage jeśli istnieje zapis
-      try{
-        const ex = loadProgress();
-        if(ex && data.lives > (ex.lives || 0)){
-          ex.lives = data.lives;
-          localStorage.setItem(SAVE_KEY, JSON.stringify(ex));
-        }
-      }catch(e){}
-      updateHUD();
+      // Nie nadpisuj localStorage — syncProgress() jest autorytatywne dla stanu gry
+      // _serverLives używane tylko w Math.max przy startGame (admin dodał życia)
     }
   }
 
