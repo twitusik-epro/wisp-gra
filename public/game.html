@@ -2886,6 +2886,11 @@ document.addEventListener('visibilitychange', () => {
   if(document.hidden){
     if(GS.state === 'playing' && !isPaused) togglePause();
     else Audio.suspend();
+    // Wyślij progress na serwer gdy gracz opuszcza kartę/aplikację
+    if(GS.state === 'playing' && window.WispAuth && window.WispAuth.getToken()){
+      saveProgress();
+      window.WispAuth.pushProgress().catch(()=>{});
+    }
   } else {
     if(!isPaused) Audio.resume();
     _flLastTick = Date.now(); // reset ticka — nie naliczaj czasu nieaktywności
