@@ -907,6 +907,15 @@ function initMenu(){
 window.clearSave = function(){
   clearProgress();
   document.getElementById('continue-wrap').innerHTML='';
+  // Zresetuj też serwer — inaczej syncProgress przywróci stary poziom
+  const tok = window.WispAuth && window.WispAuth.getToken ? window.WispAuth.getToken() : null;
+  if(tok){
+    fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ level: 1, score: 0, lives: 3, difficulty: DIFF || 'medium', ts: Date.now() })
+    }).catch(()=>{});
+  }
 };
 
 window.continueGame = function(){
