@@ -69,7 +69,7 @@ canvas{
 #overlay h1{font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;line-height:1.4;margin-bottom:8px;}
 #overlay .sub{font-family:'Lora',serif;font-style:italic;font-size:15px;text-align:center;margin:6px 24px;line-height:1.6;}
 #overlay .big-score{font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;}
-.btn{margin-top:14px;padding:12px 32px;border-radius:30px;font-family:'Uncial Antiqua',cursive;font-size:13px;cursor:pointer;pointer-events:all;transition:all .2s;letter-spacing:.5px;border:none;}
+.btn{margin-top:14px;padding:12px 32px;border-radius:30px;font-family:'Uncial Antiqua',cursive;font-size:13px;cursor:pointer;pointer-events:all;transition:all .2s;letter-spacing:.5px;border:none;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.1);}
 .btn-green{background:linear-gradient(135deg,#1e4a1e,#2d6e2d);color:#b8eea0;border:1px solid #4a8a3a;box-shadow:0 0 18px rgba(60,180,40,.3);}
 .btn-green:hover{background:linear-gradient(135deg,#2d6e2d,#3a8a3a);transform:scale(1.04);}
 .btn-gold{background:linear-gradient(135deg,#5a3a00,#8a5a00);color:#ffe080;border:1px solid #aa8020;box-shadow:0 0 18px rgba(200,150,0,.35);}
@@ -888,12 +888,18 @@ function initMenu(){
     if(save.level > 1 || save.score > 0){
       const wrap = document.getElementById('continue-wrap');
       wrap.innerHTML = `
-        <button class="btn btn-gold" onclick="continueGame()" style="margin-top:6px;">
+        <button class="btn btn-gold" id="btn-continue" style="margin-top:6px;">
           ${LANG.continueBtn(save.level, save.score)}
         </button>
-        <div class="sub" style="font-size:10px;color:#6a5a30;margin-top:4px;cursor:pointer;" onclick="clearSave()">
+        <div class="sub" id="btn-clear-save" style="font-size:10px;color:#6a5a30;margin-top:4px;cursor:pointer;touch-action:manipulation;">
           ${LANG.clearSave}
         </div>`;
+      // Jawne listenery — bezpieczniejsze na mobile niż onclick w innerHTML
+      const btnC = document.getElementById('btn-continue');
+      btnC.addEventListener('click', continueGame);
+      btnC.addEventListener('touchend', function(e){ e.preventDefault(); continueGame(); });
+      document.getElementById('btn-clear-save').addEventListener('click', clearSave);
+      document.getElementById('btn-clear-save').addEventListener('touchend', function(e){ e.preventDefault(); clearSave(); });
     }
   }
 }

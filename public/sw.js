@@ -1,5 +1,5 @@
 // Service Worker — Wisp: Duch Lasu
-const CACHE = 'wisp-v3';
+const CACHE = 'wisp-v4';
 const STATIC = ['./manifest.json'];
 
 self.addEventListener('install', e => {
@@ -18,12 +18,17 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // HTML — zawsze z sieci (no-cache), nigdy z cache SW
+  // HTML — zawsze z sieci
   if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-  // Pozostałe — cache first
+  // API i auth — zawsze z sieci (dane dynamiczne, nigdy z cache!)
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/') || url.pathname.startsWith('/webhook/')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+  // Pozostałe zasoby statyczne — cache first
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       if (res.ok) {
