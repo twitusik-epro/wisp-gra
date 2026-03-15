@@ -28,6 +28,10 @@
 <meta name="twitter:description" content="Darmowa gra przeglądarkowa. Przebudź magię zaczarowanego lasu.">
 
 <link rel="manifest" href="manifest.json">
+<!-- Paddle.js -->
+<meta name="paddle-env" content="sandbox">
+<meta name="paddle-token" content="test_TOKEN_PLACEHOLDER">
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 <!-- Ikona SVG inline jako favicon -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23071407'/><ellipse cx='32' cy='30' rx='13' ry='15' fill='%2380ee60'/><circle cx='27' cy='26' r='3' fill='%230a200a'/><circle cx='37' cy='26' r='3' fill='%230a200a'/><circle cx='28' cy='25' r='1.2' fill='white'/><circle cx='38' cy='25' r='1.2' fill='white'/></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23071407'/><ellipse cx='32' cy='30' rx='13' ry='15' fill='%2380ee60'/></svg>">
@@ -2988,7 +2992,19 @@ const WispAuth = (function(){
     });
   }
 
-  // Nadpisz buyLives — jeśli zalogowany → Stripe, jeśli nie → pokaż info o logowaniu
+  // Inicjalizacja Paddle.js (sandbox lub production wg meta tagu)
+  const _paddleEnv = document.querySelector('meta[name="paddle-env"]')?.content || 'sandbox';
+  const _paddleClientToken = document.querySelector('meta[name="paddle-token"]')?.content || '';
+  if(window.Paddle){
+    if(_paddleEnv === 'production'){
+      Paddle.Initialize({ token: _paddleClientToken });
+    } else {
+      Paddle.Environment.set('sandbox');
+      Paddle.Initialize({ token: _paddleClientToken });
+    }
+  }
+
+  // Nadpisz buyLives — jeśli zalogowany → Paddle overlay, jeśli nie → pokaż info
   const _origBuyLives = window.buyLives;
   window.buyLives = function(n){
     const token = getToken();
@@ -2999,12 +3015,11 @@ const WispAuth = (function(){
         : (LANG_CODE==='es' ? '¡Inicia sesión para comprar vidas!'
         : (LANG_CODE==='fr' ? 'Connectez-vous pour acheter des vies !'
         : 'Log in with Google to buy lives and save your progress!')));
-      // Pokaż info z przyciskiem logowania
       const panel = document.getElementById('auth-panel');
       if(panel){ panel.innerHTML = `<div style="color:#ffd080;font-size:12px;background:rgba(80,50,0,.7);border:1px solid #806020;border-radius:8px;padding:8px 14px;margin-top:6px;">${msg}<br><button class="btn" onclick="WispAuth.login()" style="margin-top:6px;padding:5px 14px;font-size:11px;background:rgba(255,255,255,.9);color:#333;">🔑 Google</button></div>`; }
       return;
     }
-    // Zalogowany → Stripe Checkout
+    // Zalogowany → Paddle Checkout overlay
     const pkgMap = { 10:'pack_10', 25:'pack_25', 50:'pack_50' };
     const pkg = pkgMap[n];
     if(!pkg){ _origBuyLives(n); return; }
@@ -3014,8 +3029,15 @@ const WispAuth = (function(){
       body: JSON.stringify({ package_id: pkg }),
     })
     .then(r => r.json())
-    .then(d => { if(d.url) window.location.href = d.url; })
-    .catch(() => _origBuyLives(n)); // fallback lokalnie jeśli backend niedostępny
+    .then(d => {
+      if(!d.price_id || !window.Paddle){ return; }
+      Paddle.Checkout.open({
+        items: [{ priceId: d.price_id, quantity: 1 }],
+        customData: { user_id: String(d.user_id), package_id: d.package_id },
+        settings: { successUrl: window.location.pathname + '?purchase=success' },
+      });
+    })
+    .catch(() => _origBuyLives(n));
   };
 
   function updateAuthUI(){
@@ -3054,7 +3076,7 @@ const WispAuth = (function(){
     const purchase = params.get('purchase');
     if(purchase === 'success'){
       history.replaceState({}, '', window.location.pathname);
-      // Sync z serwerem po chwili (Stripe webhook mógł nie przyjść jeszcze)
+      // Sync z serwerem po chwili (Paddle webhook mógł nie przyjść jeszcze)
       setTimeout(async ()=>{
         await syncLives();
         const toast = document.createElement('div');

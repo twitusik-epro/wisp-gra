@@ -7,7 +7,7 @@ const cors       = require('cors');
 const passport   = require('passport');
 const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const jwt        = require('jsonwebtoken');
-const Stripe     = require('stripe');
+const { Paddle, Environment } = require('@paddle/paddle-node-sdk');
 const Database   = require('better-sqlite3');
 
 // ─── Config ────────────────────────────────────────────────────────────────
@@ -16,8 +16,9 @@ const BASE_URL          = process.env.BASE_URL          || `http://localhost:${P
 const JWT_SECRET        = process.env.JWT_SECRET;
 const GOOGLE_CLIENT_ID  = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+const PADDLE_API_KEY       = process.env.PADDLE_API_KEY;
+const PADDLE_WEBHOOK_SECRET = process.env.PADDLE_WEBHOOK_SECRET;
+const PADDLE_ENV           = process.env.PADDLE_ENV || 'sandbox'; // 'sandbox' lub 'production'
 const NODE_ENV          = process.env.NODE_ENV || 'development';
 const ADMIN_USER        = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS        = process.env.ADMIN_PASS || 'changeme';
@@ -59,10 +60,10 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS purchases (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id           INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    stripe_session_id TEXT UNIQUE,
+    paddle_txn_id     TEXT UNIQUE,
     package_id        TEXT,
     lives             INTEGER,
-    amount_pln_gr     INTEGER,
+    amount_eur_ct     INTEGER,
     status            TEXT DEFAULT 'pending',
     created_at        DATETIME DEFAULT CURRENT_TIMESTAMP
   );
@@ -96,14 +97,9 @@ const stmts = {
     LIMIT 20
   `),
   insertPurchase: db.prepare(`
-    INSERT INTO purchases (user_id, stripe_session_id, package_id, lives, amount_pln_gr, status)
-    VALUES (@user_id, @stripe_session_id, @package_id, @lives, @amount_pln_gr, 'pending')
+    INSERT OR IGNORE INTO purchases (user_id, paddle_txn_id, package_id, lives, amount_eur_ct, status)
+    VALUES (@user_id, @paddle_txn_id, @package_id, @lives, @amount_eur_ct, 'completed')
   `),
-  completePurchase: db.prepare(`
-    UPDATE purchases SET status = 'completed' WHERE stripe_session_id = ? AND status = 'pending'
-    RETURNING user_id, lives
-  `),
-  getPurchaseBySession: db.prepare('SELECT * FROM purchases WHERE stripe_session_id = ?'),
   saveProgress: db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
 
   // Admin
@@ -112,25 +108,27 @@ const stmts = {
   deleteUser:      db.prepare('DELETE FROM users WHERE id = ?'),
   setLives:        db.prepare('UPDATE users SET lives = ? WHERE id = ?'),
   statsUsers:      db.prepare(`SELECT COUNT(*) as total, COUNT(CASE WHEN last_login > datetime('now','-7 days') THEN 1 END) as active_7d, COUNT(CASE WHEN last_login > datetime('now','-30 days') THEN 1 END) as active_30d, COUNT(CASE WHEN created_at > datetime('now','-7 days') THEN 1 END) as new_7d FROM users`),
-  statsPurchases:  db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(CASE WHEN status='completed' THEN amount_pln_gr ELSE 0 END),0) as revenue_gr, COUNT(CASE WHEN status='completed' THEN 1 END) as completed FROM purchases`),
+  statsPurchases:  db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(CASE WHEN status='completed' THEN amount_eur_ct ELSE 0 END),0) as revenue_gr, COUNT(CASE WHEN status='completed' THEN 1 END) as completed FROM purchases`),
   recentPurchases: db.prepare(`SELECT p.id, p.user_id, p.package_id, p.lives, p.amount_pln_gr, p.status, p.created_at, u.nick, u.email FROM purchases p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC LIMIT 100`),
   purgeOldUsers:   db.prepare(`DELETE FROM users WHERE last_login < datetime('now','-3 years') AND last_login IS NOT NULL`),
 };
 
-// ─── Stripe ────────────────────────────────────────────────────────────────
-const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
+// ─── Paddle ────────────────────────────────────────────────────────────────
+const paddle = PADDLE_API_KEY ? new Paddle(PADDLE_API_KEY, {
+  environment: PADDLE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+}) : null;
 
 const PACKAGES = {
-  pack_10: { lives: 10, amount:  99, currency: 'eur', label: '10 lives', price_display: '0,99 €' },
-  pack_25: { lives: 25, amount: 199, currency: 'eur', label: '25 lives', price_display: '1,99 €' },
-  pack_50: { lives: 50, amount: 399, currency: 'eur', label: '50 lives', price_display: '3,99 €' },
+  pack_10: { lives: 10, amount:  99, price_id: 'pri_01kkrrj131kge5bgkxrg1dvybb', price_display: '0,99 €' },
+  pack_25: { lives: 25, amount: 199, price_id: 'pri_01kkrrm69dvc1rn4ke4gm22062', price_display: '1,99 €' },
+  pack_50: { lives: 50, amount: 399, price_id: 'pri_01kkrrnv2cv70zvrk0c781sdkg', price_display: '3,99 €' },
 };
 
 // ─── Express App ───────────────────────────────────────────────────────────
 const app = express();
 
-// Stripe webhook musi dostać raw body — PRZED express.json()
-app.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
+// Paddle webhook musi dostać raw body — PRZED express.json()
+app.post('/webhook/paddle', express.raw({ type: 'application/json' }), handlePaddleWebhook);
 
 app.use(cors({
   origin: BASE_URL,
@@ -342,86 +340,68 @@ app.post('/api/progress', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ─── Stripe Routes ──────────────────────────────────────────────────────────
-app.post('/api/buy', requireAuth, async (req, res) => {
-  if (!stripe) return res.status(503).json({ error: 'Płatności tymczasowo niedostępne' });
+// ─── Paddle Routes ──────────────────────────────────────────────────────────
+app.post('/api/buy', requireAuth, (req, res) => {
+  if (!paddle) return res.status(503).json({ error: 'Płatności tymczasowo niedostępne' });
 
   const { package_id } = req.body;
   const pkg = PACKAGES[package_id];
   if (!pkg) return res.status(400).json({ error: 'Nieznany pakiet' });
 
-  const userId = req.user.id;
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: pkg.currency,
-          product_data: {
-            name:        `Wisp — ${pkg.label}`,
-            description: `Add ${pkg.lives} lives to your Wisp: Ghost of the Forest account`,
-          },
-          unit_amount: pkg.amount, // w centach EUR
-        },
-        quantity: 1,
-      }],
-      mode:        'payment',
-      success_url: `${BASE_URL}/game.html?purchase=success`,
-      cancel_url:  `${BASE_URL}/game.html?purchase=cancel`,
-      metadata: {
-        user_id:    String(userId),
-        package_id,
-        lives:      String(pkg.lives),
-      },
-      client_reference_id: String(userId),
-    });
-
-    // Zapisz pending purchase
-    stmts.insertPurchase.run({
-      user_id:          userId,
-      stripe_session_id: session.id,
-      package_id,
-      lives:            pkg.lives,
-      amount_pln_gr:    pkg.amount,
-    });
-
-    res.json({ url: session.url });
-  } catch (err) {
-    console.error('Stripe error:', err.message);
-    res.status(500).json({ error: 'Błąd podczas tworzenia sesji płatności' });
-  }
+  // Paddle Checkout otwierany po stronie klienta (Paddle.js overlay)
+  // Zwracamy price_id + metadane — frontend otwiera checkout
+  res.json({
+    price_id:    pkg.price_id,
+    user_id:     req.user.id,
+    package_id,
+    lives:       pkg.lives,
+  });
 });
 
-// ─── Stripe Webhook ─────────────────────────────────────────────────────────
-async function handleStripeWebhook(req, res) {
-  if (!stripe || !STRIPE_WEBHOOK_SECRET) {
+// ─── Paddle Webhook ──────────────────────────────────────────────────────────
+async function handlePaddleWebhook(req, res) {
+  if (!paddle || !PADDLE_WEBHOOK_SECRET) {
     return res.status(503).json({ error: 'Webhook nie skonfigurowany' });
   }
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      req.headers['stripe-signature'],
-      STRIPE_WEBHOOK_SECRET
-    );
+    const sig = req.headers['paddle-signature'];
+    event = paddle.webhooks.unmarshal(req.body.toString(), PADDLE_WEBHOOK_SECRET, sig);
   } catch (err) {
-    console.error('Webhook signature error:', err.message);
+    console.error('Paddle webhook signature error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
+  if (event.eventType === 'transaction.completed') {
+    const txn = event.data;
     try {
-      const rows = stmts.completePurchase.all(session.id);
-      if (rows.length > 0) {
-        const { user_id, lives } = rows[0];
-        stmts.addLives.run(lives, user_id);
-        console.log(`✅ Dodano ${lives} żyć użytkownikowi ${user_id} (session: ${session.id})`);
+      const customData = txn.customData || {};
+      const userId  = parseInt(customData.user_id);
+      const pkgId   = customData.package_id;
+      const pkg     = PACKAGES[pkgId];
+
+      if (!userId || !pkg) {
+        console.error('Paddle webhook: brak user_id lub package_id w customData', customData);
+        return res.json({ received: true });
+      }
+
+      const result = stmts.insertPurchase.run({
+        user_id:      userId,
+        paddle_txn_id: txn.id,
+        package_id:   pkgId,
+        lives:        pkg.lives,
+        amount_eur_ct: pkg.amount,
+      });
+
+      if (result.changes > 0) {
+        stmts.addLives.run(pkg.lives, userId);
+        console.log(`✅ Dodano ${pkg.lives} żyć użytkownikowi ${userId} (txn: ${txn.id})`);
+      } else {
+        console.log(`ℹ️  Duplikat transakcji zignorowany: ${txn.id}`);
       }
     } catch (err) {
-      console.error('DB error przy webhook:', err.message);
+      console.error('DB error przy Paddle webhook:', err.message);
       return res.status(500).json({ error: 'DB error' });
     }
   }
@@ -451,6 +431,6 @@ setInterval(purgeStaleAccounts, 24 * 60 * 60 * 1000); // co dobę
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`🎮 Wisp serwer uruchomiony na http://127.0.0.1:${PORT}`);
   console.log(`   BASE_URL: ${BASE_URL}`);
-  console.log(`   Stripe: ${stripe ? '✅ aktywny' : '⚠️  brak klucza (tryb testowy)'}`);
+  console.log(`   Paddle: ${paddle ? `✅ aktywny (${PADDLE_ENV})` : '⚠️  brak klucza (tryb testowy)'}`);
   console.log(`   Google OAuth: ${GOOGLE_CLIENT_ID ? '✅ aktywny' : '⚠️  brak CLIENT_ID'}`);
 });
