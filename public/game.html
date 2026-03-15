@@ -2963,32 +2963,17 @@ const WispAuth = (function(){
   async function syncProgress(){
     const server = await apiGet('/api/progress');
     if(!server) return;
-    const local = loadProgress();
-    // Porównanie w sekundach Unix (unikamy utraty dokładności ms→s)
-    const sts = server.progress_ts || 0;
-    const lts = local ? Math.floor((local.savedAt || 0) / 1000) : 0;
-    if(sts >= lts){
-      // Serwer jest nowszy lub identyczny — użyj danych serwera
-      const merged = {
-        diff:    server.difficulty || 'medium',
-        level:   server.level || 1,
-        score:   server.score || 0,
-        lives:   server.lives || 3,
-        savedAt: sts * 1000, // przechowuj jako ms dla spójności
-      };
-      try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
-      // Odśwież menu (przycisk Kontynuuj)
-      initMenu();
-    } else {
-      // Zapis lokalny jest nowszy — wypchnij go na serwer
-      await apiPost('/api/progress', {
-        level:      local.level || 1,
-        score:      local.score || 0,
-        lives:      local.lives || 3,
-        difficulty: local.diff || 'medium',
-        ts:         local.savedAt || Date.now(),
-      });
-    }
+    // Serwer jest autorytatywny — zawsze nadpisz lokalny stan
+    // pushProgress() wywoływane przy zdarzeniach gry aktualizuje serwer
+    const merged = {
+      diff:    server.difficulty || 'medium',
+      level:   server.level || 1,
+      score:   server.score || 0,
+      lives:   server.lives || 3,
+      savedAt: (server.progress_ts || 0) * 1000,
+    };
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
+    initMenu();
   }
 
   async function saveScore(){
