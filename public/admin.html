@@ -62,8 +62,6 @@ td .actions{display:flex;gap:6px;}
     <div class="sub">wispplay.com — panel zarządzania</div>
   </div>
   <nav>
-    <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
-    <button onclick="showSection('users')">👥 Użytkownicy</button>
     <button onclick="showSection('purchases')">💳 Zakupy</button>
   </nav>
 </header>
@@ -149,9 +147,7 @@ function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
-  event.target.classList.add('active');
-  if (name === 'dashboard') { loadStats(); loadUsers(); }
-  if (name === 'users') { showSection('dashboard'); return; } // przekieruj na dashboard
+  if (event && event.target) event.target.classList.add('active');
   if (name === 'purchases') loadPurchases();
 }
 
