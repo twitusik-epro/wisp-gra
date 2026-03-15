@@ -1826,7 +1826,13 @@ function nextLevel(){
   });
 }
 function restartGame(){
-  GS={state:'playing',lives:3,score:0,level:1,totalScore:0};
+  const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
+  const save = loadProgress();
+  const hasSavedLives = save && typeof save.lives === 'number';
+  let startLives = hasSavedLives ? save.lives : d.lives;
+  const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
+  if(typeof sl === 'number' && sl > startLives) startLives = sl;
+  GS={state:'playing',lives:startLives,score:0,level:1,totalScore:0};
   hideResultScreen();
   loadLevel(1);
   updateHUD();
