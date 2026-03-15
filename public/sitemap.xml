@@ -4,6 +4,60 @@
     <loc>https://wispplay.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <lastmod>2026-03-14</lastmod>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/game.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/darmowe-gry-przegladarkowe-bez-pobierania/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/gry-platformowe-na-telefon/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/jak-grac-w-wisp-poradnik/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/gry-html5-co-to-jest/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/blog/gry-mobilne-bez-reklam/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/privacy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2026-03-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wispplay.com/terms.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2026-03-15</lastmod>
   </url>
 </urlset>
