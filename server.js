@@ -19,6 +19,8 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const NODE_ENV          = process.env.NODE_ENV || 'development';
+const ADMIN_USER        = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS        = process.env.ADMIN_PASS || 'changeme';
 
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
   console.error('BŁĄD: JWT_SECRET nie ustawiony lub za krótki (min 32 znaki)!');
@@ -66,6 +68,9 @@ db.exec(`
   );
 `);
 
+// Dodaj kolumnę progress_ts jeśli jeszcze nie istnieje (migracja)
+try { db.exec('ALTER TABLE users ADD COLUMN progress_ts INTEGER DEFAULT 0'); } catch {}
+
 // Prepared statements
 const stmts = {
   upsertUser: db.prepare(`
@@ -99,16 +104,26 @@ const stmts = {
     RETURNING user_id, lives
   `),
   getPurchaseBySession: db.prepare('SELECT * FROM purchases WHERE stripe_session_id = ?'),
-  saveProgress: db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ? WHERE id = ?'),
+  saveProgress: db.prepare('UPDATE users SET lives = MAX(lives, ?), level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
+
+  // Admin
+  listUsers:       db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users ORDER BY last_login DESC LIMIT 200`),
+  searchUsers:     db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users WHERE nick LIKE @q OR email LIKE @q ORDER BY last_login DESC LIMIT 50`),
+  deleteUser:      db.prepare('DELETE FROM users WHERE id = ?'),
+  setLives:        db.prepare('UPDATE users SET lives = ? WHERE id = ?'),
+  statsUsers:      db.prepare(`SELECT COUNT(*) as total, COUNT(CASE WHEN last_login > datetime('now','-7 days') THEN 1 END) as active_7d, COUNT(CASE WHEN last_login > datetime('now','-30 days') THEN 1 END) as active_30d, COUNT(CASE WHEN created_at > datetime('now','-7 days') THEN 1 END) as new_7d FROM users`),
+  statsPurchases:  db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(CASE WHEN status='completed' THEN amount_pln_gr ELSE 0 END),0) as revenue_gr, COUNT(CASE WHEN status='completed' THEN 1 END) as completed FROM purchases`),
+  recentPurchases: db.prepare(`SELECT p.id, p.user_id, p.package_id, p.lives, p.amount_pln_gr, p.status, p.created_at, u.nick, u.email FROM purchases p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC LIMIT 100`),
+  purgeOldUsers:   db.prepare(`DELETE FROM users WHERE last_login < datetime('now','-3 years') AND last_login IS NOT NULL`),
 };
 
 // ─── Stripe ────────────────────────────────────────────────────────────────
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 const PACKAGES = {
-  pack_10: { lives: 10, amount: 100,  label: '10 żyć',  price_pln: '1,00 zł' },
-  pack_25: { lives: 25, amount: 250,  label: '25 żyć',  price_pln: '2,50 zł' },
-  pack_50: { lives: 50, amount: 500,  label: '50 żyć',  price_pln: '5,00 zł' },
+  pack_10: { lives: 10, amount:  99, currency: 'eur', label: '10 lives', price_display: '0,99 €' },
+  pack_25: { lives: 25, amount: 199, currency: 'eur', label: '25 lives', price_display: '1,99 €' },
+  pack_50: { lives: 50, amount: 399, currency: 'eur', label: '50 lives', price_display: '3,99 €' },
 };
 
 // ─── Express App ───────────────────────────────────────────────────────────
@@ -123,6 +138,50 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(passport.initialize());
+
+// ─── Admin Routes ───────────────────────────────────────────────────────────
+app.get('/admin', adminAuth, (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+app.get('/admin.html', adminAuth, (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/api/admin/stats', adminAuth, (_req, res) => {
+  const users     = stmts.statsUsers.get();
+  const purchases = stmts.statsPurchases.get();
+  res.json({ users, purchases });
+});
+
+app.get('/api/admin/users', adminAuth, (req, res) => {
+  const q = req.query.q ? `%${req.query.q}%` : null;
+  const rows = q ? stmts.searchUsers.all({ q }) : stmts.listUsers.all();
+  res.json(rows);
+});
+
+app.post('/api/admin/users/:id/lives', adminAuth, (req, res) => {
+  const id    = parseInt(req.params.id);
+  const user  = stmts.getUserById.get(id);
+  if (!user) return res.status(404).json({ error: 'Użytkownik nie istnieje' });
+  const { lives, delta } = req.body;
+  let newLives;
+  if (typeof delta === 'number') newLives = Math.max(0, user.lives + delta);
+  else if (typeof lives === 'number') newLives = Math.max(0, lives);
+  else return res.status(400).json({ error: 'Podaj lives lub delta' });
+  stmts.setLives.run(newLives, id);
+  res.json({ ok: true, lives: newLives });
+});
+
+app.delete('/api/admin/users/:id', adminAuth, (req, res) => {
+  const id = parseInt(req.params.id);
+  stmts.deleteUser.run(id);
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/purchases', adminAuth, (_req, res) => {
+  const rows = stmts.recentPurchases.all();
+  res.json(rows);
+});
 
 // Static files — gra HTML5
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -161,6 +220,22 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
       }
     }
   ));
+}
+
+// ─── Admin Auth Middleware ──────────────────────────────────────────────────
+function adminAuth(req, res, next) {
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Basic ')) {
+    res.set('WWW-Authenticate', 'Basic realm="Wisp Admin"');
+    return res.status(401).send('Unauthorized');
+  }
+  const decoded = Buffer.from(header.slice(6), 'base64').toString();
+  const colon   = decoded.indexOf(':');
+  const user    = decoded.slice(0, colon);
+  const pass    = decoded.slice(colon + 1);
+  if (user === ADMIN_USER && pass === ADMIN_PASS) return next();
+  res.set('WWW-Authenticate', 'Basic realm="Wisp Admin"');
+  res.status(401).send('Unauthorized');
 }
 
 // ─── Auth Middleware ────────────────────────────────────────────────────────
@@ -246,19 +321,22 @@ app.get('/api/lives', requireAuth, (req, res) => {
 app.get('/api/progress', requireAuth, (req, res) => {
   const user = stmts.getUserById.get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Użytkownik nie istnieje' });
-  res.json({ level: user.level, score: user.score, lives: user.lives, difficulty: user.difficulty });
+  res.json({ level: user.level, score: user.score, lives: user.lives, difficulty: user.difficulty, progress_ts: user.progress_ts || 0 });
 });
 
 app.post('/api/progress', requireAuth, (req, res) => {
-  const { level, score, lives, difficulty } = req.body;
+  const { level, score, lives, difficulty, ts } = req.body;
   if (typeof level !== 'number' || typeof score !== 'number') {
     return res.status(400).json({ error: 'Nieprawidłowe dane' });
   }
+  // ts od klienta jest w ms (Date.now()), konwertujemy do sekund Unix
+  const progressTs = typeof ts === 'number' ? Math.floor(ts / 1000) : Math.floor(Date.now() / 1000);
   stmts.saveProgress.run(
     Math.max(1, lives || 3),
     Math.max(1, level),
     Math.max(0, score),
     difficulty || 'medium',
+    progressTs,
     req.user.id
   );
   res.json({ ok: true });
@@ -276,15 +354,15 @@ app.post('/api/buy', requireAuth, async (req, res) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'blik', 'p24'],
+      payment_method_types: ['card'],
       line_items: [{
         price_data: {
-          currency: 'pln',
+          currency: pkg.currency,
           product_data: {
             name:        `Wisp — ${pkg.label}`,
-            description: `Dodaj ${pkg.lives} żyć do swojego konta w grze Wisp — Duch Lasu`,
+            description: `Add ${pkg.lives} lives to your Wisp: Ghost of the Forest account`,
           },
-          unit_amount: pkg.amount, // w groszach
+          unit_amount: pkg.amount, // w centach EUR
         },
         quantity: 1,
       }],
@@ -360,6 +438,14 @@ app.get('/api/health', (_req, res) => {
     env: NODE_ENV,
   });
 });
+
+// ─── Auto-cleanup nieaktywnych kont (>3 lata) ───────────────────────────────
+function purgeStaleAccounts() {
+  const r = stmts.purgeOldUsers.run();
+  if (r.changes > 0) console.log(`🗑️  Usunięto ${r.changes} nieaktywnych kont (>3 lata bez logowania)`);
+}
+purgeStaleAccounts(); // przy starcie
+setInterval(purgeStaleAccounts, 24 * 60 * 60 * 1000); // co dobę
 
 // ─── Start ──────────────────────────────────────────────────────────────────
 app.listen(PORT, '127.0.0.1', () => {

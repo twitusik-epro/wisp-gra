@@ -312,7 +312,7 @@ canvas{
         <div id="lives-row"></div>
         <div id="hud-center">
           <div id="score-display">⭐ 0</div>
-          <div id="level-display">POZIOM 1</div>
+          <div id="level-display">LEVEL 1</div>
         </div>
         <div id="hud-btns">
           <div class="hud-btn" id="user-badge" style="display:none;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;"></div>
@@ -396,6 +396,11 @@ canvas{
         <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#3a6a3a;">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
         <!-- AUTH PANEL -->
         <div id="auth-panel" style="margin-top:10px;"></div>
+        <div style="margin-top:12px;font-size:10px;color:#2a4a2a;" id="legal-links">
+          <a id="link-privacy" href="/privacy.html" target="_blank" style="color:#3a6a3a;text-decoration:none;">Privacy Policy</a>
+          &nbsp;·&nbsp;
+          <a id="link-terms" href="/terms.html" target="_blank" style="color:#3a6a3a;text-decoration:none;">Terms</a>
+        </div>
       </div>
 
       <!-- Ekran wyników (win/dead/finish) — OSOBNY od menu głównego -->
@@ -904,6 +909,9 @@ window.continueGame = function(){
   Audio.init();
   DIFF = save.diff || 'medium';
   GS = { state:'playing', lives:save.lives, score:save.score, level:save.level, totalScore:save.score };
+  // Zastosuj życia z serwera jeśli więcej niż w zapisie
+  const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
+  if(typeof sl === 'number') GS.lives = Math.max(GS.lives, sl);
   applyDifficulty();
   document.getElementById('overlay').style.display='none';
   document.getElementById('hud').style.display='flex';
@@ -962,6 +970,7 @@ const LANGS = {
     dead:         '💀 Upadłeś...',
     deadSub:      (lives) => `Wisp rozpłynął się w ciemności.<br>${lives>0?'Masz jeszcze '+lives+' ❤️ prób.':'Skończyły się życia...'}`,
     retry:        '↺ Spróbuj ponownie',
+    levelWord:    'POZIOM',
     levelDone:    (n) => `✨ Poziom ${n}<br>Ukończony!`,
     nextLevel:    '▶ Następny Poziom',
     seeRanking:   '🏆 Zobacz ranking',
@@ -1038,6 +1047,7 @@ const LANGS = {
     dead:         '💀 You fell...',
     deadSub:      (lives) => `Wisp faded into the darkness.<br>${lives>0?'You have '+lives+' ❤️ left.':'No more lives...'}`,
     retry:        '↺ Try Again',
+    levelWord:    'LEVEL',
     levelDone:    (n) => `✨ Level ${n}<br>Complete!`,
     nextLevel:    '▶ Next Level',
     seeRanking:   '🏆 See ranking',
@@ -1115,6 +1125,7 @@ const LANGS = {
     dead:         '💀 Du bist gefallen...',
     deadSub:      (lives) => `Wisp löste sich in der Dunkelheit auf.<br>${lives>0?'Du hast noch '+lives+' ❤️ Leben.':'Keine Leben mehr...'}`,
     retry:        '↺ Nochmal versuchen',
+    levelWord:    'LEVEL',
     levelDone:    (n) => `✨ Level ${n}<br>Geschafft!`,
     nextLevel:    '▶ Nächstes Level',
     seeRanking:   '🏆 Rangliste ansehen',
@@ -1192,6 +1203,7 @@ const LANGS = {
     dead:         '💀 Has caído...',
     deadSub:      (lives) => `Wisp se desvaneció en la oscuridad.<br>${lives>0?'Te quedan '+lives+' ❤️ vidas.':'Sin más vidas...'}`,
     retry:        '↺ Intentar de nuevo',
+    levelWord:    'NIVEL',
     levelDone:    (n) => `✨ ¡Nivel ${n}<br>completado!`,
     nextLevel:    '▶ Siguiente nivel',
     seeRanking:   '🏆 Ver clasificación',
@@ -1269,6 +1281,7 @@ const LANGS = {
     dead:         '💀 Vous êtes tombé...',
     deadSub:      (lives) => `Wisp s'est dissous dans l'obscurité.<br>${lives>0?'Il vous reste '+lives+' ❤️ vie(s).':'Plus de vies...'}`,
     retry:        '↺ Réessayer',
+    levelWord:    'NIVEAU',
     levelDone:    (n) => `✨ Niveau ${n}<br>Terminé !`,
     nextLevel:    '▶ Niveau suivant',
     seeRanking:   '🏆 Voir le classement',
@@ -1389,6 +1402,14 @@ function applyLang(){
   if(lb){
     lb.textContent = LANG_FLAGS[LANG_CODE] + ' ' + LANG_CODE.toUpperCase();
   }
+
+  // Linki prawne — z parametrem języka + przetłumaczone etykiety
+  const privacyLabels = {pl:'Polityka prywatności',en:'Privacy Policy',de:'Datenschutz',es:'Privacidad',fr:'Confidentialité'};
+  const termsLabels   = {pl:'Regulamin',en:'Terms',de:'Nutzungsbedingungen',es:'Términos',fr:'Conditions'};
+  const lp = document.getElementById('link-privacy');
+  const lt = document.getElementById('link-terms');
+  if(lp){ lp.href = '/privacy.html?lang=' + LANG_CODE; lp.textContent = privacyLabels[LANG_CODE] || 'Privacy Policy'; }
+  if(lt){ lt.href = '/terms.html?lang='   + LANG_CODE; lt.textContent = termsLabels[LANG_CODE]   || 'Terms'; }
 
   // DIFF_CONFIG labels
   DIFF_CONFIG.easy.label   = LANG.diffLabel.easy;
@@ -1641,22 +1662,26 @@ function loadLevel(n){
 function updateHUD(){
   const lr = document.getElementById('lives-row');
   lr.innerHTML='';
-  const maxShow = Math.min(GS.lives, 8); // max 8 serc na ekranie
-  for(let i=0;i<maxShow;i++){
+  if(GS.lives <= 5){
+    for(let i=0;i<GS.lives;i++){
+      const h=document.createElement('span');
+      h.className='heart';
+      h.textContent='❤️';
+      lr.appendChild(h);
+    }
+  } else {
     const h=document.createElement('span');
     h.className='heart';
     h.textContent='❤️';
     lr.appendChild(h);
-  }
-  if(GS.lives>8){
-    const extra=document.createElement('span');
-    extra.style.cssText='font-family:Lora,serif;font-size:11px;color:#e08080;margin-left:2px;';
-    extra.textContent='+'+( GS.lives-8);
-    lr.appendChild(extra);
+    const cnt=document.createElement('span');
+    cnt.style.cssText='font-family:Lora,serif;font-size:12px;color:#e09090;margin-left:3px;vertical-align:middle;';
+    cnt.textContent='×'+GS.lives;
+    lr.appendChild(cnt);
   }
   document.getElementById('score-display').textContent='⭐ '+GS.score;
   const ld=document.getElementById('level-display');
-  ld.textContent='POZIOM '+GS.level;
+  ld.textContent=LANG.levelWord+' '+GS.level;
   ld.style.color = GS.level>=8?'#80c0ff':GS.level>=6?'#c0a0ff':GS.level>=4?'#d0a0ff':'#a0d080';
   ld.style.textShadow='0 0 8px '+ld.style.color;
 }
@@ -1724,10 +1749,10 @@ function showOverlay(type){ showResultScreen(type); }
 function showShopButtons(){
   return `
     <div class="sub" style="color:#aa9050;margin-top:12px">${LANG.shopSub}</div>
-    <div class="shop-row">
-      <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span>1,00 zł</div>
-      <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span>2,50 zł</div>
-      <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span>5,00 zł</div>
+    <div class="shop-row" style="margin-top:18px">
+      <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span>0,99 €</div>
+      <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span>1,99 €</div>
+      <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span>3,99 €</div>
     </div>
     <button class="btn btn-green" onclick="restartGame()" style="margin-top:14px;font-size:11px;padding:8px 20px">${LANG.fromScratch}</button>`;
 }
@@ -1747,6 +1772,9 @@ function startGame(){
   Audio.init();
   const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
   GS={state:'playing', lives:d.lives, score:0, level:1, totalScore:0};
+  // Zastosuj życia z serwera jeśli więcej niż startowe
+  const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
+  if(typeof sl === 'number') GS.lives = Math.max(GS.lives, sl);
   applyDifficulty();
   clearProgress();
   document.getElementById('overlay').style.display='none';
@@ -1811,7 +1839,7 @@ function playTransition(levelNum, themeName, onDone){
   const name = document.getElementById('tr-name');
   const sub  = document.getElementById('tr-sub');
 
-  num.textContent  = `— ${LANG_CODE==='pl'?'POZIOM':'LEVEL'} ${levelNum} —`;
+  num.textContent  = `— ${LANG.levelWord} ${levelNum} —`;
   name.textContent = themeName;
   sub.textContent  = LANG.levelQuotes[Math.min(levelNum-1, LANG.levelQuotes.length-1)];
 
@@ -2888,10 +2916,21 @@ const WispAuth = (function(){
     return null;
   }
 
+  let _serverLives = null; // zapamiętaj życia z serwera — używane w startGame/continueGame
+
   async function syncLives(){
     const data = await apiGet('/api/lives');
     if(data && typeof data.lives === 'number'){
-      GS.lives = Math.max(GS.lives, data.lives);
+      _serverLives = data.lives;
+      GS.lives = Math.max(GS.lives || 0, data.lives);
+      // Zaktualizuj localStorage jeśli istnieje zapis
+      try{
+        const ex = loadProgress();
+        if(ex && data.lives > (ex.lives || 0)){
+          ex.lives = data.lives;
+          localStorage.setItem(SAVE_KEY, JSON.stringify(ex));
+        }
+      }catch(e){}
       updateHUD();
     }
   }
@@ -2902,6 +2941,7 @@ const WispAuth = (function(){
       score:      GS.score || GS.totalScore || 0,
       lives:      GS.lives || 3,
       difficulty: DIFF || 'medium',
+      ts:         Date.now(),
     });
   }
 
@@ -2909,22 +2949,31 @@ const WispAuth = (function(){
     const server = await apiGet('/api/progress');
     if(!server) return;
     const local = loadProgress();
-    const sLvl  = server.level || 1;
-    const lLvl  = local ? (local.level || 1) : 1;
-    const sScr  = server.score || 0;
-    const lScr  = local ? (local.score || 0) : 0;
-    // Serwer wygrywa jeśli ma wyższy poziom, lub ten sam poziom ale wyższy wynik
-    if(sLvl > lLvl || (sLvl === lLvl && sScr > lScr)){
+    // Porównanie znaczników czasu — wygrywa nowszy zapis
+    // server.progress_ts w sekundach Unix → przelicz na ms
+    const sts = (server.progress_ts || 0) * 1000;
+    const lts = local ? (local.savedAt || 0) : 0;
+    if(sts >= lts){
+      // Serwer jest nowszy lub identyczny — użyj danych serwera
       const merged = {
         diff:    server.difficulty || 'medium',
-        level:   sLvl,
-        score:   sScr,
+        level:   server.level || 1,
+        score:   server.score || 0,
         lives:   server.lives || 3,
-        savedAt: Date.now(),
+        savedAt: sts || Date.now(),
       };
       try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
       // Odśwież menu (przycisk Kontynuuj)
       initMenu();
+    } else {
+      // Zapis lokalny jest nowszy — wypchnij go na serwer
+      await apiPost('/api/progress', {
+        level:      local.level || 1,
+        score:      local.score || 0,
+        lives:      local.lives || 3,
+        difficulty: local.diff || 'medium',
+        ts:         local.savedAt || Date.now(),
+      });
     }
   }
 
@@ -3055,7 +3104,7 @@ const WispAuth = (function(){
     }
   })();
 
-  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI };
+  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, getServerLives: () => _serverLives };
 })();
 window.WispAuth = WispAuth;
 </script>
