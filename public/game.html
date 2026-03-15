@@ -3018,14 +3018,16 @@ const WispAuth = (function(){
     })
     .then(r => r.json())
     .then(d => {
-      if(!d.price_id || !window.Paddle){ return; }
-      Paddle.Checkout.open({
-        items: [{ priceId: d.price_id, quantity: 1 }],
-        customData: { user_id: String(d.user_id), package_id: d.package_id },
-        settings: { successUrl: window.location.pathname + '?purchase=success' },
-      });
+      if(!d.price_id || !window.Paddle){ console.warn('Paddle: brak price_id lub Paddle nie załadowany', d); return; }
+      try {
+        Paddle.Checkout.open({
+          items: [{ priceId: d.price_id, quantity: 1 }],
+          customData: { user_id: String(d.user_id), package_id: d.package_id },
+          settings: { successUrl: window.location.origin + '/game.html?purchase=success' },
+        });
+      } catch(e){ console.error('Paddle.Checkout.open error:', e); }
     })
-    .catch(() => _origBuyLives(n));
+    .catch(e => { console.error('buyLives fetch error:', e); _origBuyLives(n); });
   };
 
   function updateAuthUI(){
