@@ -360,21 +360,31 @@ app.post('/api/buy', requireAuth, (req, res) => {
 
 // ─── Paddle Webhook ──────────────────────────────────────────────────────────
 async function handlePaddleWebhook(req, res) {
+  console.log('📦 Paddle webhook odebrany');
   if (!paddle || !PADDLE_WEBHOOK_SECRET) {
+    console.error('Paddle webhook: brak paddle lub secret');
     return res.status(503).json({ error: 'Webhook nie skonfigurowany' });
   }
 
   let event;
   try {
     const sig = req.headers['paddle-signature'];
+    console.log('Paddle sig:', sig ? sig.slice(0, 30) + '...' : 'BRAK');
     event = paddle.webhooks.unmarshal(req.body.toString(), PADDLE_WEBHOOK_SECRET, sig);
+    console.log('Paddle event:', event ? event.eventType : 'null');
   } catch (err) {
     console.error('Paddle webhook signature error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  if (!event) {
+    console.error('Paddle webhook: event null (błąd podpisu?)');
+    return res.json({ received: true });
+  }
+
   if (event.eventType === 'transaction.completed') {
     const txn = event.data;
+    console.log('Paddle txn id:', txn.id, 'customData:', JSON.stringify(txn.customData));
     try {
       const customData = txn.customData || {};
       const userId  = parseInt(customData.user_id);
