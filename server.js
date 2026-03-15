@@ -100,7 +100,8 @@ const stmts = {
     INSERT OR IGNORE INTO purchases (user_id, paddle_txn_id, package_id, lives, amount_eur_ct, status)
     VALUES (@user_id, @paddle_txn_id, @package_id, @lives, @amount_eur_ct, 'completed')
   `),
-  saveProgress: db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
+  saveProgress:      db.prepare('UPDATE users SET lives = ?, level = MAX(level, ?), score = MAX(score, ?), difficulty = ?, progress_ts = ? WHERE id = ?'),
+  resetProgress:     db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
 
   // Admin
   listUsers:       db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users ORDER BY last_login DESC LIMIT 200`),
@@ -323,13 +324,14 @@ app.get('/api/progress', requireAuth, (req, res) => {
 });
 
 app.post('/api/progress', requireAuth, (req, res) => {
-  const { level, score, lives, difficulty, ts } = req.body;
+  const { level, score, lives, difficulty, ts, reset } = req.body;
   if (typeof level !== 'number' || typeof score !== 'number') {
     return res.status(400).json({ error: 'Nieprawidłowe dane' });
   }
   const progressTs = typeof ts === 'number' ? Math.floor(ts / 1000) : Math.floor(Date.now() / 1000);
-  stmts.saveProgress.run(
-    Math.max(0, lives || 0),
+  const stmt = reset ? stmts.resetProgress : stmts.saveProgress;
+  stmt.run(
+    Math.max(0, lives ?? 0),
     Math.max(1, level),
     Math.max(0, score),
     difficulty || 'medium',

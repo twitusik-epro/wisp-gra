@@ -917,7 +917,7 @@ window.clearSave = function(){
     fetch('/api/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
-      body: JSON.stringify({ level: 1, score: 0, lives: 3, difficulty: DIFF || 'medium', ts: Date.now() })
+      body: JSON.stringify({ level: 1, score: 0, lives: 3, difficulty: DIFF || 'medium', ts: Date.now(), reset: true })
     }).catch(()=>{});
   }
 };
