@@ -371,7 +371,8 @@ async function handlePaddleWebhook(req, res) {
     const sig = req.headers['paddle-signature'];
     console.log('Paddle sig:', sig ? sig.slice(0, 30) + '...' : 'BRAK');
     event = paddle.webhooks.unmarshal(req.body.toString(), PADDLE_WEBHOOK_SECRET, sig);
-    console.log('Paddle event:', event ? event.eventType : 'null');
+    const evType = event ? (event.eventType || event.event_type) : null;
+    console.log('Paddle event type:', evType, '| keys:', event ? Object.keys(event).join(',') : 'null');
   } catch (err) {
     console.error('Paddle webhook signature error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -382,11 +383,12 @@ async function handlePaddleWebhook(req, res) {
     return res.json({ received: true });
   }
 
-  if (event.eventType === 'transaction.completed') {
+  const evType = event.eventType || event.event_type;
+  if (evType === 'transaction.completed') {
     const txn = event.data;
-    console.log('Paddle txn id:', txn.id, 'customData:', JSON.stringify(txn.customData));
+    const customData = txn ? (txn.customData || txn.custom_data || {}) : {};
+    console.log('Paddle txn id:', txn && txn.id, 'customData:', JSON.stringify(customData));
     try {
-      const customData = txn.customData || {};
       const userId  = parseInt(customData.user_id);
       const pkgId   = customData.package_id;
       const pkg     = PACKAGES[pkgId];
