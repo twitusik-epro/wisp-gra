@@ -1790,10 +1790,15 @@ function buyLives(n){
 function startGame(){
   Audio.init();
   const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
-  GS={state:'playing', lives:d.lives, score:0, level:1, totalScore:0};
-  // Zastosuj życia z serwera jeśli więcej niż startowe
+  // Użyj zapisanych żyć z serwera (przez syncProgress → localStorage)
+  // Dla nowych/niezalogowanych graczy użyj domyślnej wartości z trudności
+  const save = loadProgress();
+  const hasSavedLives = save && typeof save.lives === 'number';
+  let startLives = hasSavedLives ? save.lives : d.lives;
+  // Serwer może dać więcej (np. admin lub zakup po wejściu do menu)
   const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  if(typeof sl === 'number') GS.lives = Math.max(GS.lives, sl);
+  if(typeof sl === 'number' && sl > startLives) startLives = sl;
+  GS={state:'playing', lives:startLives, score:0, level:1, totalScore:0};
   applyDifficulty();
   clearProgress();
   document.getElementById('overlay').style.display='none';
