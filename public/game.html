@@ -2963,7 +2963,7 @@ const WispAuth = (function(){
     await apiPost('/api/progress', {
       level:      GS.level || 1,
       score:      GS.score || GS.totalScore || 0,
-      lives:      GS.lives || 3,
+      lives:      GS.lives ?? 3,
       difficulty: DIFF || 'medium',
       ts:         Date.now(),
     });
@@ -2978,7 +2978,7 @@ const WispAuth = (function(){
       diff:    server.difficulty || 'medium',
       level:   server.level || 1,
       score:   server.score || 0,
-      lives:   server.lives || 3,
+      lives:   server.lives ?? 3,
       savedAt: (server.progress_ts || 0) * 1000,
     };
     try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
