@@ -2964,10 +2964,9 @@ const WispAuth = (function(){
     const server = await apiGet('/api/progress');
     if(!server) return;
     const local = loadProgress();
-    // Porównanie znaczników czasu — wygrywa nowszy zapis
-    // server.progress_ts w sekundach Unix → przelicz na ms
-    const sts = (server.progress_ts || 0) * 1000;
-    const lts = local ? (local.savedAt || 0) : 0;
+    // Porównanie w sekundach Unix (unikamy utraty dokładności ms→s)
+    const sts = server.progress_ts || 0;
+    const lts = local ? Math.floor((local.savedAt || 0) / 1000) : 0;
     if(sts >= lts){
       // Serwer jest nowszy lub identyczny — użyj danych serwera
       const merged = {
@@ -2975,7 +2974,7 @@ const WispAuth = (function(){
         level:   server.level || 1,
         score:   server.score || 0,
         lives:   server.lives || 3,
-        savedAt: sts || Date.now(),
+        savedAt: sts * 1000, // przechowuj jako ms dla spójności
       };
       try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
       // Odśwież menu (przycisk Kontynuuj)
@@ -3102,11 +3101,11 @@ const WispAuth = (function(){
     // Zapisz postęp na serwer po ukończeniu poziomu
     const _origNextLevel = window.nextLevel;
     window.nextLevel = function(){
+      _origNextLevel(); // najpierw oryginał: GS.level++, saveProgress() lokalnie
       if(getToken()){
         saveScore().catch(()=>{});
-        pushProgress().catch(()=>{});
+        pushProgress().catch(()=>{}); // potem push — GS.level już po inkrementacji
       }
-      _origNextLevel();
     };
 
     // Zapisz postęp na serwer po utracie życia / game over
