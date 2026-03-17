@@ -39,11 +39,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Lora:ital,wght@0,400;1,300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;touch-action:none;background:#000;}
-body{display:flex;justify-content:center;}
+body{display:flex;justify-content:center;align-items:stretch;}
 #wrap{
   width:480px;max-width:100vw;
   height:100vh;height:100dvh;
   display:flex;flex-direction:column;
+  position:relative;z-index:1;
+}
+/* Desktop panels */
+#desktop-left,#desktop-right{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  gap:24px;
+  padding:40px 28px;
+  width:220px;
+  flex-shrink:0;
+}
+#desktop-left{align-items:flex-end;text-align:right;}
+#desktop-right{align-items:flex-start;text-align:left;}
+.dp-logo{font-family:'Uncial Antiqua',cursive;font-size:28px;color:#b0f080;text-shadow:0 0 20px rgba(120,255,60,.5);line-height:1.2;}
+.dp-logo span{display:block;font-size:14px;color:#60a040;font-family:'Lora',serif;font-style:italic;margin-top:4px;}
+.dp-feature{color:#6a9a6a;font-family:'Lora',serif;font-size:13px;line-height:1.7;}
+.dp-feature strong{display:block;color:#90c870;font-size:14px;margin-bottom:2px;}
+.dp-divider{width:1px;height:60px;background:linear-gradient(180deg,transparent,#1a4a1a,transparent);align-self:center;}
+.dp-badge{display:inline-block;background:#0a1a0a;border:1px solid #1a4a1a;border-radius:20px;padding:6px 14px;font-family:'Lora',serif;font-size:12px;color:#4a8a4a;}
+@media(min-width:800px){
+  body{background:#020802;}
+  #desktop-left,#desktop-right{display:flex;}
+}
+@media(min-width:1100px){
+  #desktop-left,#desktop-right{width:280px;padding:40px 40px;}
+  .dp-logo{font-size:34px;}
 }
 #game-area{
   position:relative;
@@ -308,6 +335,18 @@ canvas{
 </style>
 </head>
 <body>
+
+<!-- Panel lewy — widoczny tylko na desktopie -->
+<div id="desktop-left">
+  <div class="dp-logo">🌿 Wisp<span>Duch Lasu</span></div>
+  <div class="dp-divider"></div>
+  <div class="dp-feature"><strong>🎮 Platformówka</strong>10 poziomów pełnych tajemnic, wrogów i wiatru</div>
+  <div class="dp-feature"><strong>🚫 Zero reklam</strong>Żadnych przerw, banerów ani popupów</div>
+  <div class="dp-feature"><strong>🌍 Ranking globalny</strong>Rywalizuj z graczami z całego świata</div>
+  <div class="dp-divider"></div>
+  <div class="dp-badge">🆓 Darmowa gra przeglądarkowa</div>
+</div>
+
 <div id="wrap">
   <div id="game-area">
     <canvas id="c"></canvas>
@@ -438,6 +477,17 @@ canvas{
     </div>
     <div id="jump-btn">↑</div>
   </div>
+</div>
+
+<!-- Panel prawy — widoczny tylko na desktopie -->
+<div id="desktop-right">
+  <div class="dp-feature"><strong>⌨️ Sterowanie PC</strong>← → lub A/D — ruch<br>Spacja lub ↑ — skok<br>P lub Esc — pauza</div>
+  <div class="dp-divider"></div>
+  <div class="dp-feature"><strong>📱 Też na telefonie</strong>Wirtualny joystick + przycisk skoku. Działa offline jako PWA.</div>
+  <div class="dp-divider"></div>
+  <div class="dp-feature"><strong>🏆 Jak zdobyć punkty?</strong>Świetlik: +100 pkt<br>Ukończenie poziomu: +500 pkt<br>Pokonanie wroga: +50 pkt</div>
+  <div class="dp-divider"></div>
+  <div class="dp-badge">💚 Bez pobierania</div>
 </div>
 
 <script>
@@ -992,6 +1042,8 @@ const LANGS = {
     deadSub:      (lives) => `Wisp rozpłynął się w ciemności.<br>${lives>0?'Masz jeszcze '+lives+' ❤️ prób.':'Skończyły się życia...'}`,
     retry:        '↺ Spróbuj ponownie',
     levelWord:    'POZIOM',
+    world2Entry:  '🍄 Świat 2: Korzenie Lasu',
+    world3Entry:  '❄️ Świat 3: Zimowy Las',
     levelDone:    (n) => `✨ Poziom ${n}<br>Ukończony!`,
     nextLevel:    '▶ Następny Poziom',
     seeRanking:   '🏆 Zobacz ranking',
@@ -1012,8 +1064,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Otrzymałeś darmowe życie! ❤️',
     yourPos:      (n) => `🏆 Pozycja #${n} w rankingu!`,
     diffLabel:    { easy:'😊 Łatwy', medium:'😐 Średni', hard:'💀 Trudny' },
-    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności'],
-    levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.'],
+    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności','Próg Podziemia','Ciemne Korzenie','Kryształowa Grota','Głębokość Kryształu','Grzybnia','Purpurowe Pieczary','Labirynt Korzeni','Jantarowe Pieczary','Korzeń Czasu','Serce Lasu','Zamarznięty Świt','Śnieżna Polana','Lodowy Gaj','Kryształowy Wiatr','Śnieżyca','Zmrożony Jar','Mroźna Noc','Lodowy Labirynt','Arktyczna Przepaść','Lodowe Serce'],
+    levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.','Głębiej, mały duchu...','Korzenie znają drogę...','Kryształy śpiewają w ciemności...','Głębiej, gdzie świat milknie...','Grzyby świecą zamiast gwiazd...','Purpura zalewa tunele...','Korzenie oplatają wszystko...','Bursztyn przechowuje sekrety lasu...','Czas płynie wolniej pod ziemią...','Tu bije serce lasu.','Mróz wita cię z zimnym uśmiechem...','Śnieg przysypuje wszystkie ślady...','Każdy oddech tworzy chmurę pary...','Wiatr niesie kryształki lodu...','Śnieżyca zasłania horyzont...','Lód pęka pod stopami...','Noc mroźna jak żelazo...','Labirynt lodu nie ma końca...','Arktyczny wicher wyje bez litości...','Tu zamarza samo serce zimy.'],
     achievements: [
       {name:'Pierwszy Świetlik',    desc:'Zbierz swój pierwszy świetlik'},
       {name:'Kolekcjoner Blasku',   desc:'Zbierz łącznie 50 świetlików'},
@@ -1028,6 +1080,17 @@ const LANGS = {
       {name:'Strażnik Kluczy',      desc:'Zbierz klucz i otwórz portal'},
       {name:'Wspierający',          desc:'Zakup dodatkowe życia'},
     ],
+    desktop: {
+      subtitle:'Duch Lasu',
+      f1title:'Platformówka',f1text:'10 poziomów pełnych tajemnic, wrogów i wiatru',
+      f2title:'Zero reklam',f2text:'Żadnych przerw, banerów ani popupów',
+      f3title:'Ranking globalny',f3text:'Rywalizuj z graczami z całego świata',
+      free:'Darmowa gra przeglądarkowa',
+      ctrlTitle:'Sterowanie PC',ctrlText:'← → lub A/D — ruch<br>Spacja lub ↑ — skok<br>P lub Esc — pauza',
+      mobileTitle:'Też na telefonie',mobileText:'Wirtualny joystick + przycisk skoku. Działa offline jako PWA.',
+      ptsTitle:'Jak zdobyć punkty?',ptsText:'Świetlik: +100 pkt<br>Ukończenie poziomu: +500 pkt<br>Pokonanie wroga: +50 pkt',
+      noDownload:'Bez pobierania',
+    },
   },
   en: {
     title:        'Wisp',
@@ -1069,6 +1132,8 @@ const LANGS = {
     deadSub:      (lives) => `Wisp faded into the darkness.<br>${lives>0?'You have '+lives+' ❤️ left.':'No more lives...'}`,
     retry:        '↺ Try Again',
     levelWord:    'LEVEL',
+    world2Entry:  '🍄 World 2: Roots of the Forest',
+    world3Entry:  '❄️ World 3: Winter Forest',
     levelDone:    (n) => `✨ Level ${n}<br>Complete!`,
     nextLevel:    '▶ Next Level',
     seeRanking:   '🏆 See ranking',
@@ -1089,8 +1154,8 @@ const LANGS = {
     freeLifeGet:  '🎁 You got a free life! ❤️',
     yourPos:      (n) => `🏆 Ranking position #${n}!`,
     diffLabel:    { easy:'😊 Easy', medium:'😐 Medium', hard:'💀 Hard' },
-    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness'],
-    levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.'],
+    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness','The Cave Threshold','Dark Roots','Crystal Grotto','Crystal Depths','Mushroom Garden','Purple Caverns','Root Labyrinth','Amber Caves','Root of Time','Heart of the Forest','Frozen Dawn','Snowy Glade','Ice Grove','Crystal Wind','Blizzard','The Frozen Ravine','Frosty Night','Ice Labyrinth','Arctic Abyss','Heart of Ice'],
+    levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.','Deeper, little spirit...','The roots know the way...','Crystals sing in the darkness...','Deeper, where the world falls silent...','Mushrooms glow instead of stars...','Purple floods the tunnels...','The roots entwine everything...','Amber holds the forest\'s secrets...','Time flows slower underground...','Here beats the heart of the forest.','Frost greets you with a cold smile...','Snow covers every trace...','Each breath becomes a cloud...','The wind carries ice crystals...','The blizzard hides the horizon...','Ice cracks beneath your feet...','The night is cold as iron...','The ice labyrinth has no end...','The arctic gale howls without mercy...','Here the very heart of winter freezes.'],
     achievements: [
       {name:'First Wisp',           desc:'Collect your first wisp'},
       {name:'Glow Collector',       desc:'Collect 50 wisps in total'},
@@ -1105,6 +1170,17 @@ const LANGS = {
       {name:'Key Guardian',         desc:'Collect a key and open the portal'},
       {name:'Supporter',            desc:'Purchase extra lives'},
     ],
+    desktop: {
+      subtitle:'Spirit of the Forest',
+      f1title:'Platformer',f1text:'10 levels full of secrets, enemies and wind',
+      f2title:'Zero ads',f2text:'No interruptions, banners or popups',
+      f3title:'Global leaderboard',f3text:'Compete with players from around the world',
+      free:'Free browser game',
+      ctrlTitle:'PC Controls',ctrlText:'← → or A/D — move<br>Space or ↑ — jump<br>P or Esc — pause',
+      mobileTitle:'Also on mobile',mobileText:'Virtual joystick + jump button. Works offline as PWA.',
+      ptsTitle:'How to score?',ptsText:'Wisp: +100 pts<br>Level complete: +500 pts<br>Defeat enemy: +50 pts',
+      noDownload:'No download needed',
+    },
   },
 
   de: {
@@ -1147,6 +1223,8 @@ const LANGS = {
     deadSub:      (lives) => `Wisp löste sich in der Dunkelheit auf.<br>${lives>0?'Du hast noch '+lives+' ❤️ Leben.':'Keine Leben mehr...'}`,
     retry:        '↺ Nochmal versuchen',
     levelWord:    'LEVEL',
+    world2Entry:  '🍄 Welt 2: Wurzeln des Waldes',
+    world3Entry:  '❄️ Welt 3: Winterwald',
     levelDone:    (n) => `✨ Level ${n}<br>Geschafft!`,
     nextLevel:    '▶ Nächstes Level',
     seeRanking:   '🏆 Rangliste ansehen',
@@ -1167,8 +1245,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Du hast ein Gratis-Leben erhalten! ❤️',
     yourPos:      (n) => `🏆 Ranglistenposition #${n}!`,
     diffLabel:    { easy:'😊 Leicht', medium:'😐 Mittel', hard:'💀 Schwer' },
-    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis'],
-    levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.'],
+    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis','Die Höhlenschwelle','Dunkle Wurzeln','Kristallgrotte','Kristalltiefe','Pilzgarten','Purpurhöhlen','Wurzellabyrinth','Bernsteinhöhlen','Wurzel der Zeit','Herz des Waldes','Gefrorene Morgenröte','Schneeweite','Eishain','Kristallwind','Schneesturm','Das gefrorene Tal','Frostige Nacht','Eislabyrinth','Arktischer Abgrund','Eisherz'],
+    levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.','Tiefer, kleiner Geist...','Die Wurzeln kennen den Weg...','Kristalle singen im Dunkeln...','Tiefer, wo die Welt schweigt...','Pilze leuchten statt Sterne...','Purpur flutet die Tunnel...','Die Wurzeln umschlingen alles...','Bernstein hütet die Geheimnisse...','Die Zeit fließt langsamer unter der Erde...','Hier schlägt das Herz des Waldes.','Der Frost begrüßt dich mit kaltem Lächeln...','Schnee bedeckt jede Spur...','Jeder Atemzug wird zu einer Wolke...','Der Wind trägt Eiskristalle...','Der Schneesturm verbirgt den Horizont...','Das Eis bricht unter deinen Füßen...','Die Nacht ist kalt wie Eisen...','Das Eislabyrinth hat kein Ende...','Der Arktiksturm heult ohne Gnade...','Hier friert das Herz des Winters selbst.'],
     achievements: [
       {name:'Erstes Irrlicht',       desc:'Sammle dein erstes Irrlicht'},
       {name:'Glanzsammler',          desc:'Sammle insgesamt 50 Irrlichter'},
@@ -1183,6 +1261,17 @@ const LANGS = {
       {name:'Schlüsselhüter',        desc:'Schlüssel sammeln und Portal öffnen'},
       {name:'Unterstützer',          desc:'Zusätzliche Leben kaufen'},
     ],
+    desktop: {
+      subtitle:'Geist des Waldes',
+      f1title:'Plattformspiel',f1text:'10 Level voller Geheimnisse, Feinde und Wind',
+      f2title:'Keine Werbung',f2text:'Keine Unterbrechungen, Banner oder Popups',
+      f3title:'Weltrangliste',f3text:'Tritt gegen Spieler aus aller Welt an',
+      free:'Kostenloses Browserspiel',
+      ctrlTitle:'PC-Steuerung',ctrlText:'← → oder A/D — Bewegung<br>Leertaste oder ↑ — Sprung<br>P oder Esc — Pause',
+      mobileTitle:'Auch auf dem Handy',mobileText:'Virtueller Joystick + Sprungknopf. Funktioniert offline als PWA.',
+      ptsTitle:'Wie Punkte sammeln?',ptsText:'Geist: +100 Pkt<br>Level abgeschlossen: +500 Pkt<br>Feind besiegt: +50 Pkt',
+      noDownload:'Kein Download nötig',
+    },
   },
 
   es: {
@@ -1225,6 +1314,8 @@ const LANGS = {
     deadSub:      (lives) => `Wisp se desvaneció en la oscuridad.<br>${lives>0?'Te quedan '+lives+' ❤️ vidas.':'Sin más vidas...'}`,
     retry:        '↺ Intentar de nuevo',
     levelWord:    'NIVEL',
+    world2Entry:  '🍄 Mundo 2: Raíces del Bosque',
+    world3Entry:  '❄️ Mundo 3: Bosque de Invierno',
     levelDone:    (n) => `✨ ¡Nivel ${n}<br>completado!`,
     nextLevel:    '▶ Siguiente nivel',
     seeRanking:   '🏆 Ver clasificación',
@@ -1245,8 +1336,8 @@ const LANGS = {
     freeLifeGet:  '🎁 ¡Recibiste una vida gratis! ❤️',
     yourPos:      (n) => `🏆 ¡Posición #${n} en la clasificación!`,
     diffLabel:    { easy:'😊 Fácil', medium:'😐 Normal', hard:'💀 Difícil' },
-    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas'],
-    levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.'],
+    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas','El Umbral','Raíces Oscuras','Gruta de Cristal','Profundidades de Cristal','Jardín de Hongos','Cavernas Púrpuras','Laberinto de Raíces','Cavernas de Ámbar','Raíz del Tiempo','Corazón del Bosque','Alba Helada','Claro Nevado','Bosquecillo de Hielo','Viento de Cristal','Ventisca','El Barranco Helado','Noche Gélida','Laberinto de Hielo','Abismo Ártico','Corazón de Hielo'],
+    levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.','Más profundo, pequeño espíritu...','Las raíces conocen el camino...','Los cristales cantan en la oscuridad...','Más profundo, donde el mundo calla...','Los hongos brillan en lugar de estrellas...','El púrpura inunda los túneles...','Las raíces lo envuelven todo...','El ámbar guarda los secretos del bosque...','El tiempo fluye más lento bajo tierra...','Aquí late el corazón del bosque.','La escarcha te saluda con fría sonrisa...','La nieve cubre todas las huellas...','Cada aliento forma una nube...','El viento lleva cristales de hielo...','La ventisca oculta el horizonte...','El hielo cruje bajo tus pies...','La noche es fría como el hierro...','El laberinto de hielo no tiene fin...','El vendaval ártico aúlla sin piedad...','Aquí se congela el corazón del invierno.'],
     achievements: [
       {name:'Primer Destello',       desc:'Recoge tu primer destello'},
       {name:'Coleccionista de Luz',  desc:'Recoge 50 destellos en total'},
@@ -1261,6 +1352,17 @@ const LANGS = {
       {name:'Guardián de Llaves',    desc:'Recoge una llave y abre el portal'},
       {name:'Seguidor',              desc:'Compra vidas extra'},
     ],
+    desktop: {
+      subtitle:'Espíritu del Bosque',
+      f1title:'Plataformas',f1text:'10 niveles llenos de secretos, enemigos y viento',
+      f2title:'Sin anuncios',f2text:'Sin interrupciones, banners ni popups',
+      f3title:'Clasificación global',f3text:'Compite con jugadores de todo el mundo',
+      free:'Juego de navegador gratuito',
+      ctrlTitle:'Controles PC',ctrlText:'← → o A/D — mover<br>Espacio o ↑ — saltar<br>P o Esc — pausa',
+      mobileTitle:'También en móvil',mobileText:'Joystick virtual + botón de salto. Funciona sin internet como PWA.',
+      ptsTitle:'¿Cómo puntuar?',ptsText:'Destello: +100 pts<br>Nivel completado: +500 pts<br>Enemigo derrotado: +50 pts',
+      noDownload:'Sin descarga',
+    },
   },
 
   fr: {
@@ -1303,6 +1405,8 @@ const LANGS = {
     deadSub:      (lives) => `Wisp s'est dissous dans l'obscurité.<br>${lives>0?'Il vous reste '+lives+' ❤️ vie(s).':'Plus de vies...'}`,
     retry:        '↺ Réessayer',
     levelWord:    'NIVEAU',
+    world2Entry:  '🍄 Monde 2 : Racines de la Forêt',
+    world3Entry:  '❄️ Monde 3 : Forêt d\'Hiver',
     levelDone:    (n) => `✨ Niveau ${n}<br>Terminé !`,
     nextLevel:    '▶ Niveau suivant',
     seeRanking:   '🏆 Voir le classement',
@@ -1323,8 +1427,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Vous avez reçu une vie gratuite ! ❤️',
     yourPos:      (n) => `🏆 Position #${n} au classement !`,
     diffLabel:    { easy:'😊 Facile', medium:'😐 Normal', hard:'💀 Difficile' },
-    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres'],
-    levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.'],
+    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres','Le Seuil','Racines Sombres','Grotte de Cristal','Profondeurs de Cristal','Jardin des Champignons','Cavernes Pourpres','Labyrinthe des Racines','Cavernes d\'Ambre','Racine du Temps','Cœur de la Forêt','Aube Glacée','Clairière Enneigée','Bosquet de Glace','Vent de Cristal','Blizzard','Le Ravin Gelé','Nuit Glaciale','Labyrinthe de Glace','Abîme Arctique','Cœur de Glace'],
+    levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.','Plus profond, petit esprit...','Les racines connaissent le chemin...','Les cristaux chantent dans l\'obscurité...','Plus profond, là où le monde se tait...','Les champignons brillent à la place des étoiles...','Le pourpre envahit les tunnels...','Les racines enveloppent tout...','L\'ambre garde les secrets de la forêt...','Le temps coule plus lentement sous terre...','Ici bat le cœur de la forêt.','Le givre vous accueille d\'un sourire froid...','La neige recouvre toutes les traces...','Chaque souffle forme un nuage...','Le vent porte des cristaux de glace...','Le blizzard cache l\'horizon...','La glace craque sous vos pieds...','La nuit est froide comme le fer...','Le labyrinthe de glace n\'a pas de fin...','La bourrasque arctique hurle sans pitié...','Ici se congèle le cœur même de l\'hiver.'],
     achievements: [
       {name:'Premier Feu Follet',    desc:'Collectez votre premier feu follet'},
       {name:'Collecteur de Lumière', desc:'Collectez 50 feux follets au total'},
@@ -1339,6 +1443,17 @@ const LANGS = {
       {name:'Gardien des Clés',      desc:'Collectez une clé et ouvrez le portail'},
       {name:'Soutien',               desc:'Achetez des vies supplémentaires'},
     ],
+    desktop: {
+      subtitle:'Esprit de la Forêt',
+      f1title:'Platformer',f1text:'10 niveaux pleins de secrets, ennemis et vent',
+      f2title:'Zéro publicité',f2text:'Aucune interruption, bannière ni popup',
+      f3title:'Classement mondial',f3text:'Affrontez des joueurs du monde entier',
+      free:'Jeu navigateur gratuit',
+      ctrlTitle:'Contrôles PC',ctrlText:'← → ou A/D — déplacement<br>Espace ou ↑ — saut<br>P ou Échap — pause',
+      mobileTitle:'Aussi sur mobile',mobileText:'Joystick virtuel + bouton de saut. Fonctionne hors ligne en PWA.',
+      ptsTitle:'Comment marquer?',ptsText:'Feu follet : +100 pts<br>Niveau terminé : +500 pts<br>Ennemi vaincu : +50 pts',
+      noDownload:'Sans téléchargement',
+    },
   },
 };
 
@@ -1439,6 +1554,29 @@ function applyLang(){
 
   // THEMES names z i18n
   LANG.levelNames.forEach((name,i)=>{ if(THEMES[i]) THEMES[i].name=name; });
+
+  // Panele boczne desktop
+  const dp = LANG.desktop;
+  if(dp){
+    const dl = document.getElementById('desktop-left');
+    const dr = document.getElementById('desktop-right');
+    if(dl) dl.innerHTML = `
+      <div class="dp-logo">🌿 Wisp<span>${dp.subtitle}</span></div>
+      <div class="dp-divider"></div>
+      <div class="dp-feature"><strong>🎮 ${dp.f1title}</strong>${dp.f1text}</div>
+      <div class="dp-feature"><strong>🚫 ${dp.f2title}</strong>${dp.f2text}</div>
+      <div class="dp-feature"><strong>🌍 ${dp.f3title}</strong>${dp.f3text}</div>
+      <div class="dp-divider"></div>
+      <div class="dp-badge">🆓 ${dp.free}</div>`;
+    if(dr) dr.innerHTML = `
+      <div class="dp-feature"><strong>⌨️ ${dp.ctrlTitle}</strong>${dp.ctrlText}</div>
+      <div class="dp-divider"></div>
+      <div class="dp-feature"><strong>📱 ${dp.mobileTitle}</strong>${dp.mobileText}</div>
+      <div class="dp-divider"></div>
+      <div class="dp-feature"><strong>🏆 ${dp.ptsTitle}</strong>${dp.ptsText}</div>
+      <div class="dp-divider"></div>
+      <div class="dp-badge">💚 ${dp.noDownload}</div>`;
+  }
 }
 
 // ── Game state ──────────────────────────────────
@@ -1473,15 +1611,45 @@ const THEMES = [
   {sky:['#040810','#06101a','#040c14'], fog:'rgba(10,20,40,', platform:'#1a3a5a', ptop:'#60a0d0', name:'Lodowa Puszcza'},
   // 10: finale
   {sky:['#100404','#1a0606','#0a0202'], fog:'rgba(30,5,5,', platform:'#5a1a1a', ptop:'#aa3030', name:'Serce Ciemności'},
+  // 11-12: entry caves (dark teal)
+  {sky:['#030a0a','#050f10','#030a0a'], fog:'rgba(5,18,18,', platform:'#1a4a3a', ptop:'#2a7a5a', name:'Próg Podziemia'},
+  {sky:['#030a0a','#050f10','#030a0a'], fog:'rgba(5,18,18,', platform:'#1a4a3a', ptop:'#2a7a5a', name:'Ciemne Korzenie'},
+  // 13-14: crystal caves (purple/cyan)
+  {sky:['#07040e','#0d0620','#07040e'], fog:'rgba(14,5,28,', platform:'#2a1a4a', ptop:'#3a60a0', name:'Kryształowa Grota'},
+  {sky:['#07040e','#0d0620','#07040e'], fog:'rgba(14,5,28,', platform:'#2a1a4a', ptop:'#3a60a0', name:'Głębokość Kryształu'},
+  // 15-16: mushroom grotto (magenta/purple)
+  {sky:['#0a0414','#10061c','#0a0414'], fog:'rgba(20,5,28,', platform:'#3a1a4a', ptop:'#8a3a9a', name:'Grzybnia'},
+  {sky:['#0a0414','#10061c','#0a0414'], fog:'rgba(20,5,28,', platform:'#3a1a4a', ptop:'#8a3a9a', name:'Purpurowe Pieczary'},
+  // 17-18: root labyrinth (amber/brown)
+  {sky:['#0e0804','#180c04','#0e0804'], fog:'rgba(24,14,4,', platform:'#4a2a0a', ptop:'#8a5a20', name:'Labirynt Korzeni'},
+  {sky:['#0e0804','#180c04','#0e0804'], fog:'rgba(24,14,4,', platform:'#4a2a0a', ptop:'#8a5a20', name:'Jantarowe Pieczary'},
+  // 19-20: heart of the forest (deep crimson)
+  {sky:['#140404','#1e0606','#140404'], fog:'rgba(28,5,5,', platform:'#5a1a0a', ptop:'#aa4020', name:'Korzeń Czasu'},
+  {sky:['#140404','#1e0606','#140404'], fog:'rgba(28,5,5,', platform:'#5a1a0a', ptop:'#cc5020', name:'Serce Lasu'},
+  // 21-22: early winter forest (pale blue-grey)
+  {sky:['#0a0e14','#0e1420','#0a0e14'], fog:'rgba(14,20,34,', platform:'#2a3a4a', ptop:'#8ab0d0', name:'Zamarznięty Świt'},
+  {sky:['#0a0e14','#0e1420','#0a0e14'], fog:'rgba(14,20,34,', platform:'#2a3a4a', ptop:'#8ab0d0', name:'Śnieżna Polana'},
+  // 23-24: deep snow forest (ice blue)
+  {sky:['#060c14','#0a1220','#060c14'], fog:'rgba(10,18,36,', platform:'#1a2a3a', ptop:'#60a0c8', name:'Lodowy Gaj'},
+  {sky:['#060c14','#0a1220','#060c14'], fog:'rgba(10,18,36,', platform:'#1a2a3a', ptop:'#60a0c8', name:'Kryształowy Wiatr'},
+  // 25-26: blizzard (white-silver)
+  {sky:['#080e18','#0c1422','#080e18'], fog:'rgba(12,20,38,', platform:'#1e3040', ptop:'#a0c8e0', name:'Śnieżyca'},
+  {sky:['#080e18','#0c1422','#080e18'], fog:'rgba(12,20,38,', platform:'#1e3040', ptop:'#a0c8e0', name:'Zmrożony Jar'},
+  // 27-28: frozen night (dark indigo-silver)
+  {sky:['#040810','#06101a','#040810'], fog:'rgba(8,16,30,', platform:'#161e2e', ptop:'#506888', name:'Mroźna Noc'},
+  {sky:['#040810','#06101a','#040810'], fog:'rgba(8,16,30,', platform:'#161e2e', ptop:'#506888', name:'Lodowy Labirynt'},
+  // 29-30: arctic finale (near-black with silver)
+  {sky:['#020608','#04080e','#020608'], fog:'rgba(4,10,18,', platform:'#0e1620', ptop:'#304858', name:'Arktyczna Przepaść'},
+  {sky:['#020608','#04080e','#020608'], fog:'rgba(4,10,18,', platform:'#0e1620', ptop:'#304858', name:'Lodowe Serce'},
 ];
 
 // ── Level colours per theme ─────────────────────
 function themeGemColor(t){
-  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060'];
+  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060','#40e0d0','#40e0d0','#a040ff','#a040ff','#ff40d0','#ff40d0','#ffaa20','#ffaa20','#ff6040','#ff8c40','#c0e8ff','#c0e8ff','#80d0ff','#80d0ff','#e0f0ff','#e0f0ff','#b0d8f0','#b0d8f0','#d0e8ff','#ffffff'];
   return cols[t]||'#80ff60';
 }
 function themeEnemyColor(t){
-  const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020'];
+  const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020','#40ffcc','#40ffcc','#aa60ff','#aa60ff','#ff60e0','#ff60e0','#ffcc40','#ffcc40','#ff4020','#ff6000','#60b0e0','#60b0e0','#4090c0','#4090c0','#80c8e8','#80c8e8','#3070a0','#3070a0','#204060','#102030'];
   return cols[t]||'#ff6040';
 }
 
@@ -1492,7 +1660,7 @@ function buildLevel(n){
   const hasWind   = n>=4;
   const hasEnemy  = n>=4;
   const needsKey  = n>=5 && n%2===1; // odd levels 5,7,9
-  const windStr   = n>=8 ? 1.4 : n>=6 ? 0.9 : n>=4 ? 0.5 : 0;
+  const windStr   = n>=29 ? 1.8 : n>=27 ? 1.5 : n>=25 ? 1.2 : n>=23 ? 0.9 : n>=21 ? 0.6 : n>=19 ? 1.1 : n>=17 ? 0.8 : n>=14 ? 0.5 : n>=11 ? 0.3 : n>=8 ? 1.4 : n>=6 ? 0.9 : n>=4 ? 0.5 : 0;
 
   // Base platform configs per level
   const configs = [
@@ -1618,6 +1786,311 @@ function buildLevel(n){
      gem:[[90,580],[325,560],[65,495],[220,440],[355,470],[100,380],[260,320],[65,250],[225,190],[90,130],[260,70],[80,10]],
      goal:[80,0], sx:20, sy:660,
      enemies:[[135,590,100,2.3],[315,460,90,2.5],[155,340,105,2.2],[245,210,95,2.6],[150,90,85,2.1],[270,340,80,2.4]]},
+
+    // 11 — Próg Podziemia — intro cave, key required
+    {plat:[
+      [0,680,140,20,'g'],[340,680,140,20,'g'],
+      [100,600,100,16],[240,560,80,16,1,60,1.4],
+      [60,490,80,16],[280,450,80,16],
+      [140,380,100,16],[240,320,80,16,1,80,1.6],
+      [60,250,90,16],[240,190,100,16],
+      [100,120,80,16],[260,60,120,16]],
+     spk:[[145,664,190],[110,584,20],[300,544,20],[150,364,20],[280,304,20]],
+     gem:[[140,580],[270,540],[90,470],[310,430],[165,360],[265,300],[85,230],[265,170],[120,100],[295,40]],
+     goal:[290,20], sx:50, sy:640,
+     needsKey:true, keyPos:[90,180],
+     enemies:[[200,670,70,1.2]]},
+
+    // 12 — Ciemne Korzenie
+    {plat:[
+      [0,680,100,20,'g'],[380,680,100,20,'g'],
+      [90,610,80,16,1,70,1.6],[270,580,70,16],
+      [50,510,80,16],[240,470,80,16,1,80,1.7],
+      [120,400,90,16],[300,360,70,16],
+      [50,290,80,16,1,70,1.5],[240,240,90,16],
+      [80,170,80,16],[260,120,80,16],
+      [100,60,90,16],[240,10,130,16]],
+     spk:[[105,664,270],[100,594,20],[315,564,20],[130,384,20],[295,344,20]],
+     gem:[[120,590],[315,560],[80,490],[275,450],[145,380],[325,340],[80,270],[265,220],[100,150],[285,100],[120,40],[270,-10]],
+     goal:[270,-20], sx:30, sy:650,
+     enemies:[[195,670,60,1.2],[200,460,70,1.3],[185,250,80,1.4]]},
+
+    // 13 — Kryształowa Grota, key
+    {plat:[
+      [0,680,80,20,'g'],[400,680,80,20,'g'],
+      [70,610,60,16,1,80,2],[300,590,60,16,1,70,1.9],
+      [150,530,70,16],[290,490,60,16,1,90,2.1],
+      [50,430,70,16],[250,390,70,16],
+      [130,320,70,16,1,80,2],[300,280,60,16],
+      [60,220,70,16],[230,170,80,16,1,90,1.8],
+      [80,110,80,16],[240,60,100,16],
+      [80,10,120,16]],
+     spk:[[85,664,310],[150,514,20],[310,474,20],[155,304,20],[315,264,20]],
+     gem:[[95,590],[330,570],[175,510],[315,470],[75,410],[275,370],[155,300],[325,260],[85,200],[255,150],[105,90],[265,40],[100,-10]],
+     goal:[110,-10], sx:20, sy:655,
+     needsKey:true, keyPos:[100,70],
+     enemies:[[200,670,60,1.3],[200,480,80,1.4],[180,280,80,1.5]]},
+
+    // 14 — Głębokość Kryształu
+    {plat:[
+      [0,680,60,20,'g'],[420,680,60,20,'g'],
+      [55,610,55,16,1,100,2.2],[310,590,55,16,1,90,2.1],
+      [140,530,60,16],[270,490,60,16,1,100,2.3],
+      [40,430,60,16],[240,380,70,16,1,90,2],
+      [120,320,60,16],[300,270,55,16,1,100,2.2],
+      [50,210,65,16],[230,160,70,16],
+      [100,100,65,16,1,90,2.1],[260,50,80,16],
+      [70,-10,110,16]],
+     spk:[[65,664,350],[150,514,20],[300,474,20],[130,304,20],[305,254,20],[120,194,20]],
+     gem:[[80,590],[345,570],[165,510],[300,470],[65,410],[265,360],[145,300],[325,250],[75,190],[255,140],[120,80],[285,30],[90,-30]],
+     goal:[100,-30], sx:15, sy:660,
+     enemies:[[200,670,50,1.4],[200,470,70,1.5],[210,280,80,1.6],[195,160,70,1.4]]},
+
+    // 15 — Grzybnia, key
+    {plat:[
+      [0,680,90,20,'g'],[390,680,90,20,'g'],
+      [75,610,75,16],[290,580,70,16,1,80,2],
+      [150,520,70,16],[290,480,65,16],
+      [50,420,70,16,1,90,2.1],[250,370,75,16],
+      [100,310,65,16],[290,260,70,16,1,80,1.9],
+      [50,200,70,16],[240,150,75,16],
+      [90,90,80,16],[250,40,100,16]],
+     spk:[[95,664,295],[155,594,20],[310,564,20],[155,404,20],[310,354,20]],
+     gem:[[110,590],[320,560],[175,500],[315,460],[75,400],[275,350],[120,290],[315,240],[75,180],[265,130],[110,70],[275,20]],
+     goal:[275,20], sx:30, sy:650,
+     needsKey:true, keyPos:[110,50],
+     enemies:[[200,670,60,1.3],[190,460,80,1.5],[200,260,80,1.6],[195,130,70,1.5]]},
+
+    // 16 — Purpurowe Pieczary
+    {plat:[
+      [0,680,60,20,'g'],[420,680,60,20,'g'],
+      [55,620,60,16,1,100,2.3],[310,595,55,16,1,85,2.1],
+      [155,535,60,16],[300,495,60,16,1,95,2.2],
+      [45,435,60,16],[240,385,65,16,1,100,2.3],
+      [110,325,60,16],[305,275,60,16,1,90,2],
+      [45,215,65,16],[235,165,70,16],
+      [95,105,65,16,1,90,2.1],[265,55,80,16],
+      [60,-5,110,16]],
+     spk:[[65,664,350],[165,519,20],[310,479,20],[120,309,20],[310,259,20],[120,199,20],[240,149,20]],
+     gem:[[80,600],[340,575],[180,515],[325,475],[70,415],[265,365],[135,305],[330,255],[70,195],[260,145],[115,85],[290,35],[80,-25]],
+     goal:[80,-25], sx:15, sy:660,
+     enemies:[[200,670,50,1.5],[200,475,75,1.6],[205,280,80,1.7],[200,160,70,1.6]]},
+
+    // 17 — Labirynt Korzeni, key
+    {plat:[
+      [0,680,50,20,'g'],[430,680,50,20,'g'],
+      [45,615,55,16,1,110,2.5],[310,600,55,16,1,95,2.3],
+      [155,545,60,16],[290,505,55,16,1,105,2.4],
+      [40,445,60,16],[240,395,65,16,1,105,2.5],
+      [100,335,55,16],[305,285,55,16,1,100,2.3],
+      [40,225,60,16],[235,175,65,16,1,95,2.2],
+      [95,115,60,16],[270,65,75,16],
+      [55,-15,120,16]],
+     spk:[[55,664,370],[165,529,20],[310,489,20],[115,319,20],[315,269,20],[115,209,20],[240,159,20]],
+     gem:[[70,595],[340,580],[180,525],[320,485],[65,425],[265,375],[125,315],[330,265],[65,205],[260,155],[115,95],[295,45],[75,-35]],
+     goal:[75,-35], sx:10, sy:660,
+     needsKey:true, keyPos:[100,75],
+     enemies:[[200,670,45,1.6],[195,485,75,1.7],[205,285,80,1.8],[200,165,70,1.7],[190,50,60,1.6]]},
+
+    // 18 — Jantarowe Pieczary
+    {plat:[
+      [0,680,45,20,'g'],[435,680,45,20,'g'],
+      [40,615,50,16,1,120,2.8],[315,595,50,16,1,105,2.6],
+      [160,540,55,16,1,100,2.7],[290,500,50,16,1,110,2.8],
+      [40,440,55,16],[240,390,60,16,1,115,2.7],
+      [105,330,55,16],[310,280,50,16,1,105,2.5],
+      [40,220,55,16],[240,170,60,16,1,110,2.6],
+      [95,110,55,16,1,105,2.7],[270,60,70,16],
+      [50,-15,115,16]],
+     spk:[[50,664,380],[165,524,20],[310,484,20],[115,314,20],[315,264,20],[115,204,20],[245,154,20]],
+     gem:[[65,595],[345,575],[185,520],[320,480],[65,420],[265,370],[130,310],[335,260],[65,200],[265,150],[115,90],[295,40],[70,-35]],
+     goal:[70,-35], sx:10, sy:660,
+     enemies:[[195,670,40,1.7],[200,480,70,1.8],[205,280,75,1.9],[195,165,65,1.8],[190,50,55,1.7]]},
+
+    // 19 — Korzeń Czasu, key
+    {plat:[
+      [0,680,40,20,'g'],[440,680,40,20,'g'],
+      [35,615,50,16,1,120,3],[325,600,50,16,1,110,2.8],
+      [165,545,50,16,1,110,2.9],[295,505,50,16,1,120,3.1],
+      [35,445,55,16],[245,395,55,16,1,115,2.9],
+      [100,335,50,16],[315,285,50,16,1,110,2.8],
+      [35,225,55,16],[245,175,55,16,1,115,2.9],
+      [100,115,50,16,1,110,3],[275,65,70,16],
+      [45,-15,120,16]],
+     spk:[[45,664,390],[170,529,20],[320,489,20],[115,319,20],[320,269,20],[115,209,20],[245,159,20],[110,99,20]],
+     gem:[[60,595],[355,580],[190,525],[325,485],[60,425],[270,375],[125,315],[340,265],[60,205],[270,155],[120,95],[300,45],[65,-35]],
+     goal:[65,-35], sx:5, sy:660,
+     needsKey:true, keyPos:[105,75],
+     enemies:[[195,670,40,1.8],[200,485,70,1.9],[205,285,75,2],[200,165,65,1.9],[190,50,55,1.8],[250,380,50,2]]},
+
+    // 20 — Serce Lasu — World 2 FINALE
+    {plat:[
+      [0,680,40,20,'g'],[440,680,40,20,'g'],
+      [35,610,40,16,1,130,3.3],[340,590,40,16,1,120,3.1],
+      [175,540,45,16,1,120,3.2],[295,500,40,16,1,130,3.3],
+      [35,440,45,16,1,120,3.1],[250,390,50,16,1,125,3.2],
+      [100,330,45,16],[330,280,45,16,1,120,3],
+      [35,220,50,16],[250,170,50,16,1,120,3.1],
+      [100,110,45,16,1,115,3.2],[285,60,60,16],
+      [50,-15,120,16]],
+     spk:[[45,664,390],[45,594,20],[340,574,20],[180,524,20],[310,484,20],[45,424,20],[255,374,20],[115,314,20],[335,264,20],[45,204,20],[255,154,20],[115,94,20],[255,44,20]],
+     gem:[[55,590],[360,570],[195,520],[325,480],[55,420],[270,370],[120,310],[350,260],[55,200],[270,150],[120,90],[305,40],[70,-35]],
+     goal:[70,-35], sx:5, sy:660,
+     enemies:[[195,670,35,2],[195,475,65,2.2],[210,275,70,2.3],[195,160,60,2.2],[185,50,50,2],[260,390,60,2.3],[255,175,55,2.1],[185,295,50,2.2]]},
+
+    // 21 — Zamarznięty Świt (World 3 entry — easier intro)
+    {plat:[
+      [0,680,120,20,'g'],[360,680,120,20,'g'],
+      [85,600,75,16],[270,580,65,16,1,65,1.6],
+      [50,510,75,16],[225,485,70,16],
+      [130,415,70,16,1,72,1.8],[325,395,62,16],
+      [60,330,70,16],[245,308,65,16],
+      [145,238,72,16],[340,218,58,16],
+      [45,150,75,16],[215,115,88,16]],
+     spk:[[120,664,240],[90,584,12],[265,468,12],[270,292,12]],
+     gem:[[120,580],[285,560],[80,490],[250,465],[155,395],[340,375],[85,310],[260,288],[165,218],[355,198],[70,130],[240,95]],
+     goal:[245,85], sx:25, sy:655,
+     needsKey:true, keyPos:[340,375],
+     enemies:[[200,670,75,1.8],[210,465,80,1.9]]},
+
+    // 22 — Śnieżna Polana
+    {plat:[
+      [0,680,80,20,'g'],[400,680,80,20,'g'],
+      [80,608,65,16,1,85,1.6],[285,585,60,16],
+      [42,515,68,16],[210,492,65,16,1,78,1.8],
+      [332,518,56,16],[72,425,65,16],
+      [215,403,65,16,1,80,2.0],[360,381,54,16],
+      [52,320,65,16],[195,296,60,16],
+      [328,272,62,16],[82,212,66,16],
+      [222,162,78,16],[75,92,88,16]],
+     spk:[[80,664,320],[88,592,12],[345,501,12],[78,409,12]],
+     gem:[[108,588],[310,565],[68,495],[228,472],[348,498],[98,405],[232,383],[375,361],[78,300],[210,276],[344,252],[107,192],[240,142],[100,72]],
+     goal:[105,62], sx:22, sy:655,
+     enemies:[[112,598,74,1.9],[216,472,82,2.0],[100,405,77,2.1]]},
+
+    // 23 — Lodowy Gaj
+    {plat:[
+      [0,680,72,20,'g'],[408,680,72,20,'g'],
+      [76,606,60,16,1,88,1.9],[288,583,56,16],
+      [38,513,65,16,1,72,2.1],[208,490,60,16],
+      [328,516,52,16],[68,423,62,16],
+      [212,401,62,16,1,84,2.0],[355,378,52,16],
+      [48,318,62,16],[190,294,58,16],
+      [322,270,59,16,1,78,2.1],[78,210,63,16],
+      [218,158,74,16],[65,90,84,16]],
+     spk:[[72,664,336],[82,590,12],[342,500,12],[74,407,12],[322,254,12]],
+     gem:[[105,586],[308,563],[64,493],[225,470],[344,496],[95,403],[228,381],[370,358],[74,298],[205,274],[337,250],[103,190],[236,138],[90,70]],
+     goal:[100,60], sx:20, sy:655,
+     needsKey:true, keyPos:[370,358],
+     enemies:[[105,596,76,2.0],[210,470,84,2.2],[92,403,78,2.1],[228,375,72,2.3]]},
+
+    // 24 — Kryształowy Wiatr
+    {plat:[
+      [0,680,65,20,'g'],[415,680,65,20,'g'],
+      [72,604,56,16,1,92,2.0],[285,581,54,16,1,78,2.3],
+      [35,511,62,16],[205,488,58,16],
+      [325,514,50,16],[65,421,60,16],
+      [208,399,60,16,1,86,2.1],[352,376,50,16],
+      [45,316,60,16],[188,292,58,16],
+      [318,268,56,16,1,82,2.3],[74,208,62,16],
+      [215,156,71,16],[60,88,82,16]],
+     spk:[[65,664,350],[78,588,12],[338,498,12],[70,405,12],[198,468,12],[325,252,12]],
+     gem:[[102,584],[305,561],[61,491],[222,468],[340,494],[92,401],[225,379],[367,356],[71,296],[203,272],[333,248],[99,188],[233,136],[85,68]],
+     goal:[95,58], sx:18, sy:658,
+     enemies:[[98,594,79,2.1],[206,468,85,2.3],[88,401,79,2.2],[222,373,73,2.4]]},
+
+    // 25 — Śnieżyca, key
+    {plat:[
+      [0,680,60,20,'g'],[420,680,60,20,'g'],
+      [70,602,54,16],[278,579,52,16,1,82,2.0],
+      [33,509,60,16,1,74,2.2],[202,486,56,16],
+      [322,512,48,16],[65,419,58,16,1,80,2.1],
+      [205,397,58,16],[348,374,48,16],
+      [44,314,58,16],[185,290,56,16,1,82,2.3],
+      [315,266,52,16],[70,206,60,16],
+      [210,155,68,16],[57,87,80,16]],
+     spk:[[60,664,360],[75,586,12],[335,496,12],[70,403,12],[200,466,12],[72,298,12]],
+     gem:[[100,582],[302,559],[60,489],[220,466],[338,492],[90,399],[222,377],[363,354],[70,294],[200,270],[330,246],[95,186],[228,135],[82,67]],
+     goal:[92,57], sx:18, sy:658,
+     needsKey:true, keyPos:[363,354],
+     enemies:[[95,592,80,2.2],[202,466,86,2.4],[86,399,80,2.3],[218,371,74,2.5],[95,290,76,2.2]]},
+
+    // 26 — Zmrożony Jar
+    {plat:[
+      [0,680,55,20,'g'],[425,680,55,20,'g'],
+      [68,600,51,16,1,94,2.1],[274,577,50,16],
+      [30,507,57,16],[199,484,54,16,1,80,2.4],
+      [319,510,46,16],[62,417,56,16],
+      [202,395,56,16,1,85,2.2],[346,372,46,16],
+      [42,312,56,16],[182,288,54,16],
+      [312,264,50,16,1,82,2.4],[68,204,58,16],
+      [208,153,65,16,1,88,2.3],[54,85,77,16]],
+     spk:[[55,664,370],[73,584,12],[332,494,12],[68,401,12],[198,464,12],[320,248,12]],
+     gem:[[98,580],[299,557],[58,487],[217,464],[335,490],[88,397],[220,375],[361,352],[68,292],[197,268],[327,244],[93,184],[226,133],[80,65]],
+     goal:[90,55], sx:16, sy:658,
+     enemies:[[93,590,82,2.3],[200,464,88,2.5],[85,397,81,2.4],[216,369,75,2.6],[92,288,77,2.3]]},
+
+    // 27 — Mroźna Noc, key
+    {plat:[
+      [0,680,50,20,'g'],[430,680,50,20,'g'],
+      [65,598,48,16,1,96,2.3],[271,575,47,16],
+      [27,505,54,16],[196,482,51,16,1,82,2.6],
+      [316,508,44,16,1,80,2.4],[60,415,54,16],
+      [199,393,54,16],[343,370,44,16,1,86,2.5],
+      [40,310,53,16],[179,286,52,16],
+      [308,262,48,16,1,83,2.6],[66,202,56,16],
+      [206,151,63,16],[51,83,75,16]],
+     spk:[[50,664,380],[70,582,12],[329,492,12],[66,399,12],[195,462,12],[66,294,12],[180,270,12]],
+     gem:[[95,578],[296,555],[56,485],[215,462],[332,488],[86,395],[217,373],[358,350],[66,290],[194,266],[323,242],[91,182],[224,131],[78,63]],
+     goal:[88,53], sx:16, sy:658,
+     needsKey:true, keyPos:[358,350],
+     enemies:[[90,588,84,2.4],[197,462,90,2.6],[83,395,82,2.5],[213,367,76,2.7],[90,286,78,2.4],[197,264,72,2.6]]},
+
+    // 28 — Lodowy Labirynt
+    {plat:[
+      [0,680,47,20,'g'],[433,680,47,20,'g'],
+      [62,596,45,16,1,98,2.5],[268,573,45,16,1,80,2.8],
+      [24,503,51,16],[193,480,49,16],
+      [313,506,42,16],[57,413,51,16,1,88,2.6],
+      [196,391,51,16],[340,368,42,16],
+      [38,308,51,16,1,90,2.7],[176,284,50,16],
+      [305,260,46,16,1,84,2.7],[64,200,54,16],
+      [204,149,61,16,1,90,2.6],[49,81,73,16]],
+     spk:[[47,664,386],[68,580,12],[326,490,12],[63,397,12],[192,460,12],[64,292,12],[316,244,12]],
+     gem:[[92,576],[293,553],[54,483],[212,460],[329,486],[84,393],[214,371],[355,348],[64,288],[191,264],[320,240],[89,180],[221,129],[76,61]],
+     goal:[86,51], sx:14, sy:660,
+     enemies:[[88,586,86,2.6],[194,460,92,2.8],[81,393,84,2.7],[210,365,78,2.9],[88,284,80,2.6],[194,262,74,2.8]]},
+
+    // 29 — Arktyczna Przepaść, key
+    {plat:[
+      [0,680,43,20,'g'],[437,680,43,20,'g'],
+      [59,594,42,16,1,100,2.8],[265,571,42,16],
+      [21,501,48,16],[190,478,46,16,1,84,3.1],
+      [310,504,40,16],[54,411,48,16,1,90,2.9],
+      [193,389,48,16],[337,366,40,16,1,87,3.0],
+      [36,306,48,16],[174,282,47,16],
+      [302,258,44,16,1,85,3.1],[62,198,51,16],
+      [202,147,59,16],[47,79,71,16]],
+     spk:[[43,664,394],[66,578,12],[323,488,12],[61,395,12],[189,458,12],[62,290,12],[313,242,12],[174,266,12]],
+     gem:[[89,574],[290,551],[52,481],[210,458],[326,484],[82,391],[211,369],[352,346],[62,286],[188,262],[317,238],[87,178],[219,127],[74,59]],
+     goal:[84,49], sx:12, sy:660,
+     needsKey:true, keyPos:[352,346],
+     enemies:[[86,584,88,2.8],[191,458,94,3.0],[79,391,86,2.9],[207,363,80,3.1],[86,282,82,2.8],[192,260,76,3.0]]},
+
+    // 30 — Lodowe Serce — World 3 FINALE
+    {plat:[
+      [0,680,40,20,'g'],[440,680,40,20,'g'],
+      [56,592,40,16,1,104,3.1],[262,569,40,16,1,82,3.4],
+      [18,499,46,16],[187,476,44,16,1,86,3.2],
+      [307,502,38,16],[51,409,46,16,1,92,3.1],
+      [190,387,46,16],[334,364,38,16,1,90,3.3],
+      [33,304,46,16],[171,280,45,16,1,88,3.2],
+      [299,256,42,16],[59,196,48,16,1,92,3.1],
+      [200,145,57,16],[45,77,69,16]],
+     spk:[[40,664,400],[60,576,12],[320,486,12],[58,393,12],[186,456,12],[60,288,12],[310,240,12],[170,264,12],[58,180,12],[210,129,12]],
+     gem:[[86,572],[288,549],[50,479],[207,456],[323,482],[80,389],[208,367],[349,344],[60,284],[185,260],[314,236],[85,176],[216,125],[72,57],[280,547],[88,468]],
+     goal:[82,47], sx:10, sy:660,
+     enemies:[[84,582,90,3.0],[188,456,96,3.2],[77,389,88,3.1],[204,361,82,3.3],[84,280,84,3.0],[190,258,78,3.2],[80,379,73,3.1],[196,277,68,3.3]]},
   ];
 
   const cfg = configs[lvl] || configs[0];
@@ -1872,7 +2345,7 @@ function playTransition(levelNum, themeName, onDone){
   const name = document.getElementById('tr-name');
   const sub  = document.getElementById('tr-sub');
 
-  num.textContent  = `— ${LANG.levelWord} ${levelNum} —`;
+  num.textContent  = levelNum===11 ? (LANG.world2Entry||'🍄 Świat 2: Korzenie Lasu') : levelNum===21 ? (LANG.world3Entry||'❄️ Świat 3: Zimowy Las') : `— ${LANG.levelWord} ${levelNum} —`;
   name.textContent = themeName;
   sub.textContent  = LANG.levelQuotes[Math.min(levelNum-1, LANG.levelQuotes.length-1)];
 
@@ -2250,7 +2723,7 @@ function levelComplete(){
   promptNickname(nick=>{
     saveToRanking(GS.score, _lvl, DIFF);
     setTimeout(()=>{
-      if(_lvl>=10) showOverlay('finish');
+      if(_lvl>=30) showOverlay('finish');
       else showOverlay('win');
     }, 400);
   });
@@ -2771,7 +3244,7 @@ document.addEventListener('keydown',e=>{
   // 🔑 Admin skrót: N = następny poziom
   if(e.key==='n' || e.key==='N'){
     if(GS.state==='playing'){
-      if(GS.level>=10) showOverlay('finish');
+      if(GS.level>=30) showOverlay('finish');
       else { GS.level++; loadLevel(GS.level); updateHUD(); }
     }
   }

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cómo jugar a Wisp? Guía completa para principiantes</title>
+  <meta name="description" content="Controles, estrategias, secretos de los niveles y consejos para llegar al nivel 10 en Wisp — Espíritu del Bosque. Guía completa para nuevos jugadores.">
+  <meta name="author" content="Equipo Wisp">
+  <link rel="canonical" href="https://wispplay.com/blog/es/como-jugar-wisp-guia/">
+  <link rel="icon" href="/icon-192.png">
+  <meta name="theme-color" content="#040a04">
+  <!-- Open Graph -->
+  <meta property="og:title" content="¿Cómo jugar a Wisp? Guía completa para principiantes">
+  <meta property="og:description" content="Controles, estrategias, secretos de los niveles y consejos para llegar al nivel 10 en Wisp — Espíritu del Bosque. Guía completa para nuevos jugadores.">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://wispplay.com/blog/es/como-jugar-wisp-guia/">
+  <meta property="article:published_time" content="2026-03-15">
+  <meta property="article:author" content="Equipo Wisp">
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "¿Cómo jugar a Wisp? Guía completa para principiantes",
+    "description": "Controles, estrategias, secretos de los niveles y consejos para llegar al nivel 10 en Wisp — Espíritu del Bosque. Guía completa para nuevos jugadores.",
+    "author": {"@type": "Person", "name": "Equipo Wisp"},
+    "publisher": {"@type": "Organization", "name": "ePro sp. z o.o."},
+    "datePublished": "2026-03-15",
+    "url": "https://wispplay.com/blog/es/como-jugar-wisp-guia/"
+  }
+  </script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#060e06;color:#c8e8c0;font-family:'Georgia',serif;line-height:1.8;font-size:17px;}
+    a{color:#80ee60;text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    nav{background:#030803;border-bottom:1px solid #1a3a1a;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+    .nav-logo{font-size:20px;font-weight:bold;color:#b0f080;letter-spacing:.5px;}
+    .nav-logo span{color:#60c040;}
+    .nav-links{display:flex;gap:18px;font-size:14px;margin-left:auto;}
+    .nav-links a{color:#8ab880;}
+    .nav-links a:hover{color:#b0f080;}
+    .nav-links .breadcrumb{color:#3a5a3a;}
+    article{max-width:720px;margin:0 auto;padding:48px 24px 80px;}
+    .article-tag{font-size:12px;color:#4a8a4a;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+    h1{font-size:clamp(24px,4vw,36px);color:#b0f080;line-height:1.3;margin-bottom:16px;}
+    .article-meta{font-size:13px;color:#4a6a4a;margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid #0f2a0f;}
+    h2{font-size:22px;color:#90d878;margin:40px 0 14px;line-height:1.4;}
+    h3{font-size:18px;color:#78c060;margin:28px 0 10px;}
+    p{margin-bottom:18px;color:#b8d8b0;}
+    ul,ol{margin:0 0 18px 24px;color:#b0d0a8;}
+    li{margin-bottom:8px;}
+    strong{color:#d0f0b8;}
+    .highlight-box{background:#0a1a0a;border:1px solid #1a4a1a;border-left:4px solid #50c040;border-radius:8px;padding:20px 24px;margin:28px 0;}
+    .highlight-box p{margin-bottom:0;color:#a0c890;}
+    .cta-box{background:linear-gradient(135deg,#0a200a,#0d2a0d);border:1px solid #2a5a2a;border-radius:12px;padding:28px 24px;margin:40px 0;text-align:center;}
+    .cta-box h3{color:#b0f080;margin:0 0 10px;}
+    .cta-box p{color:#6a9a6a;font-size:15px;margin-bottom:18px;}
+    .cta-btn{display:inline-block;background:#2a7a2a;color:#c0f0a0;padding:12px 28px;border-radius:8px;font-size:15px;font-family:'Georgia',serif;transition:background .2s;}
+    .cta-btn:hover{background:#3a9a3a;text-decoration:none;}
+    .faq-item{border-bottom:1px solid #0f2a0f;padding:18px 0;}
+    .faq-q{font-weight:bold;color:#90c878;margin-bottom:8px;}
+    .faq-a{color:#90b088;font-size:15px;}
+    .tip-box{background:#0a1a0a;border:1px solid #1a4a1a;border-left:4px solid #50c040;border-radius:8px;padding:20px 24px;margin:28px 0;}
+    .tip-box p{margin-bottom:0;color:#a0c890;}
+    .warning-box{background:#1a0e0a;border:1px solid #4a2a1a;border-left:4px solid #c07030;border-radius:8px;padding:20px 24px;margin:28px 0;}
+    .warning-box p{margin-bottom:0;color:#c0a080;}
+    .diff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 28px;}
+    .diff-card{background:#0a160a;border:1px solid #1a3a1a;border-radius:8px;padding:14px;text-align:center;}
+    .diff-card .emoji{font-size:28px;display:block;margin-bottom:8px;}
+    .diff-card strong{color:#c0e8a0;display:block;margin-bottom:4px;}
+    .diff-card span{font-size:13px;color:#6a8a6a;}
+    .also-read{margin:40px 0 0;padding:24px;background:#080f08;border:1px solid #1a3a1a;border-radius:8px;}
+    .also-read strong{color:#90d878;display:block;margin-bottom:12px;}
+    .also-read ul{margin:0;list-style:none;padding:0;}
+    .also-read li{margin-bottom:8px;}
+    footer{text-align:center;padding:40px 20px;border-top:1px solid #0f2a0f;font-size:12px;color:#3a5a3a;}
+    footer a{color:#4a7a4a;}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/game.html" class="nav-logo">🌿 Wisp <span>Espíritu del Bosque</span></a>
+  <div class="nav-links">
+    <span class="breadcrumb"><a href="/blog/">Blog</a> /</span>
+    <a href="/game.html">▶ Jugar</a>
+  </div>
+</nav>
+
+<article>
+  <div class="article-tag">👻 Guía &nbsp;·&nbsp; 7 min de lectura</div>
+  <h1>¿Cómo jugar a Wisp? Guía completa para principiantes</h1>
+  <div class="article-meta">15 de marzo de 2026 &nbsp;·&nbsp; Equipo Wisp</div>
+
+  <p>¿Acabas de empezar a jugar a Wisp — Espíritu del Bosque y te preguntas cómo funcionan los controles, qué evitar y cómo llegar más rápido a los niveles superiores? Esta guía te explica todo — desde lo más básico hasta los trucos avanzados que marcan la diferencia.</p>
+
+  <h2>¿Quién es Wisp?</h2>
+
+  <p>Wisp es el espíritu de un bosque encantado — una criatura verde y luminosa que debe despertar la magia de su mundo. Tu misión es guiarlo a través de 10 niveles, cada uno con desafíos, enemigos y atmósfera únicos. A medida que suben los niveles, el viento se hace más fuerte y los enemigos más rápidos — pero también aumenta la satisfacción de completarlos.</p>
+
+  <h2>Controles</h2>
+
+  <h3>En móvil (táctil)</h3>
+  <ul>
+    <li><strong>Joystick virtual</strong> (esquina inferior izquierda) — mueve a Wisp hacia la izquierda y la derecha.</li>
+    <li><strong>Botón de salto</strong> (esquina inferior derecha) — salta. Si lo pulsas dos veces en el aire, ejecutas un doble salto.</li>
+  </ul>
+
+  <h3>En ordenador (teclado)</h3>
+  <ul>
+    <li><strong>← → o A/D</strong> — moverse a izquierda y derecha.</li>
+    <li><strong>Espacio, ↑ o W</strong> — saltar.</li>
+    <li><strong>P o Escape</strong> — pausar el juego.</li>
+  </ul>
+
+  <div class="tip-box">
+    <p>💡 <strong>Consejo pro:</strong> Puedes hacer un doble salto pulsando el botón de salto una segunda vez mientras estás en el aire. Es una habilidad fundamental a partir del nivel 3 — muchas plataformas solo son accesibles con él.</p>
+  </div>
+
+  <h2>Objetivos en cada nivel</h2>
+
+  <ol>
+    <li><strong>Encontrar la llave</strong> — hay una llave dorada escondida en algún lugar del nivel. Sin recogerla no podrás abrir el portal de salida.</li>
+    <li><strong>Recoger luciérnagas</strong> — cada luciérnaga vale 100 puntos. No son obligatorias para completar el nivel, pero son clave para subir en la clasificación.</li>
+    <li><strong>Saltar al portal</strong> — una vez que tienes la llave, el portal de salida se activa. Entra en él para pasar al siguiente nivel.</li>
+  </ol>
+
+  <h2>Niveles de dificultad</h2>
+
+  <div class="diff-grid">
+    <div class="diff-card">
+      <span class="emoji">😊</span>
+      <strong>Fácil</strong>
+      <span>5 vidas, viento más suave, enemigos más lentos</span>
+    </div>
+    <div class="diff-card">
+      <span class="emoji">😐</span>
+      <strong>Medio</strong>
+      <span>3 vidas, parámetros estándar</span>
+    </div>
+    <div class="diff-card">
+      <span class="emoji">💀</span>
+      <strong>Difícil</strong>
+      <span>1 vida, viento fuerte, enemigos rápidos</span>
+    </div>
+  </div>
+
+  <p>Si es tu primera vez con Wisp, empieza en <strong>Fácil</strong> — aprenderás todas las mecánicas sin frustrarte. Cuando llegues al nivel 10 en esa dificultad, da el salto a Medio. Difícil es para veteranos que ya conocen cada centímetro del mapa.</p>
+
+  <h2>Enemigos — ¿cómo manejarlos?</h2>
+
+  <p>Hay dos tipos de amenazas en los niveles:</p>
+
+  <ul>
+    <li><strong>Enemigos en patrulla</strong> — se mueven por una ruta fija y predecible. Observa su ritmo durante unos segundos y pasa cuando miren hacia el otro lado.</li>
+    <li><strong>Triángulos de pinchos</strong> — trampas estáticas colocadas en el suelo y las paredes. Evita el contacto lateral — puedes saltar por encima de forma completamente segura.</li>
+  </ul>
+
+  <div class="tip-box">
+    <p>💡 <strong>Secreto:</strong> Puedes derrotar a los enemigos en patrulla saltando directamente encima de ellos — igual que en el Mario clásico. Obtienes 50 puntos extra y eliminas la amenaza del nivel de una vez.</p>
+  </div>
+
+  <h2>El viento — el mayor desafío en los niveles superiores</h2>
+
+  <p>Wisp es uno de los pocos juegos de plataformas donde el viento dinámico afecta activamente al gameplay. En los primeros niveles apenas lo notarás, pero a partir del nivel 5 empieza a complicar los saltos. En los niveles 8, 9 y 10 puede tirarte de una plataforma o empujarte hacia unos pinchos en mitad de un salto que parecía perfecto.</p>
+
+  <p>Cómo manejar el viento:</p>
+  <ul>
+    <li>Observa la dirección del viento antes de lanzarte a un salto largo.</li>
+    <li>Si saltas contra el viento, añade un poco más de impulso hacia tu objetivo.</li>
+    <li>En los niveles 8–10 el viento cambia de dirección periódicamente — ajusta tu trayectoria mientras estás en el aire si es necesario.</li>
+  </ul>
+
+  <div class="warning-box">
+    <p>⚠️ <strong>Atención:</strong> En dificultad Difícil el viento es tan fuerte que puede lanzar a Wisp fuera de la pantalla si estás en el borde de una plataforma. Mantente en el centro y ten especial cuidado en los saltos sobre vacío.</p>
+  </div>
+
+  <h2>Sistema de vidas</h2>
+
+  <p>Cada vez que mueres pierdes una vida. Cuando se acaban las vidas tienes varias opciones:</p>
+  <ul>
+    <li><strong>Iniciar sesión y comprar vidas extra</strong> — vuelves al juego de inmediato exactamente donde lo dejaste.</li>
+    <li><strong>Empezar de nuevo</strong> — tu puntuación acumulada se guarda en la clasificación.</li>
+    <li><strong>Esperar</strong> — cada 30 minutos de juego activo recibes una vida gratis automáticamente.</li>
+  </ul>
+
+  <h2>¿Cómo ganar puntos y subir en la clasificación?</h2>
+
+  <ul>
+    <li>Cada luciérnaga recogida: <strong>+100 puntos</strong></li>
+    <li>Completar un nivel: <strong>+500 puntos + (nivel × 50)</strong></li>
+    <li>Derrotar a un enemigo con salto: <strong>+50 puntos</strong></li>
+  </ul>
+
+  <p>Para llegar a lo más alto de la clasificación global, la clave es recoger todas las luciérnagas en cada nivel — es la mayor fuente de puntos con diferencia. Los jugadores que completan la colección entera en los 10 niveles pueden superar los 15.000 puntos.</p>
+
+  <h2>Insignias — desafíos ocultos</h2>
+
+  <ul>
+    <li>🏆 <strong>Veterano del Bosque</strong> — completa los 10 niveles del juego.</li>
+    <li>💎 <strong>Coleccionista de Luciérnagas</strong> — recoge todas las luciérnagas en un mismo nivel.</li>
+    <li>❤️ <strong>Colaborador</strong> — compra vidas extra para apoyar el desarrollo del juego.</li>
+  </ul>
+
+  <div class="cta-box">
+    <h3>🌿 ¿Listo para la aventura?</h3>
+    <p>Ahora que conoces los secretos de Wisp — es hora de ponerte a prueba. El juego es gratis, sin descarga, y funciona en cualquier dispositivo.</p>
+    <a href="/game.html" class="cta-btn">▶ Jugar ahora</a>
+  </div>
+
+  <h2>Resumen de los consejos más importantes</h2>
+
+  <ol>
+    <li>Domina el doble salto — es absolutamente fundamental a partir del nivel 3.</li>
+    <li>Observa siempre el patrón de movimiento de los enemigos antes de subir a su plataforma.</li>
+    <li>Recoge todas las luciérnagas — son la clave para una puntuación alta en la clasificación.</li>
+    <li>En los niveles superiores, planifica cada salto largo — el viento puede sorprenderte en el peor momento.</li>
+    <li>Inicia sesión para sincronizar el progreso entre móvil y ordenador y no perder nada.</li>
+  </ol>
+
+  <div class="also-read">
+    <strong>Lee también:</strong>
+    <ul>
+      <li><a href="/blog/es/juegos-plataforma-movil/">Juegos de plataformas en móvil — ¿por qué enganchan tanto?</a></li>
+      <li><a href="/blog/es/juegos-navegador-gratis-sin-descargar/">Juegos de navegador gratis sin descargar</a></li>
+    </ul>
+  </div>
+</article>
+
+<footer>
+  <p>© 2026 ePro sp. z o.o. &nbsp;·&nbsp; <a href="/privacy.html">Política de privacidad</a> &nbsp;·&nbsp; <a href="/terms.html">Términos de uso</a> &nbsp;·&nbsp; <a href="/blog/">Blog</a></p>
+</footer>
+
+</body>
+</html>
