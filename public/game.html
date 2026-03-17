@@ -397,7 +397,7 @@ canvas{
       <div id="ach-bubble">
         <div id="ach-close" onclick="hideAchievements()">✕</div>
         <h2>🏅 Odznaki</h2>
-        <div class="rank-sub" style="color:#5a8a5a;margin-bottom:14px;">Twoje osiągnięcia w grze</div>
+        <div class="rank-sub" id="ach-sub" style="color:#5a8a5a;margin-bottom:14px;">Zestawienie odznak do zdobycia</div>
         <div id="ach-list"></div>
       </div>
 
@@ -405,11 +405,22 @@ canvas{
       <div id="ranking-bubble">
         <div id="ranking-close" onclick="hideRanking()">✕</div>
         <h2>🏆 Ranking</h2>
-        <div class="rank-sub">Lokalne wyniki — Top 10</div>
+        <div class="rank-sub" id="ranking-sub">Globalny ranking — Top 20</div>
         <div id="ranking-list"></div>
         <div id="ranking-mypos"></div>
       </div>
       <div id="key-indicator">🗝️ Klucz zebrany!</div>
+
+      <!-- Popup zaproszenia do logowania -->
+      <div id="login-invite" style="display:none;position:absolute;inset:0;z-index:50;background:rgba(2,8,2,.82);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+        <div style="background:#0a180a;border:1px solid #2a6a2a;border-radius:16px;padding:28px 28px 22px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.7);">
+          <div style="font-size:36px;margin-bottom:10px;">🌿</div>
+          <div id="li-title" style="font-size:17px;font-weight:bold;color:#b0f080;margin-bottom:8px;font-family:'Georgia',serif;">Zaloguj się przez Google</div>
+          <div id="li-desc" style="font-size:12px;color:#6a9a6a;line-height:1.6;margin-bottom:18px;">Twój wynik i postęp będą zapisane na koncie i zsynchronizowane między urządzeniami. Bez konta wyniki mogą wypaść z rankingu.</div>
+          <button onclick="WispAuth.login()" style="width:100%;padding:10px;background:#1a4a1a;color:#b0f080;border:1px solid #3a8a3a;border-radius:10px;font-size:14px;cursor:pointer;margin-bottom:10px;" id="li-btn-login">🔑 Zaloguj przez Google</button>
+          <button onclick="document.getElementById('login-invite').style.display='none';sessionStorage.setItem('li_skip','1');" style="width:100%;padding:8px;background:transparent;color:#4a7a4a;border:1px solid #1a4a1a;border-radius:10px;font-size:12px;cursor:pointer;" id="li-btn-skip">Graj bez logowania</button>
+        </div>
+      </div>
       <div id="wind-indicator"></div>
       <div id="overlay" style="background:rgba(4,10,4,.92);">
         <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
@@ -1058,7 +1069,7 @@ const LANGS = {
     rankYou:      (pos,total) => `Twoja pozycja: #${pos} z ${total} graczy`,
     rankPlay:     'Zagraj aby trafić do rankingu!',
     achTitle:     '🏅 Odznaki',
-    achSub:       'Twoje osiągnięcia w grze',
+    achSub:       'Zestawienie odznak do zdobycia',
     newBadge:     'NOWA ODZNAKA!',
     freeLifeSoon: (h,m) => `🎁 Darmowe życie za ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 Otrzymałeś darmowe życie! ❤️',
@@ -1149,7 +1160,7 @@ const LANGS = {
     rankYou:      (pos,total) => `Your position: #${pos} of ${total} players`,
     rankPlay:     'Play to appear in the ranking!',
     achTitle:     '🏅 Badges',
-    achSub:       'Your in-game achievements',
+    achSub:       'List of badges to earn',
     newBadge:     'NEW BADGE!',
     freeLifeSoon: (h,m) => `🎁 Free life in ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 You got a free life! ❤️',
@@ -1241,7 +1252,7 @@ const LANGS = {
     rankYou:      (pos,total) => `Deine Position: #${pos} von ${total} Spielern`,
     rankPlay:     'Spiel um in die Rangliste zu kommen!',
     achTitle:     '🏅 Abzeichen',
-    achSub:       'Deine Spielerfolge',
+    achSub:       'Übersicht der Abzeichen',
     newBadge:     'NEUES ABZEICHEN!',
     freeLifeSoon: (h,m) => `🎁 Gratis-Leben in ${h>0?h+'h ':''}${m}Min`,
     freeLifeGet:  '🎁 Du hast ein Gratis-Leben erhalten! ❤️',
@@ -1333,7 +1344,7 @@ const LANGS = {
     rankYou:      (pos,total) => `Tu posición: #${pos} de ${total} jugadores`,
     rankPlay:     '¡Juega para aparecer en la clasificación!',
     achTitle:     '🏅 Insignias',
-    achSub:       'Tus logros en el juego',
+    achSub:       'Lista de insignias por conseguir',
     newBadge:     '¡NUEVA INSIGNIA!',
     freeLifeSoon: (h,m) => `🎁 Vida gratis en ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 ¡Recibiste una vida gratis! ❤️',
@@ -1425,7 +1436,7 @@ const LANGS = {
     rankYou:      (pos,total) => `Votre position : #${pos} sur ${total} joueurs`,
     rankPlay:     'Jouez pour apparaître dans le classement !',
     achTitle:     '🏅 Badges',
-    achSub:       'Vos succès en jeu',
+    achSub:       'Liste des badges à obtenir',
     newBadge:     'NOUVEAU BADGE !',
     freeLifeSoon: (h,m) => `🎁 Vie gratuite dans ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 Vous avez reçu une vie gratuite ! ❤️',
@@ -1520,10 +1531,11 @@ function applyLang(){
 
   // Odznaki bubble
   document.querySelector('#ach-bubble h2').textContent = LANG.achTitle;
+  document.getElementById('ach-sub').textContent = LANG.achSub;
 
   // Ranking bubble
   document.querySelector('#ranking-bubble h2').textContent = LANG.rankTitle;
-  document.querySelector('.rank-sub').textContent = LANG.rankSub;
+  document.getElementById('ranking-sub').textContent = LANG.rankSub;
 
   // Pauza
   const pauseTitle = document.getElementById('pause-title');
@@ -2617,6 +2629,7 @@ function nextToast(){
 function showAchievements(){
   const list = document.getElementById('ach-list');
   document.querySelector('#ach-bubble h2').textContent = LANG.achTitle;
+  document.getElementById('ach-sub').textContent = LANG.achSub;
   list.innerHTML = ACHIEVEMENTS.map((a,i)=>{
     const unlocked = unlockedAch.has(a.id);
     const loc = LANG.achievements[i] || {name:a.name, desc:a.desc};
@@ -2624,7 +2637,7 @@ function showAchievements(){
       <div class="ach-row-icon">${a.icon}</div>
       <div style="flex:1">
         <div class="ach-row-name">${loc.name}</div>
-        <div class="ach-row-desc">${unlocked ? loc.desc : '???'}</div>
+        <div class="ach-row-desc">${loc.desc}</div>
       </div>
       <div class="ach-row-check">${unlocked?'✅':'🔒'}</div>
     </div>`;
@@ -2739,7 +2752,7 @@ function saveToRanking(score, level, diff){
   fetch('/api/score/guest', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ nick: name, score, level, difficulty: diff })
+    body: JSON.stringify({ nick: name, score, level, difficulty: diff, badges: unlockedAch.size })
   }).catch(()=>{});
   return top;
 }
@@ -2749,7 +2762,7 @@ async function showRanking(){
   const mypos  = document.getElementById('ranking-mypos');
   const medals = ['🥇','🥈','🥉'];
   document.querySelector('#ranking-bubble h2').textContent = LANG.rankTitle;
-  document.querySelector('.rank-sub').textContent = LANG.rankSub;
+  document.getElementById('ranking-sub').textContent = LANG.rankSub;
   document.getElementById('ranking-bubble').style.display='flex';
   list.innerHTML = `<div class="rank-empty" style="color:#6a8a6a;">⏳ Ładowanie...</div>`;
   mypos.innerHTML = '';
@@ -2775,10 +2788,11 @@ async function showRanking(){
     const isMe = myNick && r.nick===myNick && Math.abs(r.score-myScore)<50;
     if(isMe && myIdx<0) myIdx = i;
     const badge = r.verified ? ' <span style="color:#80ee60;font-size:10px">✓</span>' : '';
+    const badgeStr = `<span style="font-size:10px;color:${(r.badges||0)>0?'#c8a840':'#4a5a3a'};margin-left:4px">🏅${r.badges||0}</span>`;
     return `<div class="rank-row${isMe?' me':''}">
       <span class="rank-pos" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#6a8a6a'}">${i+1}</span>
       <span class="rank-medal">${medal}</span>
-      <span class="rank-name">${r.nick}${badge}</span>
+      <span class="rank-name">${r.nick}${badge}${badgeStr}</span>
       <span class="rank-diff">${diffLabel} ${r.level}</span>
       <span class="rank-score">⭐${r.score}</span>
     </div>`;
@@ -2923,8 +2937,11 @@ function updatePhysics(){
   // Wind
   const wind = (LVL.wind || 0) * window._WIND_MULT;
 
-  if(left)       P.vx = -window._SPD;
-  else if(right) P.vx =  window._SPD;
+  const kbLeft  = keys['ArrowLeft'] ||keys['a'];
+  const kbRight = keys['ArrowRight']||keys['d'];
+  const spd = (tL||tR) && !kbLeft && !kbRight ? window._SPD * 0.8 : window._SPD;
+  if(left)       P.vx = -spd;
+  else if(right) P.vx =  spd;
   else           P.vx *= 0.68;
 
   // Apply wind
@@ -3658,6 +3675,7 @@ const WispAuth = (function(){
       score:      GS.score || GS.totalScore || 0,
       level:      GS.level || 1,
       difficulty: DIFF || 'medium',
+      badges:     unlockedAch.size,
     });
   }
 
@@ -3769,6 +3787,28 @@ const WispAuth = (function(){
     }
 
     updateAuthUI();
+
+    // Popup zaproszenia do logowania — raz na sesję, tylko dla niezalogowanych
+    if(!getToken() && !sessionStorage.getItem('li_skip')){
+      setTimeout(()=>{
+        const li = document.getElementById('login-invite');
+        if(!li) return;
+        const t = LANG_CODE;
+        document.getElementById('li-title').textContent =
+          t==='de'?'Mit Google anmelden':t==='es'?'Inicia sesión con Google':t==='fr'?'Connecte-toi avec Google':'Sign in with Google';
+        document.getElementById('li-desc').textContent =
+          t==='de'?'Dein Fortschritt und Score werden gespeichert und zwischen Geräten synchronisiert. Ohne Konto können Scores aus der Rangliste verschwinden.':
+          t==='es'?'Tu progreso y puntuación se guardarán y sincronizarán entre dispositivos. Sin cuenta, los scores pueden desaparecer del ranking.':
+          t==='fr'?'Ton score et ta progression seront sauvegardés et synchronisés entre tes appareils. Sans compte, les scores peuvent disparaître du classement.':
+          t==='pl'?'Twój wynik i postęp będą zapisane na koncie i zsynchronizowane między urządzeniami. Bez konta wyniki mogą wypaść z rankingu.':
+          'Your score and progress will be saved and synced across devices. Without an account, scores may fall out of the leaderboard.';
+        document.getElementById('li-btn-login').textContent =
+          t==='de'?'🔑 Mit Google anmelden':t==='es'?'🔑 Iniciar con Google':t==='fr'?'🔑 Connexion Google':t==='pl'?'🔑 Zaloguj przez Google':'🔑 Sign in with Google';
+        document.getElementById('li-btn-skip').textContent =
+          t==='de'?'Ohne Anmeldung spielen':t==='es'?'Jugar sin cuenta':t==='fr'?'Jouer sans connexion':t==='pl'?'Graj bez logowania':'Play without account';
+        li.style.display='flex';
+      }, 1500);
+    }
 
     // Zapisz postęp na serwer po ukończeniu poziomu
     const _origNextLevel = window.nextLevel;

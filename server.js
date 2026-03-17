@@ -89,12 +89,13 @@ const stmts = {
   getUserByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
   addLives:       db.prepare('UPDATE users SET lives = lives + ? WHERE id = ?'),
   setScore:       db.prepare('UPDATE users SET score = ?, level = ?, difficulty = ? WHERE id = ?'),
-  insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty) VALUES (?, ?, ?, ?)'),
-  insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty) VALUES (?, ?, ?, ?)'),
+  insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
+  insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
   topScores:        db.prepare(`
     SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
            u.avatar_url,
            MAX(s.score) AS score,
+           MAX(s.badges) AS badges,
            s.level, s.difficulty, s.created_at,
            CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
     FROM scores s
@@ -117,7 +118,7 @@ const stmts = {
   setLives:        db.prepare('UPDATE users SET lives = ? WHERE id = ?'),
   statsUsers:      db.prepare(`SELECT COUNT(*) as total, COUNT(CASE WHEN last_login > datetime('now','-7 days') THEN 1 END) as active_7d, COUNT(CASE WHEN last_login > datetime('now','-30 days') THEN 1 END) as active_30d, COUNT(CASE WHEN created_at > datetime('now','-7 days') THEN 1 END) as new_7d FROM users`),
   statsPurchases:  db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(CASE WHEN status='completed' THEN amount_eur_ct ELSE 0 END),0) as revenue_gr, COUNT(CASE WHEN status='completed' THEN 1 END) as completed FROM purchases`),
-  recentPurchases: db.prepare(`SELECT p.id, p.user_id, p.package_id, p.lives, p.amount_pln_gr, p.status, p.created_at, u.nick, u.email FROM purchases p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC LIMIT 100`),
+  recentPurchases: db.prepare(`SELECT p.id, p.user_id, p.package_id, p.lives, p.amount_pln_gr, p.amount_eur_ct, p.status, p.created_at, u.nick, u.email FROM purchases p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC LIMIT 100`),
   purgeOldUsers:   db.prepare(`DELETE FROM users WHERE last_login < datetime('now','-3 years') AND last_login IS NOT NULL`),
 };
 
@@ -319,17 +320,17 @@ setInterval(() => {
 // ─── Game State Routes ──────────────────────────────────────────────────────
 // Zapis wyniku gościa (bez logowania)
 app.post('/api/score/guest', guestRateLimit, (req, res) => {
-  const { nick, score, level, difficulty } = req.body;
+  const { nick, score, level, difficulty, badges } = req.body;
   if (typeof score !== 'number' || score <= 0) return res.status(400).json({ error: 'Nieprawidłowy wynik' });
   if (typeof level !== 'number' || level < 1) return res.status(400).json({ error: 'Nieprawidłowy poziom' });
   const name = (typeof nick === 'string' ? nick.trim().slice(0, 20) : '') || 'Gość';
-  stmts.insertGuestScore.run(name, Math.floor(score), Math.min(level, 40), difficulty || 'medium');
+  stmts.insertGuestScore.run(name, Math.floor(score), Math.min(level, 40), difficulty || 'medium', Math.min(parseInt(badges)||0, 12));
   res.json({ ok: true });
 });
 
 // Zapis wyniku na serwer
 app.post('/api/score', requireAuth, (req, res) => {
-  const { score, level, difficulty } = req.body;
+  const { score, level, difficulty, badges } = req.body;
   if (typeof score !== 'number' || typeof level !== 'number') {
     return res.status(400).json({ error: 'Nieprawidłowe dane' });
   }
@@ -338,7 +339,7 @@ app.post('/api/score', requireAuth, (req, res) => {
   const user   = stmts.getUserById.get(userId);
   if (!user) return res.status(404).json({ error: 'Użytkownik nie istnieje' });
 
-  stmts.insertScore.run(userId, score, level, difficulty || 'medium');
+  stmts.insertScore.run(userId, score, level, difficulty || 'medium', Math.min(parseInt(badges)||0, 12));
 
   // Zaktualizuj rekord użytkownika jeśli lepszy wynik
   if (score > (user.score || 0)) {
