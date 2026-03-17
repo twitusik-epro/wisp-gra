@@ -979,10 +979,9 @@ window.continueGame = function(){
   if(!save) return;
   Audio.init();
   DIFF = save.diff || 'medium';
-  GS = { state:'playing', lives:save.lives, score:save.score, level:save.level, totalScore:save.score };
-  // Zastosuj życia z serwera jeśli admin dodał więcej (aktualizowane przez setServerLives przy wyjściu do menu)
   const _slC = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  if(typeof _slC === 'number' && _slC > GS.lives) GS.lives = _slC;
+  const savedLives = (typeof _slC === 'number' && _slC > 0) ? _slC : (save.lives > 0 ? save.lives : (DIFF_CONFIG[save.diff||'medium']||DIFF_CONFIG.medium).lives);
+  GS = { state:'playing', lives:savedLives, score:save.score, level:save.level, totalScore:save.score };
   applyDifficulty();
   document.getElementById('overlay').style.display='none';
   document.getElementById('hud').style.display='flex';
@@ -1586,7 +1585,7 @@ function applyLang(){
 
 // ── Game state ──────────────────────────────────
 let GS = { state:'menu', lives:3, score:0, level:1, totalScore:0 };
-let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false;
+let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false, djUsed=false;
 let particles=[], camera={y:0}, frameT=0;
 
 // ── Player ──────────────────────────────────────
@@ -2442,7 +2441,7 @@ function startGame(){
   // _serverLives ustawiane przez syncProgress i setServerLives przy śmierci
   // Dla nowych/niezalogowanych graczy (null) użyj domyślnej trudności
   const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  const startLives = (typeof sl === 'number') ? sl : d.lives;
+  const startLives = (typeof sl === 'number' && sl > 0) ? sl : d.lives;
   GS={state:'playing', lives:startLives, score:0, level:1, totalScore:0};
   applyDifficulty();
   clearProgress();
@@ -2948,7 +2947,9 @@ function updatePhysics(){
     }
   });
 
+  if(P.onGround) djUsed=false;
   if(jump && P.onGround && !jumpUsed){ P.vy=JUMP; jumpUsed=true; Audio.sfxJump(); }
+  else if(jump && !P.onGround && !jumpUsed && !djUsed){ P.vy=JUMP*0.82; djUsed=true; jumpUsed=true; Audio.sfxJump(); }
   if(!jump) jumpUsed=false;
 
   // Wrap horizontally
@@ -3629,7 +3630,7 @@ const WispAuth = (function(){
     await apiPost('/api/progress', {
       level:      GS.level || 1,
       score:      GS.score || GS.totalScore || 0,
-      lives:      GS.lives ?? 3,
+      lives:      Math.max(0, GS.lives ?? 3),
       difficulty: DIFF || 'medium',
       ts:         Date.now(),
     });
@@ -3647,7 +3648,7 @@ const WispAuth = (function(){
       lives:   server.lives ?? 3,
       savedAt: (server.progress_ts || 0) * 1000,
     };
-    _serverLives = merged.lives; // keep _serverLives in sync — used by startGame/restartGame
+    _serverLives = merged.lives > 0 ? merged.lives : null; // keep _serverLives in sync — null means use difficulty default
     try{ localStorage.setItem(SAVE_KEY, JSON.stringify(merged)); }catch(e){}
     initMenu();
   }
@@ -3705,9 +3706,10 @@ const WispAuth = (function(){
 
     if(user && getToken()){
       // Zalogowany
-      const logoutLabel = LANG_CODE==='pl'?'✕ Wyloguj':(LANG_CODE==='de'?'✕ Abmelden':(LANG_CODE==='es'?'✕ Salir':(LANG_CODE==='fr'?'✕ Déconnexion':'✕ Sign out')));
-      const playerLabel = LANG_CODE==='pl'?'Gracz':(LANG_CODE==='de'?'Spieler':(LANG_CODE==='es'?'Jugador':(LANG_CODE==='fr'?'Joueur':'Player')));
-      if(panel) panel.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90d090;background:rgba(0,60,0,.4);border:1px solid #306030;border-radius:8px;padding:5px 12px;">${user.avatar_url?`<img src="${user.avatar_url}" style="width:22px;height:22px;border-radius:50%;">`:''}<span>${user.nick||user.email||playerLabel}</span> <button class="btn" onclick="WispAuth.logout()" style="padding:3px 8px;font-size:10px;background:rgba(80,20,20,.7);color:#e09090;border:1px solid #602020;">${logoutLabel}</button></div>`;
+      const logoutLabel  = LANG_CODE==='pl'?'✕ Wyloguj':(LANG_CODE==='de'?'✕ Abmelden':(LANG_CODE==='es'?'✕ Salir':(LANG_CODE==='fr'?'✕ Déconnexion':'✕ Sign out')));
+      const playerLabel  = LANG_CODE==='pl'?'Gracz':(LANG_CODE==='de'?'Spieler':(LANG_CODE==='es'?'Jugador':(LANG_CODE==='fr'?'Joueur':'Player')));
+      const changeLabel  = LANG_CODE==='pl'?'✏️ Nick':(LANG_CODE==='de'?'✏️ Nick':(LANG_CODE==='es'?'✏️ Nick':'✏️ Nick'));
+      if(panel) panel.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90d090;background:rgba(0,60,0,.4);border:1px solid #306030;border-radius:8px;padding:5px 12px;">${user.avatar_url?`<img src="${user.avatar_url}" style="width:22px;height:22px;border-radius:50%;">`:''}<span id="auth-nick-label">${user.nick||user.email||playerLabel}</span> <button class="btn" onclick="WispAuth.changeNick()" style="padding:3px 8px;font-size:10px;background:rgba(20,60,20,.7);color:#90d090;border:1px solid #306030;">${changeLabel}</button> <button class="btn" onclick="WispAuth.logout()" style="padding:3px 8px;font-size:10px;background:rgba(80,20,20,.7);color:#e09090;border:1px solid #602020;">${logoutLabel}</button></div>`;
       if(badge){ badge.textContent = '👤 '+(user.nick||'?'); badge.style.display='flex'; }
     } else {
       // Niezalogowany
@@ -3798,7 +3800,27 @@ const WispAuth = (function(){
     }
   } catch(e){ console.warn('Paddle init error:', e); }
 
-  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, getServerLives: () => _serverLives, setServerLives: (n) => { _serverLives = n; } };
+  async function changeNick(){
+    const current = getUser()?.nick || '';
+    const promptMsg = LANG_CODE==='pl'?'Wpisz nowy pseudonim (max 20 znaków):':(LANG_CODE==='de'?'Neuen Spitznamen eingeben (max. 20 Zeichen):':(LANG_CODE==='es'?'Introduce tu nuevo apodo (máx. 20 caracteres):':(LANG_CODE==='fr'?'Entrez votre nouveau pseudo (max. 20 caractères) :':'Enter new nickname (max 20 characters):')));
+    const raw = window.prompt(promptMsg, current);
+    if(raw === null) return; // anulowano
+    const nick = raw.trim().slice(0, 20);
+    if(!nick) return;
+    try {
+      const r = await fetch('/api/account/nick', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()}, body: JSON.stringify({nick}) });
+      if(!r.ok){ const e = await r.json(); alert(e.error||'Błąd'); return; }
+      // Zaktualizuj lokalny cache
+      const u = getUser();
+      if(u){ u.nick = nick; localStorage.setItem('wisp_user', JSON.stringify(u)); }
+      const label = document.getElementById('auth-nick-label');
+      if(label) label.textContent = nick;
+      const badge = document.getElementById('user-badge');
+      if(badge) badge.textContent = '👤 '+nick;
+    } catch(e){ console.error(e); }
+  }
+
+  return { login, logout, syncLives, syncProgress, pushProgress, saveScore, getUser, getToken, updateAuthUI, changeNick, getServerLives: () => _serverLives, setServerLives: (n) => { _serverLives = n; } };
 })();
 window.WispAuth = WispAuth;
 

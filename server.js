@@ -94,11 +94,13 @@ const stmts = {
   topScores:        db.prepare(`
     SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
            u.avatar_url,
-           s.score, s.level, s.difficulty, s.created_at,
+           MAX(s.score) AS score,
+           s.level, s.difficulty, s.created_at,
            CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
     FROM scores s
     LEFT JOIN users u ON u.id = s.user_id
-    ORDER BY s.score DESC
+    GROUP BY COALESCE(s.user_id || '', s.guest_nick)
+    ORDER BY score DESC
     LIMIT 50
   `),
   insertPurchase: db.prepare(`
@@ -284,6 +286,14 @@ app.get('/auth/me', requireAuth, (req, res) => {
 app.post('/auth/logout', requireAuth, (_req, res) => {
   // JWT jest bezstanowy — wylogowanie odbywa się po stronie klienta (usunięcie tokenu)
   res.json({ ok: true });
+});
+
+app.post('/api/account/nick', requireAuth, (req, res) => {
+  const raw = typeof req.body.nick === 'string' ? req.body.nick.trim() : '';
+  if (!raw) return res.status(400).json({ error: 'Nick nie może być pusty' });
+  if (raw.length > 20) return res.status(400).json({ error: 'Nick max 20 znaków' });
+  db.prepare('UPDATE users SET nick=? WHERE id=?').run(raw, req.user.id);
+  res.json({ ok: true, nick: raw });
 });
 
 // ─── Rate limiting (in-memory, per IP) ──────────────────────────────────────
