@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name:         'wisp',
     script:       'server.js',
-    cwd:          '/home/wisp',
+    cwd:          '/opt/gry/Wisp',
     instances:    1,
     autorestart:  true,
     watch:        false,

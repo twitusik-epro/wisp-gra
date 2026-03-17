@@ -1,0 +1,27 @@
+{
+  "name": "Wisp — Duch Lasu",
+  "short_name": "Wisp",
+  "description": "Przebudź magię zaczarowanego lasu. Darmowa gra mobilna.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#040a04",
+  "theme_color": "#040a04",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23071407'/><ellipse cx='96' cy='90' rx='40' ry='46' fill='%2380ee60'/><circle cx='82' cy='78' r='9' fill='%230a200a'/><circle cx='110' cy='78' r='9' fill='%230a200a'/><circle cx='85' cy='75' r='4' fill='white'/><circle cx='113' cy='75' r='4' fill='white'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23071407'/><ellipse cx='256' cy='240' rx='110' ry='126' fill='%2380ee60'/><circle cx='218' cy='208' r='24' fill='%230a200a'/><circle cx='294' cy='208' r='24' fill='%230a200a'/><circle cx='226' cy='200' r='10' fill='white'/><circle cx='302' cy='200' r='10' fill='white'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["games", "entertainment"]
+}

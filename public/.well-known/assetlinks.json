@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.epro.wisp",
+    "sha256_cert_fingerprints": [
+      "F1:E6:31:67:CE:88:AE:8C:31:20:5B:E5:17:EF:45:AC:93:8C:C2:94:45:B6:FB:4E:CE:0F:08:0F:D9:E8:26:E7"
+    ]
+  }
+}]
