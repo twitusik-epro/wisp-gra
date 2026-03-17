@@ -396,6 +396,7 @@ canvas{
       <!-- Odznaki bubble -->
       <div id="ach-bubble">
         <div id="ach-close" onclick="hideAchievements()">✕</div>
+        <div onclick="toggleLang()" style="position:absolute;top:14px;left:16px;font-size:12px;cursor:pointer;color:#6a8a6a;border:1px solid #2a5a2a;border-radius:12px;padding:2px 8px;" id="ach-lang-btn"></div>
         <h2>🏅 Odznaki</h2>
         <div class="rank-sub" id="ach-sub" style="color:#5a8a5a;margin-bottom:14px;">Zestawienie odznak do zdobycia</div>
         <div id="ach-list"></div>
@@ -404,6 +405,7 @@ canvas{
       <!-- Ranking -->
       <div id="ranking-bubble">
         <div id="ranking-close" onclick="hideRanking()">✕</div>
+        <div onclick="toggleLang()" style="position:absolute;top:14px;left:16px;font-size:12px;cursor:pointer;color:#7a7a50;border:1px solid #3a3a20;border-radius:12px;padding:2px 8px;" id="ranking-lang-btn"></div>
         <h2>🏆 Ranking</h2>
         <div class="rank-sub" id="ranking-sub">Globalny ranking — Top 20</div>
         <div id="ranking-list"></div>
@@ -442,11 +444,12 @@ canvas{
         </div>
         <button class="btn btn-green" id="start-btn" onclick="startGame()" style="margin-top:16px;">▶ ZAGRAJ</button>
         <div id="continue-wrap"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
           <button class="btn" id="btn-help" onclick="showHelp()" style="background:rgba(20,40,60,.7);color:#90c0e0;border:1px solid #406080;padding:8px 12px;font-size:11px;">❓ Instrukcja</button>
           <button class="btn" id="btn-ranking" onclick="showRanking()" style="background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:8px 12px;font-size:11px;">🏆 Ranking</button>
           <button class="btn" id="btn-badges" onclick="showAchievements()" style="background:rgba(10,30,40,.7);color:#80d0ff;border:1px solid #206080;padding:8px 12px;font-size:11px;">🏅 Odznaki</button>
           <a href="/blog/" class="btn" style="background:rgba(10,30,10,.7);color:#80d080;border:1px solid #206020;padding:8px 12px;font-size:11px;text-decoration:none;">📝 Blog</a>
+          <button class="btn" onclick="toggleLang()" id="menu-lang-btn" style="background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;padding:8px 12px;font-size:11px;">🌍 EN</button>
         </div>
         <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#3a6a3a;">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
         <!-- AUTH PANEL -->
@@ -465,6 +468,7 @@ canvas{
       <!-- Chmurka z instrukcją -->
       <div id="help-bubble">
         <div id="help-close" onclick="hideHelp()">✕</div>
+        <div onclick="toggleLang()" style="position:absolute;top:14px;left:16px;font-size:12px;cursor:pointer;color:#6a9a6a;border:1px solid #2a6a2a;border-radius:12px;padding:2px 8px;" id="help-lang-btn"></div>
         <div class="help-title">📖 Jak grać?</div>
         <div class="help-grid">
           <div class="help-item"><span class="help-icon">🕹️</span><span>Joystick (lewy dół)<br>lub ← → — ruch</span></div>
@@ -1549,11 +1553,12 @@ function applyLang(){
   const pauseMenu = document.getElementById('pause-menu');
   if(pauseMenu) pauseMenu.textContent = LANG.mainMenu;
 
-  // Przycisk języka — pokazuje AKTUALNY język
-  const lb = document.getElementById('lang-btn');
-  if(lb){
-    lb.textContent = LANG_FLAGS[LANG_CODE] + ' ' + LANG_CODE.toUpperCase();
-  }
+  // Przyciski języka — pokazują AKTUALNY język (HUD + bubble panels)
+  const langLabel = LANG_FLAGS[LANG_CODE] + ' ' + LANG_CODE.toUpperCase();
+  ['lang-btn','menu-lang-btn','ach-lang-btn','ranking-lang-btn','help-lang-btn'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = langLabel;
+  });
 
   // Linki prawne — z parametrem języka + przetłumaczone etykiety
   const privacyLabels = {pl:'Polityka prywatności',en:'Privacy Policy',de:'Datenschutz',es:'Privacidad',fr:'Confidentialité'};
@@ -1593,6 +1598,9 @@ function applyLang(){
       <div class="dp-divider"></div>
       <div class="dp-badge">💚 ${dp.noDownload}</div>`;
   }
+
+  // Odśwież panel auth (przycisk Wyloguj w nowym języku)
+  if(window.WispAuth && window.WispAuth.updateAuthUI) window.WispAuth.updateAuthUI();
 }
 
 // ── Game state ──────────────────────────────────
