@@ -69,8 +69,9 @@ db.exec(`
   );
 `);
 
-// Dodaj kolumnę progress_ts jeśli jeszcze nie istnieje (migracja)
+// Migracje
 try { db.exec('ALTER TABLE users ADD COLUMN progress_ts INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE scores ADD COLUMN guest_nick TEXT'); } catch {}
 
 // Prepared statements
 const stmts = {
@@ -88,13 +89,17 @@ const stmts = {
   getUserByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
   addLives:       db.prepare('UPDATE users SET lives = lives + ? WHERE id = ?'),
   setScore:       db.prepare('UPDATE users SET score = ?, level = ?, difficulty = ? WHERE id = ?'),
-  insertScore:    db.prepare('INSERT INTO scores (user_id, score, level, difficulty) VALUES (?, ?, ?, ?)'),
-  topScores:      db.prepare(`
-    SELECT u.nick, u.avatar_url, s.score, s.level, s.difficulty, s.created_at
+  insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty) VALUES (?, ?, ?, ?)'),
+  insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty) VALUES (?, ?, ?, ?)'),
+  topScores:        db.prepare(`
+    SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
+           u.avatar_url,
+           s.score, s.level, s.difficulty, s.created_at,
+           CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
     FROM scores s
-    JOIN users u ON u.id = s.user_id
+    LEFT JOIN users u ON u.id = s.user_id
     ORDER BY s.score DESC
-    LIMIT 20
+    LIMIT 50
   `),
   insertPurchase: db.prepare(`
     INSERT OR IGNORE INTO purchases (user_id, paddle_txn_id, package_id, lives, amount_eur_ct, status)
@@ -281,7 +286,37 @@ app.post('/auth/logout', requireAuth, (_req, res) => {
   res.json({ ok: true });
 });
 
+// ─── Rate limiting (in-memory, per IP) ──────────────────────────────────────
+const guestRateMap = new Map(); // ip -> { count, resetAt }
+function guestRateLimit(req, res, next) {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  const now = Date.now();
+  const entry = guestRateMap.get(ip);
+  if (!entry || entry.resetAt < now) {
+    guestRateMap.set(ip, { count: 1, resetAt: now + 3600_000 });
+    return next();
+  }
+  if (entry.count >= 10) return res.status(429).json({ error: 'Zbyt wiele zgłoszeń — spróbuj za godzinę' });
+  entry.count++;
+  next();
+}
+// Czyść starą pamięć co godzinę
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, e] of guestRateMap) { if (e.resetAt < now) guestRateMap.delete(ip); }
+}, 3600_000);
+
 // ─── Game State Routes ──────────────────────────────────────────────────────
+// Zapis wyniku gościa (bez logowania)
+app.post('/api/score/guest', guestRateLimit, (req, res) => {
+  const { nick, score, level, difficulty } = req.body;
+  if (typeof score !== 'number' || score <= 0) return res.status(400).json({ error: 'Nieprawidłowy wynik' });
+  if (typeof level !== 'number' || level < 1) return res.status(400).json({ error: 'Nieprawidłowy poziom' });
+  const name = (typeof nick === 'string' ? nick.trim().slice(0, 20) : '') || 'Gość';
+  stmts.insertGuestScore.run(name, Math.floor(score), Math.min(level, 40), difficulty || 'medium');
+  res.json({ ok: true });
+});
+
 // Zapis wyniku na serwer
 app.post('/api/score', requireAuth, (req, res) => {
   const { score, level, difficulty } = req.body;

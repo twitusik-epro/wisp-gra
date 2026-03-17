@@ -1044,6 +1044,7 @@ const LANGS = {
     levelWord:    'POZIOM',
     world2Entry:  '🍄 Świat 2: Korzenie Lasu',
     world3Entry:  '❄️ Świat 3: Zimowy Las',
+    world4Entry:  '🌫️ Świat 4: Las we Mgle',
     levelDone:    (n) => `✨ Poziom ${n}<br>Ukończony!`,
     nextLevel:    '▶ Następny Poziom',
     seeRanking:   '🏆 Zobacz ranking',
@@ -1053,7 +1054,7 @@ const LANGS = {
     shopSub:      'Zakup dodatkowe życia, aby kontynuować!',
     fromScratch:  'Od nowa (bez zakupu)',
     rankTitle:    '🏆 Ranking',
-    rankSub:      'Lokalne wyniki — Top 10',
+    rankSub:      'Globalny ranking — Top 20',
     rankEmpty:    'Brak wyników — zagraj i zostaw ślad w lesie! 🌿',
     rankYou:      (pos,total) => `Twoja pozycja: #${pos} z ${total} graczy`,
     rankPlay:     'Zagraj aby trafić do rankingu!',
@@ -1064,8 +1065,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Otrzymałeś darmowe życie! ❤️',
     yourPos:      (n) => `🏆 Pozycja #${n} w rankingu!`,
     diffLabel:    { easy:'😊 Łatwy', medium:'😐 Średni', hard:'💀 Trudny' },
-    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności','Próg Podziemia','Ciemne Korzenie','Kryształowa Grota','Głębokość Kryształu','Grzybnia','Purpurowe Pieczary','Labirynt Korzeni','Jantarowe Pieczary','Korzeń Czasu','Serce Lasu','Zamarznięty Świt','Śnieżna Polana','Lodowy Gaj','Kryształowy Wiatr','Śnieżyca','Zmrożony Jar','Mroźna Noc','Lodowy Labirynt','Arktyczna Przepaść','Lodowe Serce'],
-    levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.','Głębiej, mały duchu...','Korzenie znają drogę...','Kryształy śpiewają w ciemności...','Głębiej, gdzie świat milknie...','Grzyby świecą zamiast gwiazd...','Purpura zalewa tunele...','Korzenie oplatają wszystko...','Bursztyn przechowuje sekrety lasu...','Czas płynie wolniej pod ziemią...','Tu bije serce lasu.','Mróz wita cię z zimnym uśmiechem...','Śnieg przysypuje wszystkie ślady...','Każdy oddech tworzy chmurę pary...','Wiatr niesie kryształki lodu...','Śnieżyca zasłania horyzont...','Lód pęka pod stopami...','Noc mroźna jak żelazo...','Labirynt lodu nie ma końca...','Arktyczny wicher wyje bez litości...','Tu zamarza samo serce zimy.'],
+    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności','Próg Podziemia','Ciemne Korzenie','Kryształowa Grota','Głębokość Kryształu','Grzybnia','Purpurowe Pieczary','Labirynt Korzeni','Jantarowe Pieczary','Korzeń Czasu','Serce Lasu','Zamarznięty Świt','Śnieżna Polana','Lodowy Gaj','Kryształowy Wiatr','Śnieżyca','Zmrożony Jar','Mroźna Noc','Lodowy Labirynt','Arktyczna Przepaść','Lodowe Serce','Mglisty Świt','Zasłona Mgły','Gęsta Mgła','Zielona Otchłań','Mglisty Zmierzch','Ściana Cienia','Mglisty Mrok','Cień Bez Krawędzi','Mgła Wieczności','Ostatnia Mgła'],
+    levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.','Głębiej, mały duchu...','Korzenie znają drogę...','Kryształy śpiewają w ciemności...','Głębiej, gdzie świat milknie...','Grzyby świecą zamiast gwiazd...','Purpura zalewa tunele...','Korzenie oplatają wszystko...','Bursztyn przechowuje sekrety lasu...','Czas płynie wolniej pod ziemią...','Tu bije serce lasu.','Mróz wita cię z zimnym uśmiechem...','Śnieg przysypuje wszystkie ślady...','Każdy oddech tworzy chmurę pary...','Wiatr niesie kryształki lodu...','Śnieżyca zasłania horyzont...','Lód pęka pod stopami...','Noc mroźna jak żelazo...','Labirynt lodu nie ma końca...','Arktyczny wicher wyje bez litości...','Tu zamarza samo serce zimy.','Mgła kryje ścieżkę...','W bieli nie widać końca...','Gęstnieje, gęstnieje...','Zieleń pochłania światło...','Zmierzch i mgła — jedno i to samo...','Cień nie ma krawędzi...','Mrok i mgła splecione na zawsze...','Nie widać niczego przed sobą...','Wieczność smakuje jak wilgoć...','To jest ostatni krok.'],
     achievements: [
       {name:'Pierwszy Świetlik',    desc:'Zbierz swój pierwszy świetlik'},
       {name:'Kolekcjoner Blasku',   desc:'Zbierz łącznie 50 świetlików'},
@@ -1134,6 +1135,7 @@ const LANGS = {
     levelWord:    'LEVEL',
     world2Entry:  '🍄 World 2: Roots of the Forest',
     world3Entry:  '❄️ World 3: Winter Forest',
+    world4Entry:  '🌫️ World 4: Forest in the Mist',
     levelDone:    (n) => `✨ Level ${n}<br>Complete!`,
     nextLevel:    '▶ Next Level',
     seeRanking:   '🏆 See ranking',
@@ -1143,7 +1145,7 @@ const LANGS = {
     shopSub:      'Buy extra lives to keep going!',
     fromScratch:  'Start over (no purchase)',
     rankTitle:    '🏆 Ranking',
-    rankSub:      'Local scores — Top 10',
+    rankSub:      'Global ranking — Top 20',
     rankEmpty:    'No scores yet — play and leave your mark! 🌿',
     rankYou:      (pos,total) => `Your position: #${pos} of ${total} players`,
     rankPlay:     'Play to appear in the ranking!',
@@ -1154,8 +1156,8 @@ const LANGS = {
     freeLifeGet:  '🎁 You got a free life! ❤️',
     yourPos:      (n) => `🏆 Ranking position #${n}!`,
     diffLabel:    { easy:'😊 Easy', medium:'😐 Medium', hard:'💀 Hard' },
-    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness','The Cave Threshold','Dark Roots','Crystal Grotto','Crystal Depths','Mushroom Garden','Purple Caverns','Root Labyrinth','Amber Caves','Root of Time','Heart of the Forest','Frozen Dawn','Snowy Glade','Ice Grove','Crystal Wind','Blizzard','The Frozen Ravine','Frosty Night','Ice Labyrinth','Arctic Abyss','Heart of Ice'],
-    levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.','Deeper, little spirit...','The roots know the way...','Crystals sing in the darkness...','Deeper, where the world falls silent...','Mushrooms glow instead of stars...','Purple floods the tunnels...','The roots entwine everything...','Amber holds the forest\'s secrets...','Time flows slower underground...','Here beats the heart of the forest.','Frost greets you with a cold smile...','Snow covers every trace...','Each breath becomes a cloud...','The wind carries ice crystals...','The blizzard hides the horizon...','Ice cracks beneath your feet...','The night is cold as iron...','The ice labyrinth has no end...','The arctic gale howls without mercy...','Here the very heart of winter freezes.'],
+    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness','The Cave Threshold','Dark Roots','Crystal Grotto','Crystal Depths','Mushroom Garden','Purple Caverns','Root Labyrinth','Amber Caves','Root of Time','Heart of the Forest','Frozen Dawn','Snowy Glade','Ice Grove','Crystal Wind','Blizzard','The Frozen Ravine','Frosty Night','Ice Labyrinth','Arctic Abyss','Heart of Ice','Misty Dawn','The Veil of Mist','Dense Fog','The Green Abyss','Twilight Mist','Wall of Shadow','Midnight Fog','The Edgeless Dark','Fog of Eternity','The Last Mist'],
+    levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.','Deeper, little spirit...','The roots know the way...','Crystals sing in the darkness...','Deeper, where the world falls silent...','Mushrooms glow instead of stars...','Purple floods the tunnels...','The roots entwine everything...','Amber holds the forest\'s secrets...','Time flows slower underground...','Here beats the heart of the forest.','Frost greets you with a cold smile...','Snow covers every trace...','Each breath becomes a cloud...','The wind carries ice crystals...','The blizzard hides the horizon...','Ice cracks beneath your feet...','The night is cold as iron...','The ice labyrinth has no end...','The arctic gale howls without mercy...','Here the very heart of winter freezes.','The mist hides the path...','In the white nothing ends...','It grows thicker and thicker...','The green devours the light...','Twilight and mist — one and the same...','The shadow has no edge...','Darkness and mist entwined forever...','Nothing is visible ahead...','Eternity tastes of moisture...','This is the final step.'],
     achievements: [
       {name:'First Wisp',           desc:'Collect your first wisp'},
       {name:'Glow Collector',       desc:'Collect 50 wisps in total'},
@@ -1225,6 +1227,7 @@ const LANGS = {
     levelWord:    'LEVEL',
     world2Entry:  '🍄 Welt 2: Wurzeln des Waldes',
     world3Entry:  '❄️ Welt 3: Winterwald',
+    world4Entry:  '🌫️ Welt 4: Wald im Nebel',
     levelDone:    (n) => `✨ Level ${n}<br>Geschafft!`,
     nextLevel:    '▶ Nächstes Level',
     seeRanking:   '🏆 Rangliste ansehen',
@@ -1234,7 +1237,7 @@ const LANGS = {
     shopSub:      'Kauf zusätzliche Leben um weiterzumachen!',
     fromScratch:  'Von vorne (ohne Kauf)',
     rankTitle:    '🏆 Rangliste',
-    rankSub:      'Lokale Ergebnisse — Top 10',
+    rankSub:      'Globales Ranking — Top 20',
     rankEmpty:    'Noch keine Ergebnisse — spiel und hinterlasse eine Spur! 🌿',
     rankYou:      (pos,total) => `Deine Position: #${pos} von ${total} Spielern`,
     rankPlay:     'Spiel um in die Rangliste zu kommen!',
@@ -1245,8 +1248,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Du hast ein Gratis-Leben erhalten! ❤️',
     yourPos:      (n) => `🏆 Ranglistenposition #${n}!`,
     diffLabel:    { easy:'😊 Leicht', medium:'😐 Mittel', hard:'💀 Schwer' },
-    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis','Die Höhlenschwelle','Dunkle Wurzeln','Kristallgrotte','Kristalltiefe','Pilzgarten','Purpurhöhlen','Wurzellabyrinth','Bernsteinhöhlen','Wurzel der Zeit','Herz des Waldes','Gefrorene Morgenröte','Schneeweite','Eishain','Kristallwind','Schneesturm','Das gefrorene Tal','Frostige Nacht','Eislabyrinth','Arktischer Abgrund','Eisherz'],
-    levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.','Tiefer, kleiner Geist...','Die Wurzeln kennen den Weg...','Kristalle singen im Dunkeln...','Tiefer, wo die Welt schweigt...','Pilze leuchten statt Sterne...','Purpur flutet die Tunnel...','Die Wurzeln umschlingen alles...','Bernstein hütet die Geheimnisse...','Die Zeit fließt langsamer unter der Erde...','Hier schlägt das Herz des Waldes.','Der Frost begrüßt dich mit kaltem Lächeln...','Schnee bedeckt jede Spur...','Jeder Atemzug wird zu einer Wolke...','Der Wind trägt Eiskristalle...','Der Schneesturm verbirgt den Horizont...','Das Eis bricht unter deinen Füßen...','Die Nacht ist kalt wie Eisen...','Das Eislabyrinth hat kein Ende...','Der Arktiksturm heult ohne Gnade...','Hier friert das Herz des Winters selbst.'],
+    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis','Die Höhlenschwelle','Dunkle Wurzeln','Kristallgrotte','Kristalltiefe','Pilzgarten','Purpurhöhlen','Wurzellabyrinth','Bernsteinhöhlen','Wurzel der Zeit','Herz des Waldes','Gefrorene Morgenröte','Schneeweite','Eishain','Kristallwind','Schneesturm','Das gefrorene Tal','Frostige Nacht','Eislabyrinth','Arktischer Abgrund','Eisherz','Nebliger Morgen','Der Nebelschleier','Dichter Nebel','Der grüne Abgrund','Abendnebel','Schattenwand','Mitternachtsnebel','Das randlose Dunkel','Nebel der Ewigkeit','Der letzte Nebel'],
+    levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.','Tiefer, kleiner Geist...','Die Wurzeln kennen den Weg...','Kristalle singen im Dunkeln...','Tiefer, wo die Welt schweigt...','Pilze leuchten statt Sterne...','Purpur flutet die Tunnel...','Die Wurzeln umschlingen alles...','Bernstein hütet die Geheimnisse...','Die Zeit fließt langsamer unter der Erde...','Hier schlägt das Herz des Waldes.','Der Frost begrüßt dich mit kaltem Lächeln...','Schnee bedeckt jede Spur...','Jeder Atemzug wird zu einer Wolke...','Der Wind trägt Eiskristalle...','Der Schneesturm verbirgt den Horizont...','Das Eis bricht unter deinen Füßen...','Die Nacht ist kalt wie Eisen...','Das Eislabyrinth hat kein Ende...','Der Arktiksturm heult ohne Gnade...','Hier friert das Herz des Winters selbst.','Der Nebel verbirgt den Weg...','Im Weiß endet nichts...','Er wird dichter und dichter...','Das Grün verschluckt das Licht...','Abend und Nebel — eins und dasselbe...','Der Schatten hat keine Kante...','Dunkel und Nebel für immer verflochten...','Nichts ist sichtbar voraus...','Die Ewigkeit schmeckt nach Feuchtigkeit...','Dies ist der letzte Schritt.'],
     achievements: [
       {name:'Erstes Irrlicht',       desc:'Sammle dein erstes Irrlicht'},
       {name:'Glanzsammler',          desc:'Sammle insgesamt 50 Irrlichter'},
@@ -1316,6 +1319,7 @@ const LANGS = {
     levelWord:    'NIVEL',
     world2Entry:  '🍄 Mundo 2: Raíces del Bosque',
     world3Entry:  '❄️ Mundo 3: Bosque de Invierno',
+    world4Entry:  '🌫️ Mundo 4: Bosque en la Niebla',
     levelDone:    (n) => `✨ ¡Nivel ${n}<br>completado!`,
     nextLevel:    '▶ Siguiente nivel',
     seeRanking:   '🏆 Ver clasificación',
@@ -1325,7 +1329,7 @@ const LANGS = {
     shopSub:      '¡Compra vidas extra para continuar!',
     fromScratch:  'Empezar de nuevo (sin compra)',
     rankTitle:    '🏆 Clasificación',
-    rankSub:      'Puntuaciones locales — Top 10',
+    rankSub:      'Clasificación global — Top 20',
     rankEmpty:    '¡Sin puntuaciones aún — juega y deja tu huella! 🌿',
     rankYou:      (pos,total) => `Tu posición: #${pos} de ${total} jugadores`,
     rankPlay:     '¡Juega para aparecer en la clasificación!',
@@ -1336,8 +1340,8 @@ const LANGS = {
     freeLifeGet:  '🎁 ¡Recibiste una vida gratis! ❤️',
     yourPos:      (n) => `🏆 ¡Posición #${n} en la clasificación!`,
     diffLabel:    { easy:'😊 Fácil', medium:'😐 Normal', hard:'💀 Difícil' },
-    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas','El Umbral','Raíces Oscuras','Gruta de Cristal','Profundidades de Cristal','Jardín de Hongos','Cavernas Púrpuras','Laberinto de Raíces','Cavernas de Ámbar','Raíz del Tiempo','Corazón del Bosque','Alba Helada','Claro Nevado','Bosquecillo de Hielo','Viento de Cristal','Ventisca','El Barranco Helado','Noche Gélida','Laberinto de Hielo','Abismo Ártico','Corazón de Hielo'],
-    levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.','Más profundo, pequeño espíritu...','Las raíces conocen el camino...','Los cristales cantan en la oscuridad...','Más profundo, donde el mundo calla...','Los hongos brillan en lugar de estrellas...','El púrpura inunda los túneles...','Las raíces lo envuelven todo...','El ámbar guarda los secretos del bosque...','El tiempo fluye más lento bajo tierra...','Aquí late el corazón del bosque.','La escarcha te saluda con fría sonrisa...','La nieve cubre todas las huellas...','Cada aliento forma una nube...','El viento lleva cristales de hielo...','La ventisca oculta el horizonte...','El hielo cruje bajo tus pies...','La noche es fría como el hierro...','El laberinto de hielo no tiene fin...','El vendaval ártico aúlla sin piedad...','Aquí se congela el corazón del invierno.'],
+    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas','El Umbral','Raíces Oscuras','Gruta de Cristal','Profundidades de Cristal','Jardín de Hongos','Cavernas Púrpuras','Laberinto de Raíces','Cavernas de Ámbar','Raíz del Tiempo','Corazón del Bosque','Alba Helada','Claro Nevado','Bosquecillo de Hielo','Viento de Cristal','Ventisca','El Barranco Helado','Noche Gélida','Laberinto de Hielo','Abismo Ártico','Corazón de Hielo','Amanecer Brumoso','El Velo de Niebla','Niebla Densa','El Abismo Verde','Crepúsculo Brumoso','Muro de Sombra','Niebla de Medianoche','La Oscuridad sin Bordes','Niebla de la Eternidad','La Última Niebla'],
+    levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.','Más profundo, pequeño espíritu...','Las raíces conocen el camino...','Los cristales cantan en la oscuridad...','Más profundo, donde el mundo calla...','Los hongos brillan en lugar de estrellas...','El púrpura inunda los túneles...','Las raíces lo envuelven todo...','El ámbar guarda los secretos del bosque...','El tiempo fluye más lento bajo tierra...','Aquí late el corazón del bosque.','La escarcha te saluda con fría sonrisa...','La nieve cubre todas las huellas...','Cada aliento forma una nube...','El viento lleva cristales de hielo...','La ventisca oculta el horizonte...','El hielo cruje bajo tus pies...','La noche es fría como el hierro...','El laberinto de hielo no tiene fin...','El vendaval ártico aúlla sin piedad...','Aquí se congela el corazón del invierno.','La niebla oculta el camino...','En el blanco nada termina...','Se vuelve más y más densa...','El verde devora la luz...','Crepúsculo y niebla — lo mismo...','La sombra no tiene borde...','Oscuridad y niebla entrelazadas para siempre...','Nada se ve adelante...','La eternidad sabe a humedad...','Este es el último paso.'],
     achievements: [
       {name:'Primer Destello',       desc:'Recoge tu primer destello'},
       {name:'Coleccionista de Luz',  desc:'Recoge 50 destellos en total'},
@@ -1407,6 +1411,7 @@ const LANGS = {
     levelWord:    'NIVEAU',
     world2Entry:  '🍄 Monde 2 : Racines de la Forêt',
     world3Entry:  '❄️ Monde 3 : Forêt d\'Hiver',
+    world4Entry:  '🌫️ Monde 4 : Forêt dans le Brouillard',
     levelDone:    (n) => `✨ Niveau ${n}<br>Terminé !`,
     nextLevel:    '▶ Niveau suivant',
     seeRanking:   '🏆 Voir le classement',
@@ -1416,7 +1421,7 @@ const LANGS = {
     shopSub:      'Achetez des vies supplémentaires pour continuer !',
     fromScratch:  'Recommencer (sans achat)',
     rankTitle:    '🏆 Classement',
-    rankSub:      'Scores locaux — Top 10',
+    rankSub:      'Classement mondial — Top 20',
     rankEmpty:    'Aucun score — jouez et laissez votre trace ! 🌿',
     rankYou:      (pos,total) => `Votre position : #${pos} sur ${total} joueurs`,
     rankPlay:     'Jouez pour apparaître dans le classement !',
@@ -1427,8 +1432,8 @@ const LANGS = {
     freeLifeGet:  '🎁 Vous avez reçu une vie gratuite ! ❤️',
     yourPos:      (n) => `🏆 Position #${n} au classement !`,
     diffLabel:    { easy:'😊 Facile', medium:'😐 Normal', hard:'💀 Difficile' },
-    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres','Le Seuil','Racines Sombres','Grotte de Cristal','Profondeurs de Cristal','Jardin des Champignons','Cavernes Pourpres','Labyrinthe des Racines','Cavernes d\'Ambre','Racine du Temps','Cœur de la Forêt','Aube Glacée','Clairière Enneigée','Bosquet de Glace','Vent de Cristal','Blizzard','Le Ravin Gelé','Nuit Glaciale','Labyrinthe de Glace','Abîme Arctique','Cœur de Glace'],
-    levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.','Plus profond, petit esprit...','Les racines connaissent le chemin...','Les cristaux chantent dans l\'obscurité...','Plus profond, là où le monde se tait...','Les champignons brillent à la place des étoiles...','Le pourpre envahit les tunnels...','Les racines enveloppent tout...','L\'ambre garde les secrets de la forêt...','Le temps coule plus lentement sous terre...','Ici bat le cœur de la forêt.','Le givre vous accueille d\'un sourire froid...','La neige recouvre toutes les traces...','Chaque souffle forme un nuage...','Le vent porte des cristaux de glace...','Le blizzard cache l\'horizon...','La glace craque sous vos pieds...','La nuit est froide comme le fer...','Le labyrinthe de glace n\'a pas de fin...','La bourrasque arctique hurle sans pitié...','Ici se congèle le cœur même de l\'hiver.'],
+    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres','Le Seuil','Racines Sombres','Grotte de Cristal','Profondeurs de Cristal','Jardin des Champignons','Cavernes Pourpres','Labyrinthe des Racines','Cavernes d\'Ambre','Racine du Temps','Cœur de la Forêt','Aube Glacée','Clairière Enneigée','Bosquet de Glace','Vent de Cristal','Blizzard','Le Ravin Gelé','Nuit Glaciale','Labyrinthe de Glace','Abîme Arctique','Cœur de Glace','Aube Brumeuse','Le Voile de Brume','Brouillard Dense','L\'Abîme Vert','Crépuscule Brumeux','Mur d\'Ombre','Brouillard de Minuit','L\'Obscurité sans Bords','Brouillard de l\'Éternité','La Dernière Brume'],
+    levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.','Plus profond, petit esprit...','Les racines connaissent le chemin...','Les cristaux chantent dans l\'obscurité...','Plus profond, là où le monde se tait...','Les champignons brillent à la place des étoiles...','Le pourpre envahit les tunnels...','Les racines enveloppent tout...','L\'ambre garde les secrets de la forêt...','Le temps coule plus lentement sous terre...','Ici bat le cœur de la forêt.','Le givre vous accueille d\'un sourire froid...','La neige recouvre toutes les traces...','Chaque souffle forme un nuage...','Le vent porte des cristaux de glace...','Le blizzard cache l\'horizon...','La glace craque sous vos pieds...','La nuit est froide comme le fer...','Le labyrinthe de glace n\'a pas de fin...','La bourrasque arctique hurle sans pitié...','Ici se congèle le cœur même de l\'hiver.','Le brouillard cache le chemin...','Dans le blanc rien ne se termine...','Il s\'épaissit encore et encore...','Le vert dévore la lumière...','Crépuscule et brouillard — une seule chose...','L\'ombre n\'a pas de bord...','Ténèbres et brouillard entrelacés pour toujours...','Rien n\'est visible devant...','L\'éternité a un goût d\'humidité...','C\'est le dernier pas.'],
     achievements: [
       {name:'Premier Feu Follet',    desc:'Collectez votre premier feu follet'},
       {name:'Collecteur de Lumière', desc:'Collectez 50 feux follets au total'},
@@ -1641,15 +1646,30 @@ const THEMES = [
   // 29-30: arctic finale (near-black with silver)
   {sky:['#020608','#04080e','#020608'], fog:'rgba(4,10,18,', platform:'#0e1620', ptop:'#304858', name:'Arktyczna Przepaść'},
   {sky:['#020608','#04080e','#020608'], fog:'rgba(4,10,18,', platform:'#0e1620', ptop:'#304858', name:'Lodowe Serce'},
+  // 31-32: morning mist (pale grey-green)
+  {sky:['#0a0e0a','#0e140e','#0a0e0a'], fog:'rgba(14,20,14,', platform:'#2a3a2a', ptop:'#788878', name:'Mglisty Świt'},
+  {sky:['#0a0e0a','#0e140e','#0a0e0a'], fog:'rgba(14,20,14,', platform:'#2a3a2a', ptop:'#788878', name:'Zasłona Mgły'},
+  // 33-34: dense fog (grey-green)
+  {sky:['#080c08','#0c120c','#080c08'], fog:'rgba(10,16,10,', platform:'#242e24', ptop:'#5a6e5a', name:'Gęsta Mgła'},
+  {sky:['#080c08','#0c120c','#080c08'], fog:'rgba(10,16,10,', platform:'#242e24', ptop:'#5a6e5a', name:'Zielona Otchłań'},
+  // 35-36: misty twilight (blue-grey)
+  {sky:['#060a0e','#0a0e14','#060a0e'], fog:'rgba(8,12,20,', platform:'#1e2a32', ptop:'#485868', name:'Mglisty Zmierzch'},
+  {sky:['#060a0e','#0a0e14','#060a0e'], fog:'rgba(8,12,20,', platform:'#1e2a32', ptop:'#485868', name:'Ściana Cienia'},
+  // 37-38: midnight fog (dark blue-grey)
+  {sky:['#040608','#06080e','#040608'], fog:'rgba(6,8,14,', platform:'#14181e', ptop:'#303840', name:'Mglisty Mrok'},
+  {sky:['#040608','#06080e','#040608'], fog:'rgba(6,8,14,', platform:'#14181e', ptop:'#303840', name:'Cień Bez Krawędzi'},
+  // 39-40: void fog finale (near black)
+  {sky:['#020404','#040606','#020404'], fog:'rgba(4,6,4,', platform:'#0e1010', ptop:'#202424', name:'Mgła Wieczności'},
+  {sky:['#020404','#040606','#020404'], fog:'rgba(4,6,4,', platform:'#0e1010', ptop:'#202424', name:'Ostatnia Mgła'},
 ];
 
 // ── Level colours per theme ─────────────────────
 function themeGemColor(t){
-  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060','#40e0d0','#40e0d0','#a040ff','#a040ff','#ff40d0','#ff40d0','#ffaa20','#ffaa20','#ff6040','#ff8c40','#c0e8ff','#c0e8ff','#80d0ff','#80d0ff','#e0f0ff','#e0f0ff','#b0d8f0','#b0d8f0','#d0e8ff','#ffffff'];
+  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060','#40e0d0','#40e0d0','#a040ff','#a040ff','#ff40d0','#ff40d0','#ffaa20','#ffaa20','#ff6040','#ff8c40','#c0e8ff','#c0e8ff','#80d0ff','#80d0ff','#e0f0ff','#e0f0ff','#b0d8f0','#b0d8f0','#d0e8ff','#ffffff','#88cc88','#88cc88','#66aa66','#66aa66','#aabbaa','#aabbaa','#7a9a7a','#7a9a7a','#b0c8b0','#e8f8e8'];
   return cols[t]||'#80ff60';
 }
 function themeEnemyColor(t){
-  const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020','#40ffcc','#40ffcc','#aa60ff','#aa60ff','#ff60e0','#ff60e0','#ffcc40','#ffcc40','#ff4020','#ff6000','#60b0e0','#60b0e0','#4090c0','#4090c0','#80c8e8','#80c8e8','#3070a0','#3070a0','#204060','#102030'];
+  const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020','#40ffcc','#40ffcc','#aa60ff','#aa60ff','#ff60e0','#ff60e0','#ffcc40','#ffcc40','#ff4020','#ff6000','#60b0e0','#60b0e0','#4090c0','#4090c0','#80c8e8','#80c8e8','#3070a0','#3070a0','#204060','#102030','#a0b880','#a0b880','#80a060','#80a060','#90a890','#90a890','#607060','#607060','#404840','#202820'];
   return cols[t]||'#ff6040';
 }
 
@@ -1660,7 +1680,7 @@ function buildLevel(n){
   const hasWind   = n>=4;
   const hasEnemy  = n>=4;
   const needsKey  = n>=5 && n%2===1; // odd levels 5,7,9
-  const windStr   = n>=29 ? 1.8 : n>=27 ? 1.5 : n>=25 ? 1.2 : n>=23 ? 0.9 : n>=21 ? 0.6 : n>=19 ? 1.1 : n>=17 ? 0.8 : n>=14 ? 0.5 : n>=11 ? 0.3 : n>=8 ? 1.4 : n>=6 ? 0.9 : n>=4 ? 0.5 : 0;
+  const windStr   = n>=39 ? 2.0 : n>=37 ? 1.6 : n>=35 ? 1.2 : n>=33 ? 0.8 : n>=31 ? 0.5 : n>=29 ? 1.8 : n>=27 ? 1.5 : n>=25 ? 1.2 : n>=23 ? 0.9 : n>=21 ? 0.6 : n>=19 ? 1.1 : n>=17 ? 0.8 : n>=14 ? 0.5 : n>=11 ? 0.3 : n>=8 ? 1.4 : n>=6 ? 0.9 : n>=4 ? 0.5 : 0;
 
   // Base platform configs per level
   const configs = [
@@ -2091,6 +2111,160 @@ function buildLevel(n){
      gem:[[86,572],[288,549],[50,479],[207,456],[323,482],[80,389],[208,367],[349,344],[60,284],[185,260],[314,236],[85,176],[216,125],[72,57],[280,547],[88,468]],
      goal:[82,47], sx:10, sy:660,
      enemies:[[84,582,90,3.0],[188,456,96,3.2],[77,389,88,3.1],[204,361,82,3.3],[84,280,84,3.0],[190,258,78,3.2],[80,379,73,3.1],[196,277,68,3.3]]},
+
+    // 31 — Mglisty Świt (World 4 entry — slightly easier intro)
+    {plat:[
+      [0,680,110,20,'g'],[370,680,110,20,'g'],
+      [88,602,72,16],[275,582,65,16,1,68,1.7],
+      [52,512,75,16],[228,488,68,16],
+      [135,418,68,16,1,74,1.9],[328,398,62,16],
+      [62,332,70,16],[248,310,65,16],
+      [148,240,70,16],[342,220,58,16],
+      [48,152,74,16],[218,118,86,16]],
+     spk:[[110,664,260],[95,586,12],[275,472,12],[275,294,12]],
+     gem:[[122,582],[290,562],[82,492],[248,468],[158,398],[343,378],[88,312],[263,290],[168,220],[357,200],[73,132],[243,98]],
+     goal:[248,88], sx:28, sy:655,
+     needsKey:true, keyPos:[343,378],
+     enemies:[[200,670,78,1.9],[215,468,82,2.0]]},
+
+    // 32 — Zasłona Mgły
+    {plat:[
+      [0,680,78,20,'g'],[402,680,78,20,'g'],
+      [82,608,64,16,1,86,1.7],[288,586,62,16],
+      [44,516,68,16],[213,493,65,16,1,79,1.9],
+      [334,519,56,16],[74,426,63,16],
+      [218,404,64,16,1,81,2.1],[362,382,54,16],
+      [54,321,63,16],[198,298,61,16],
+      [330,274,62,16],[84,214,65,16],
+      [224,164,77,16],[78,94,88,16]],
+     spk:[[78,664,324],[90,592,12],[347,503,12],[80,410,12]],
+     gem:[[110,588],[313,566],[70,496],[230,473],[350,499],[100,406],[234,384],[377,362],[80,301],[213,278],[346,254],[109,194],[242,144],[103,74]],
+     goal:[108,64], sx:24, sy:656,
+     enemies:[[115,598,75,2.0],[218,473,83,2.1],[103,406,78,2.2]]},
+
+    // 33 — Gęsta Mgła, key
+    {plat:[
+      [0,680,70,20,'g'],[410,680,70,20,'g'],
+      [78,606,61,16,1,90,2.0],[290,584,58,16],
+      [40,514,65,16,1,73,2.2],[210,491,61,16],
+      [330,517,50,16],[70,424,61,16],
+      [214,402,61,16,1,85,2.1],[356,379,50,16],
+      [50,319,61,16],[192,296,59,16],
+      [324,272,59,16,1,80,2.2],[80,212,62,16],
+      [220,160,73,16],[66,92,83,16]],
+     spk:[[70,664,340],[85,590,12],[343,501,12],[76,408,12],[325,256,12]],
+     gem:[[106,586],[310,564],[66,494],[227,471],[346,497],[97,404],[230,382],[371,359],[76,299],[207,276],[339,252],[105,192],[238,140],[91,72]],
+     goal:[101,62], sx:22, sy:657,
+     needsKey:true, keyPos:[371,359],
+     enemies:[[107,596,78,2.1],[212,471,85,2.3],[94,404,79,2.2],[230,376,73,2.4]]},
+
+    // 34 — Zielona Otchłań
+    {plat:[
+      [0,680,63,20,'g'],[417,680,63,20,'g'],
+      [74,604,57,16,1,94,2.1],[287,581,56,16,1,80,2.4],
+      [36,511,62,16],[207,488,57,16],
+      [327,514,48,16],[67,421,58,16],
+      [210,399,58,16,1,88,2.2],[354,376,48,16],
+      [47,316,58,16],[190,293,57,16],
+      [320,269,55,16,1,83,2.4],[75,209,61,16],
+      [217,157,70,16],[61,89,81,16]],
+     spk:[[63,664,354],[80,588,12],[336,498,12],[73,405,12],[200,468,12],[327,253,12]],
+     gem:[[103,584],[306,561],[63,491],[224,468],[342,494],[94,401],[227,379],[369,356],[73,296],[205,273],[335,249],[100,189],[235,137],[86,69]],
+     goal:[96,59], sx:20, sy:658,
+     enemies:[[100,594,80,2.2],[205,468,86,2.4],[89,401,80,2.3],[224,373,74,2.5]]},
+
+    // 35 — Mglisty Zmierzch, key
+    {plat:[
+      [0,680,58,20,'g'],[422,680,58,20,'g'],
+      [72,602,54,16],[281,579,53,16,1,83,2.1],
+      [34,509,59,16,1,75,2.3],[204,486,55,16],
+      [324,512,47,16],[66,419,56,16,1,81,2.2],
+      [207,397,56,16],[350,374,47,16],
+      [46,314,56,16],[187,291,55,16,1,83,2.4],
+      [317,267,51,16],[72,207,59,16],
+      [212,156,69,16],[58,88,80,16]],
+     spk:[[58,664,364],[78,586,12],[338,496,12],[72,403,12],[202,466,12],[74,275,12]],
+     gem:[[101,582],[296,559],[61,489],[221,466],[340,492],[91,399],[224,377],[365,354],[72,294],[202,271],[332,247],[97,187],[230,136],[83,68]],
+     goal:[93,58], sx:18, sy:658,
+     needsKey:true, keyPos:[365,354],
+     enemies:[[97,592,81,2.3],[204,466,87,2.5],[88,399,81,2.4],[220,371,75,2.6],[97,290,77,2.3]]},
+
+    // 36 — Ściana Cienia
+    {plat:[
+      [0,680,54,20,'g'],[426,680,54,20,'g'],
+      [70,600,51,16,1,96,2.2],[277,577,50,16],
+      [31,507,56,16],[201,484,53,16,1,81,2.5],
+      [321,510,45,16],[63,417,54,16],
+      [204,395,54,16,1,86,2.3],[348,372,45,16],
+      [44,312,54,16],[184,289,53,16],
+      [314,265,49,16,1,83,2.5],[70,205,57,16],
+      [210,154,66,16,1,89,2.4],[55,86,77,16]],
+     spk:[[54,664,372],[76,584,12],[334,494,12],[70,401,12],[200,464,12],[322,249,12]],
+     gem:[[99,580],[293,557],[59,487],[218,464],[337,490],[89,397],[221,375],[363,352],[70,292],[199,269],[329,245],[95,185],[228,134],[80,66]],
+     goal:[91,56], sx:17, sy:659,
+     enemies:[[95,590,83,2.4],[201,464,89,2.6],[86,397,83,2.5],[218,369,77,2.7],[94,288,79,2.4]]},
+
+    // 37 — Mglisty Mrok, key
+    {plat:[
+      [0,680,50,20,'g'],[430,680,50,20,'g'],
+      [67,598,48,16,1,98,2.4],[274,575,47,16],
+      [28,505,53,16],[198,482,50,16,1,83,2.7],
+      [318,508,43,16,1,81,2.5],[61,415,52,16],
+      [201,393,52,16],[345,370,43,16,1,87,2.6],
+      [42,310,51,16],[181,287,51,16],
+      [311,263,47,16,1,84,2.7],[67,203,55,16],
+      [208,152,63,16],[52,84,74,16]],
+     spk:[[50,664,380],[73,582,12],[326,492,12],[68,399,12],[197,462,12],[68,271,12],[182,251,12]],
+     gem:[[97,578],[290,555],[57,485],[215,462],[333,488],[87,395],[218,373],[360,350],[68,290],[196,267],[326,243],[93,183],[226,132],[78,64]],
+     goal:[89,54], sx:16, sy:659,
+     needsKey:true, keyPos:[360,350],
+     enemies:[[92,588,85,2.6],[198,462,91,2.8],[84,395,83,2.7],[215,367,78,2.9],[91,286,80,2.6],[198,265,74,2.8]]},
+
+    // 38 — Cień Bez Krawędzi
+    {plat:[
+      [0,680,46,20,'g'],[434,680,46,20,'g'],
+      [64,596,44,16,1,100,2.7],[271,573,44,16,1,82,3.0],
+      [25,503,50,16],[195,480,47,16],
+      [315,506,41,16],[58,413,49,16,1,89,2.8],
+      [198,391,49,16],[342,368,41,16],
+      [40,308,49,16,1,92,2.9],[178,285,49,16],
+      [308,261,44,16,1,86,2.9],[65,201,53,16],
+      [206,150,61,16,1,91,2.8],[50,82,72,16]],
+     spk:[[46,664,388],[70,580,12],[324,490,12],[66,397,12],[194,460,12],[66,269,12],[314,245,12]],
+     gem:[[94,576],[287,553],[55,483],[212,460],[330,486],[85,393],[215,371],[357,348],[66,288],[193,265],[323,241],[91,181],[223,130],[76,62]],
+     goal:[87,52], sx:14, sy:660,
+     enemies:[[89,586,87,2.8],[195,460,93,3.0],[82,393,85,2.9],[212,365,79,3.1],[89,284,82,2.8],[195,263,76,3.0]]},
+
+    // 39 — Mgła Wieczności, key
+    {plat:[
+      [0,680,43,20,'g'],[437,680,43,20,'g'],
+      [61,594,41,16,1,103,3.0],[268,571,41,16],
+      [22,501,47,16],[192,478,44,16,1,85,3.3],
+      [312,504,39,16],[55,411,46,16,1,91,3.1],
+      [195,389,46,16],[339,366,39,16,1,88,3.2],
+      [38,306,46,16],[175,283,45,16],
+      [305,259,42,16],[63,199,50,16],
+      [204,148,59,16],[48,80,70,16]],
+     spk:[[43,664,394],[68,578,12],[321,488,12],[64,395,12],[191,458,12],[64,267,12],[315,243,12],[175,247,12]],
+     gem:[[91,574],[284,551],[53,481],[209,458],[327,484],[83,391],[212,369],[354,346],[64,286],[190,263],[320,239],[89,179],[220,128],[74,60]],
+     goal:[85,50], sx:12, sy:660,
+     needsKey:true, keyPos:[354,346],
+     enemies:[[87,584,89,3.0],[192,458,95,3.2],[80,391,87,3.1],[208,363,81,3.3],[87,282,83,3.0],[193,261,77,3.2]]},
+
+    // 40 — Ostatnia Mgła — GRAND FINALE (World 4 & Game)
+    {plat:[
+      [0,680,40,20,'g'],[440,680,40,20,'g'],
+      [58,592,39,16,1,106,3.3],[265,569,39,16,1,84,3.6],
+      [19,499,45,16],[189,476,42,16,1,87,3.4],
+      [309,502,37,16],[52,409,44,16,1,93,3.3],
+      [192,387,44,16],[336,364,37,16,1,91,3.5],
+      [35,304,44,16],[172,281,43,16,1,89,3.4],
+      [302,257,40,16],[60,197,48,16,1,93,3.3],
+      [202,146,57,16],[46,78,68,16]],
+     spk:[[40,664,400],[64,576,12],[318,486,12],[62,393,12],[188,456,12],[62,265,12],[312,241,12],[172,245,12],[60,181,12],[213,130,12]],
+     gem:[[88,572],[281,549],[51,479],[206,456],[324,482],[81,389],[209,367],[351,344],[62,284],[187,261],[317,237],[87,177],[217,126],[72,58],[276,547],[91,466]],
+     goal:[83,48], sx:10, sy:660,
+     enemies:[[85,582,92,3.2],[189,456,98,3.4],[78,389,90,3.3],[205,361,84,3.6],[85,280,86,3.2],[191,259,80,3.4],[79,377,74,3.3],[195,275,70,3.5]]},
   ];
 
   const cfg = configs[lvl] || configs[0];
@@ -2345,7 +2519,7 @@ function playTransition(levelNum, themeName, onDone){
   const name = document.getElementById('tr-name');
   const sub  = document.getElementById('tr-sub');
 
-  num.textContent  = levelNum===11 ? (LANG.world2Entry||'🍄 Świat 2: Korzenie Lasu') : levelNum===21 ? (LANG.world3Entry||'❄️ Świat 3: Zimowy Las') : `— ${LANG.levelWord} ${levelNum} —`;
+  num.textContent  = levelNum===11 ? (LANG.world2Entry||'🍄 Świat 2: Korzenie Lasu') : levelNum===21 ? (LANG.world3Entry||'❄️ Świat 3: Zimowy Las') : levelNum===31 ? (LANG.world4Entry||'🌫️ Świat 4: Las we Mgle') : `— ${LANG.levelWord} ${levelNum} —`;
   name.textContent = themeName;
   sub.textContent  = LANG.levelQuotes[Math.min(levelNum-1, LANG.levelQuotes.length-1)];
 
@@ -2559,54 +2733,63 @@ function saveToRanking(score, level, diff){
   const savedNick = getPlayerNick();
   const name = savedNick || '?';
   ranking.push({ name, score, level, diff, date: Date.now(), isMe: true });
-  // Dodaj boty jeśli ranking pusty (dla efektu rywalizacji)
-  if(ranking.filter(r=>!r.isMe).length === 0 && ranking.length === 1){
-    const bots = [
-      {name:'Mgielka',  score:Math.round(score*2.1), level:8, diff:'hard',  date:Date.now()-86400000},
-      {name:'Leśny Duch',score:Math.round(score*1.7), level:7, diff:'medium',date:Date.now()-72000000},
-      {name:'Rusałka',  score:Math.round(score*1.4), level:6, diff:'medium',date:Date.now()-50000000},
-      {name:'Borowy',   score:Math.round(score*1.1), level:5, diff:'easy',  date:Date.now()-36000000},
-      {name:'Mroczen',  score:Math.round(score*0.85),level:4, diff:'hard',  date:Date.now()-20000000},
-    ];
-    bots.forEach(b=>ranking.push(b));
-  }
   ranking.sort((a,b)=>b.score-a.score);
   const top = ranking.slice(0, MAX_RANK);
   try{ localStorage.setItem(RANK_KEY, JSON.stringify(top)); }catch(e){}
+  // Wyślij do globalnego rankingu (fire & forget)
+  fetch('/api/score/guest', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ nick: name, score, level, difficulty: diff })
+  }).catch(()=>{});
   return top;
 }
 
-function showRanking(){
-  const ranking = getRanking();
-  const list = document.getElementById('ranking-list');
-  const mypos = document.getElementById('ranking-mypos');
+async function showRanking(){
+  const list   = document.getElementById('ranking-list');
+  const mypos  = document.getElementById('ranking-mypos');
   const medals = ['🥇','🥈','🥉'];
   document.querySelector('#ranking-bubble h2').textContent = LANG.rankTitle;
   document.querySelector('.rank-sub').textContent = LANG.rankSub;
-
-  if(ranking.length === 0){
-    list.innerHTML = `<div class="rank-empty">${LANG.rankEmpty}</div>`;
-    mypos.innerHTML = '';
-  } else {
-    list.innerHTML = ranking.slice(0,10).map((r,i)=>{
-      const medal = medals[i] || '';
-      const diffLabel = r.diff==='easy'?'😊':r.diff==='hard'?'💀':'😐';
-      return `<div class="rank-row${r.isMe?' me':''}">
-        <span class="rank-pos" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#6a8a6a'}">${i+1}</span>
-        <span class="rank-medal">${medal}</span>
-        <span class="rank-name">${r.name}${r.isMe?' <b style="color:#a0e060">(You)</b>':''}</span>
-        <span class="rank-diff">${diffLabel}</span>
-        <span class="rank-score">⭐${r.score}</span>
-      </div>`;
-    }).join('');
-    const myIdx = ranking.findIndex(r=>r.isMe);
-    if(myIdx >= 0){
-      mypos.innerHTML = `<div class="rank-you-pos">${LANG.rankYou(myIdx+1, ranking.length)}</div>`;
-    } else {
-      mypos.innerHTML = `<div class="rank-you-pos" style="color:#6a8a6a;">${LANG.rankPlay}</div>`;
-    }
-  }
   document.getElementById('ranking-bubble').style.display='flex';
+  list.innerHTML = `<div class="rank-empty" style="color:#6a8a6a;">⏳ Ładowanie...</div>`;
+  mypos.innerHTML = '';
+
+  let rows = [];
+  try {
+    const resp = await fetch('/api/leaderboard');
+    if(resp.ok) rows = await resp.json();
+  } catch(e){}
+
+  if(rows.length === 0){
+    list.innerHTML = `<div class="rank-empty">${LANG.rankEmpty}</div>`;
+    return;
+  }
+
+  const myNick  = getPlayerNick();
+  const myScore = GS.score || 0;
+  let myIdx = -1;
+
+  list.innerHTML = rows.slice(0,20).map((r,i)=>{
+    const medal = medals[i] || '';
+    const diffLabel = r.difficulty==='easy'?'😊':r.difficulty==='hard'?'💀':'😐';
+    const isMe = myNick && r.nick===myNick && Math.abs(r.score-myScore)<50;
+    if(isMe && myIdx<0) myIdx = i;
+    const badge = r.verified ? ' <span style="color:#80ee60;font-size:10px">✓</span>' : '';
+    return `<div class="rank-row${isMe?' me':''}">
+      <span class="rank-pos" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#6a8a6a'}">${i+1}</span>
+      <span class="rank-medal">${medal}</span>
+      <span class="rank-name">${r.nick}${badge}</span>
+      <span class="rank-diff">${diffLabel} ${r.level}</span>
+      <span class="rank-score">⭐${r.score}</span>
+    </div>`;
+  }).join('');
+
+  if(myIdx >= 0){
+    mypos.innerHTML = `<div class="rank-you-pos">${LANG.rankYou(myIdx+1, rows.length)}</div>`;
+  } else {
+    mypos.innerHTML = `<div class="rank-you-pos" style="color:#6a8a6a;">${LANG.rankPlay}</div>`;
+  }
 }
 
 function hideRanking(){
@@ -2723,7 +2906,7 @@ function levelComplete(){
   promptNickname(nick=>{
     saveToRanking(GS.score, _lvl, DIFF);
     setTimeout(()=>{
-      if(_lvl>=30) showOverlay('finish');
+      if(_lvl>=40) showOverlay('finish');
       else showOverlay('win');
     }, 400);
   });
@@ -3244,7 +3427,7 @@ document.addEventListener('keydown',e=>{
   // 🔑 Admin skrót: N = następny poziom
   if(e.key==='n' || e.key==='N'){
     if(GS.state==='playing'){
-      if(GS.level>=30) showOverlay('finish');
+      if(GS.level>=40) showOverlay('finish');
       else { GS.level++; loadLevel(GS.level); updateHUD(); }
     }
   }
