@@ -1,0 +1,84 @@
+================================================================
+INSTRUKCJA WGRYWANIA DO GOOGLE PLAY CONSOLE
+================================================================
+
+KROK 1 — Rejestracja konta (jednorazowo)
+-----------------------------------------
+URL: https://play.google.com/console/signup
+Koszt: $25 jednorazowo (karta kredytowa)
+Dane: konto Google + dane firmy ePro sp. z o.o.
+
+KROK 2 — Utwórz nową aplikację
+-----------------------------------------
+W Play Console kliknij "Utwórz aplikację":
+  - Domyślny język: Polski
+  - Nazwa aplikacji: Wisp — Duch Lasu
+  - Typ: Aplikacja (nie gra)*
+  - Bezpłatna / płatna: Bezpłatna
+
+* Możesz wybrać też "Gra" — lepsze filtrowanie w sklepie
+
+KROK 3 — Wypełnij dane sklepu
+-----------------------------------------
+Zakładka: Główny sklep → Dane sklepu
+
+NAZWA: Wisp — Duch Lasu
+  (plik: opis_PL.txt, sekcja NAZWA APLIKACJI)
+
+KRÓTKI OPIS: (plik: opis_PL.txt, sekcja KRÓTKI OPIS)
+DŁUGI OPIS:  (plik: opis_PL.txt, sekcja DŁUGI OPIS)
+
+Kategoria: Gry → Zręcznościowe (lub Przygodowe)
+
+KROK 4 — Grafiki
+-----------------------------------------
+Ikona aplikacji (512×512 PNG):
+  → Użyj pliku /home/wisp/public/icon-512.png
+
+Screenshoty telefonu (wymagane min. 2):
+  → Pliki: screenshot_01.png … screenshot_07.png
+  → Wgraj wszystkie 7
+
+Grafika wyróżniająca (1024×500 PNG/JPG):
+  → BRAK — trzeba stworzyć
+  → Możesz użyć screenshota poziomego z tytułem gry na tle
+
+KROK 5 — Wgraj APK
+-----------------------------------------
+Zakładka: Testowanie → Testowanie wewnętrzne → Utwórz nową wersję
+
+Plik APK: /opt/wisp-twa/wisp-1.0.apk (1.1 MB)
+
+Po wgraniu sprawdź czy "Package name" to: com.epro.wisp
+
+KROK 6 — Polityka prywatności
+-----------------------------------------
+URL polityki: https://wispplay.com/privacy.html
+(wymagane przez Google dla wszystkich aplikacji)
+
+KROK 7 — Klasyfikacja treści
+-----------------------------------------
+Wypełnij kwestionariusz IARC (kilka pytań o treść):
+  - Przemoc: NIE (brak krwi, realistycznej przemocy)
+  - Treści dla dorosłych: NIE
+  - Zakupy w aplikacji: TAK (dodatkowe życia przez Google Play Billing)
+  → Spodziewana ocena: PEGI 3 / Everyone
+
+KROK 8 — Publikacja
+-----------------------------------------
+Najpierw: Testowanie wewnętrzne (dodaj swój email jako testera)
+Potem: Testowanie otwarte (opcjonalnie)
+Na końcu: Produkcja → Przejrzyj wersję → Opublikuj
+
+Czas weryfikacji przez Google: 3–7 dni robocze
+
+================================================================
+WAŻNE PLIKI
+================================================================
+APK:      /opt/wisp-twa/wisp-1.0.apk
+Keystore: /opt/wisp-twa/wisp-release.keystore
+Hasło:    wisp2026release  (alias: wisp)
+README:   /opt/wisp-twa/README.txt
+
+ZACHOWAJ KEYSTORE! Bez niego nie możesz wydawać aktualizacji.
+================================================================

@@ -1,0 +1,108 @@
+#!/usr/bin/expect -f
+set timeout 180
+log_user 1
+
+spawn bubblewrap init --manifest https://wispplay.com/manifest.json
+
+# Wait for prompts - bubblewrap should skip JDK/SDK now
+# Application package name
+expect {
+  "package name" { send "com.epro.wisp\r" }
+  "JDK" { send "n\r"; exp_continue }
+  "Android SDK" { send "n\r"; exp_continue }
+}
+
+# App name - full name
+expect "Application name"
+send "Wisp — Duch Lasu\r"
+
+# Launcher name - short
+expect "short name"
+send "Wisp\r"
+
+# Version code
+expect "Version code"
+send "1\r"
+
+# Version name
+expect "Version name"
+send "1.0\r"
+
+# Start URL - press enter to accept default
+expect "Start URL"
+send "\r"
+
+# Icon URL - accept default
+expect -re "icon URL"
+send "\r"
+
+# Maskable icon
+expect -re "maskable"
+send "\r"
+
+# Monochrome icon
+expect -re "monochrome"
+send "\r"
+
+# Theme color
+expect "theme color"
+send "\r"
+
+# Nav color dark
+expect -re "nav.*dark|navigation.*dark"
+send "\r"
+
+# Nav color
+expect -re "nav|navigation"
+send "\r"
+
+# Nav divider dark
+expect -re "divider.*dark"
+send "\r"
+
+# Nav divider
+expect -re "divider"
+send "\r"
+
+# Background color
+expect -re "background"
+send "\r"
+
+# Display mode
+expect -re "display"
+send "\r"
+
+# Orientation  
+expect -re "orientation"
+send "\r"
+
+# Notifications
+expect -re "notif"
+send "n\r"
+
+# Shortcuts
+expect -re "shortcut"
+send "n\r"
+
+# Signing key
+expect -re "signing|keystore"
+send "/opt/wisp-twa/wisp-release.keystore\r"
+
+# Alias
+expect -re "alias"
+send "wisp\r"
+
+# Key passphrase
+expect -re "key pass|Key pass"
+send "wisp2026release\r"
+
+# Store passphrase
+expect -re "store pass|Store pass"
+send "wisp2026release\r"
+
+# Wait for completion
+expect {
+  "Project generated" { puts "\nSUCCESS!" }
+  "Error" { puts "\nERROR!" }
+  eof { puts "\nDone" }
+}

@@ -1,0 +1,91 @@
+#!/usr/bin/expect -f
+set timeout 120
+exp_internal 0
+
+spawn bubblewrap init --manifest https://wispplay.com/manifest.json
+
+# JDK install?
+expect "install the JDK"
+send "n\r"
+
+# JDK path
+expect "Path to your existing JDK"
+send "/usr/lib/jvm/java-17-openjdk-amd64\r"
+
+# Android SDK install?
+expect "install the Android SDK"
+send "n\r"
+
+# Android SDK path
+expect "Path to your existing Android SDK"
+send "/opt/android-sdk\r"
+
+# Package ID
+expect "Application package name"
+send "com.epro.wisp\r"
+
+# App name
+expect "Application name"
+send "Wisp — Duch Lasu\r"
+
+# Launcher name
+expect "Launcher short name"
+send "Wisp\r"
+
+# Version code
+expect "Version code"
+send "1\r"
+
+# Version name
+expect "Version name"
+send "1.0\r"
+
+# Start URL (accept default from manifest)
+expect "Start URL"
+send "\r"
+
+# Icon URL (accept default)
+expect "icon URL"
+send "\r"
+
+# Maskable icon URL
+expect -re "(maskable|Maskable)"
+send "\r"
+
+# Theme color
+expect "theme color"
+send "\r"
+
+# Nav color
+expect "nav"
+send "\r"
+
+# Background color
+expect "background"
+send "\r"
+
+# Display mode
+expect "display"
+send "\r"
+
+# Orientation
+expect "orientation"
+send "\r"
+
+# Notifications
+expect -re "(notification|Notification)"
+send "n\r"
+
+# Shortcuts
+expect -re "(shortcut|Shortcut)"
+send "n\r"
+
+# Signing key
+expect -re "(signing|Signing|keystore)"
+send "\r"
+
+# Alias
+expect -re "(alias|Alias)"
+send "\r"
+
+expect eof

@@ -67,6 +67,8 @@ body{display:flex;justify-content:center;align-items:stretch;}
 @media(min-width:800px){
   body{background:#020802;}
   #desktop-left,#desktop-right{display:flex;}
+  #btn-install,#menu-lang-btn{display:none!important;}
+  .dp-corner-btn{display:block;}
 }
 @media(min-width:1100px){
   #desktop-left,#desktop-right{width:280px;padding:40px 40px;}
@@ -345,6 +347,7 @@ canvas{
   <div class="dp-feature"><strong>🌍 Ranking globalny</strong>Rywalizuj z graczami z całego świata</div>
   <div class="dp-divider"></div>
   <div class="dp-badge">🆓 Darmowa gra przeglądarkowa</div>
+  <button id="btn-install-dp" onclick="installPWA()" class="dp-corner-btn" style="display:none;margin-top:20px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;">📲 Zainstaluj</button>
 </div>
 
 <div id="wrap">
@@ -414,8 +417,9 @@ canvas{
       <div id="key-indicator">🗝️ Klucz zebrany!</div>
 
       <!-- Popup zaproszenia do logowania -->
-      <div id="login-invite" style="display:none;position:absolute;inset:0;z-index:50;background:rgba(2,8,2,.82);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
-        <div style="background:#0a180a;border:1px solid #2a6a2a;border-radius:16px;padding:28px 28px 22px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.7);">
+      <div id="login-invite" style="display:none;position:absolute;inset:0;z-index:50;background:rgba(2,8,2,.82);backdrop-filter:blur(3px);align-items:center;justify-content:center;pointer-events:all;">
+        <div style="background:#0a180a;border:1px solid #2a6a2a;border-radius:16px;padding:28px 28px 22px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.7);position:relative;">
+          <button id="li-btn-close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#6a9a6a;font-size:20px;cursor:pointer;line-height:1;padding:8px;min-width:36px;min-height:36px;">✕</button>
           <div style="font-size:36px;margin-bottom:10px;">🌿</div>
           <div id="li-title" style="font-size:17px;font-weight:bold;color:#b0f080;margin-bottom:8px;font-family:'Georgia',serif;">Zaloguj się przez Google</div>
           <div id="li-desc" style="font-size:12px;color:#6a9a6a;line-height:1.6;margin-bottom:18px;">Twój wynik i postęp będą zapisane na koncie i zsynchronizowane między urządzeniami. Bez konta wyniki mogą wypaść z rankingu.</div>
@@ -425,6 +429,8 @@ canvas{
       </div>
       <div id="wind-indicator"></div>
       <div id="overlay" style="background:rgba(4,10,4,.92);">
+        <button id="btn-install" onclick="installPWA()" style="display:none;position:absolute;top:10px;left:12px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">📲 Zainstaluj</button>
+        <button onclick="toggleLang()" id="menu-lang-btn" style="position:absolute;top:10px;right:12px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">🌍 EN</button>
         <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
         <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
         <div class="sub" id="menu-choosediff" style="color:#5a8a5a;margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
@@ -444,17 +450,15 @@ canvas{
         </div>
         <button class="btn btn-green" id="start-btn" onclick="startGame()" style="margin-top:16px;">▶ ZAGRAJ</button>
         <div id="continue-wrap"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
-          <button class="btn" id="btn-help" onclick="showHelp()" style="background:rgba(20,40,60,.7);color:#90c0e0;border:1px solid #406080;padding:8px 12px;font-size:11px;">❓ Instrukcja</button>
-          <button class="btn" id="btn-ranking" onclick="showRanking()" style="background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:8px 12px;font-size:11px;">🏆 Ranking</button>
-          <button class="btn" id="btn-badges" onclick="showAchievements()" style="background:rgba(10,30,40,.7);color:#80d0ff;border:1px solid #206080;padding:8px 12px;font-size:11px;">🏅 Odznaki</button>
-          <a href="/blog/" class="btn" style="background:rgba(10,30,10,.7);color:#80d080;border:1px solid #206020;padding:8px 12px;font-size:11px;text-decoration:none;">📝 Blog</a>
-          <button class="btn" onclick="toggleLang()" id="menu-lang-btn" style="background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;padding:8px 12px;font-size:11px;">🌍 EN</button>
+        <div style="display:flex;gap:5px;margin-top:8px;justify-content:center;">
+          <button id="btn-help" onclick="showHelp()" style="background:rgba(20,40,60,.7);color:#90c0e0;border:1px solid #406080;border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer;touch-action:manipulation;"><span id="btn-help-lbl">❓ Instrukcja</span></button>
+          <button id="btn-ranking" onclick="showRanking()" style="background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer;touch-action:manipulation;"><span id="btn-ranking-lbl">🏆 Ranking</span></button>
+          <button id="btn-badges" onclick="showAchievements()" style="background:rgba(10,30,40,.7);color:#80d0ff;border:1px solid #206080;border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer;touch-action:manipulation;"><span id="btn-badges-lbl">🏅 Odznaki</span></button>
+          <a href="/blog/" id="btn-blog" style="background:rgba(10,30,10,.7);color:#80d080;border:1px solid #206020;border-radius:8px;padding:5px 7px;font-size:10px;text-decoration:none;display:flex;align-items:center;"><span id="btn-blog-lbl">📝 Blog</span></a>
         </div>
         <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#3a6a3a;">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
         <!-- AUTH PANEL -->
         <div id="auth-panel" style="margin-top:10px;"></div>
-        <button id="btn-install" onclick="installPWA()" style="display:none;margin-top:10px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:8px 18px;font-size:12px;cursor:pointer;">📲 Zainstaluj aplikację</button>
         <div style="margin-top:12px;font-size:10px;color:#2a4a2a;" id="legal-links">
           <a id="link-privacy" href="/privacy.html" target="_blank" style="color:#3a6a3a;text-decoration:none;">Privacy Policy</a>
           &nbsp;·&nbsp;
@@ -503,6 +507,7 @@ canvas{
   <div class="dp-feature"><strong>🏆 Jak zdobyć punkty?</strong>Świetlik: +100 pkt<br>Ukończenie poziomu: +500 pkt<br>Pokonanie wroga: +50 pkt</div>
   <div class="dp-divider"></div>
   <div class="dp-badge">💚 Bez pobierania</div>
+  <button id="menu-lang-btn-dp" onclick="toggleLang()" class="dp-corner-btn" style="margin-top:20px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;display:flex;align-items:center;gap:6px;"><img src="https://flagcdn.com/20x15/gb.png" width="20" height="15" style="display:block;"> EN</button>
 </div>
 
 <script>
@@ -1029,9 +1034,11 @@ const LANGS = {
     play:         '▶ ZAGRAJ',
     continueBtn:  (lvl,sc) => `▶ Kontynuuj (Poziom ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Usuń zapis i zacznij od nowa',
+    install:      '📲 Zainstaluj',
     help:         '❓ Instrukcja',
     ranking:      '🏆 Ranking',
     badges:       '🏅 Odznaki',
+    blog:         'Blog',
     controls:     'Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie',
     helpTitle:    '📖 Jak grać?',
     helpItems: [
@@ -1120,9 +1127,11 @@ const LANGS = {
     play:         '▶ PLAY',
     continueBtn:  (lvl,sc) => `▶ Continue (Level ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Delete save & start over',
+    install:      '📲 Install app',
     help:         '❓ How to play',
     ranking:      '🏆 Ranking',
     badges:       '🏅 Badges',
+    blog:         'Blog',
     controls:     'Arrow keys + Space &nbsp;|&nbsp; On-screen joystick',
     helpTitle:    '📖 How to play?',
     helpItems: [
@@ -1180,7 +1189,7 @@ const LANGS = {
       {name:'Ghost Hunter',         desc:'Defeat your first enemy'},
       {name:'Darkness Slayer',      desc:'Defeat 10 enemies'},
       {name:'Into the Woods',       desc:'Reach level 5'},
-      {name:'Forest Legend',        desc:'Complete all 10 levels'},
+      {name:'Forest Legend',        desc:'Complete all 40 levels'},
       {name:'Thousander',           desc:'Score 1000 points'},
       {name:'Forest Master',        desc:'Score 5000 points'},
       {name:'Key Guardian',         desc:'Collect a key and open the portal'},
@@ -1188,7 +1197,7 @@ const LANGS = {
     ],
     desktop: {
       subtitle:'Spirit of the Forest',
-      f1title:'Platformer',f1text:'10 levels full of secrets, enemies and wind',
+      f1title:'Platformer',f1text:'40 levels full of secrets, enemies and wind',
       f2title:'Zero ads',f2text:'No interruptions, banners or popups',
       f3title:'Global leaderboard',f3text:'Compete with players from around the world',
       free:'Free browser game',
@@ -1212,9 +1221,11 @@ const LANGS = {
     play:         '▶ SPIELEN',
     continueBtn:  (lvl,sc) => `▶ Weiter (Level ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Speicher löschen & neu starten',
+    install:      '📲 App installieren',
     help:         '❓ Anleitung',
     ranking:      '🏆 Rangliste',
     badges:       '🏅 Abzeichen',
+    blog:         'Blog',
     controls:     'Pfeiltasten + Leertaste &nbsp;|&nbsp; Joystick auf dem Bildschirm',
     helpTitle:    '📖 Wie spielt man?',
     helpItems: [
@@ -1304,9 +1315,11 @@ const LANGS = {
     play:         '▶ JUGAR',
     continueBtn:  (lvl,sc) => `▶ Continuar (Nivel ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Borrar guardado y empezar de nuevo',
+    install:      '📲 Instalar app',
     help:         '❓ Instrucciones',
     ranking:      '🏆 Clasificación',
     badges:       '🏅 Insignias',
+    blog:         'Blog',
     controls:     'Flechas + Espacio &nbsp;|&nbsp; Joystick en pantalla',
     helpTitle:    '📖 ¿Cómo jugar?',
     helpItems: [
@@ -1396,9 +1409,11 @@ const LANGS = {
     play:         '▶ JOUER',
     continueBtn:  (lvl,sc) => `▶ Continuer (Niveau ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Supprimer la sauvegarde',
+    install:      '📲 Installer l\'app',
     help:         '❓ Instructions',
     ranking:      '🏆 Classement',
     badges:       '🏅 Badges',
+    blog:         'Blog',
     controls:     'Flèches + Espace &nbsp;|&nbsp; Joystick à l\'écran',
     helpTitle:    '📖 Comment jouer ?',
     helpItems: [
@@ -1503,12 +1518,14 @@ function applyLang(){
   if(menuSub) menuSub.innerHTML = LANG.subtitle;
   const menuDiff = document.getElementById('menu-choosediff');
   if(menuDiff) menuDiff.textContent = LANG.chooseDiff;
-  const btnHelp = document.getElementById('btn-help');
-  if(btnHelp) btnHelp.textContent = LANG.help;
-  const btnRanking = document.getElementById('btn-ranking');
-  if(btnRanking) btnRanking.textContent = LANG.ranking;
-  const btnBadges = document.getElementById('btn-badges');
-  if(btnBadges) btnBadges.textContent = LANG.badges;
+  const btnHelpLbl = document.getElementById('btn-help-lbl');
+  if(btnHelpLbl) btnHelpLbl.textContent = LANG.help;
+  const btnRankingLbl = document.getElementById('btn-ranking-lbl');
+  if(btnRankingLbl) btnRankingLbl.textContent = LANG.ranking;
+  const btnBadgesLbl = document.getElementById('btn-badges-lbl');
+  if(btnBadgesLbl) btnBadgesLbl.textContent = LANG.badges;
+  const btnBlogLbl = document.getElementById('btn-blog-lbl');
+  if(btnBlogLbl) btnBlogLbl.textContent = '📝 ' + (LANG.blog||'Blog');
   const menuControls = document.getElementById('menu-controls');
   if(menuControls) menuControls.innerHTML = LANG.controls;
 
@@ -1519,6 +1536,17 @@ function applyLang(){
 
   // Przyciski menu
   document.getElementById('start-btn').textContent = LANG.play;
+  const continueSave = loadProgress();
+  if(continueSave){
+    const btnC = document.getElementById('btn-continue');
+    if(btnC) btnC.textContent = LANG.continueBtn(continueSave.level, continueSave.score);
+    const btnClr = document.getElementById('btn-clear-save');
+    if(btnClr) btnClr.textContent = LANG.clearSave;
+  }
+  ['btn-install','btn-install-dp'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && LANG.install) el.textContent = LANG.install;
+  });
 
   // Instrukcja
   document.querySelector('.help-title').textContent = LANG.helpTitle;
@@ -1559,6 +1587,9 @@ function applyLang(){
     const el = document.getElementById(id);
     if(el) el.textContent = langLabel;
   });
+  const FLAG_ISO = {pl:'pl',en:'gb',de:'de',es:'es',fr:'fr'};
+  const elDp = document.getElementById('menu-lang-btn-dp');
+  if(elDp) elDp.innerHTML = `<img src="https://flagcdn.com/20x15/${FLAG_ISO[LANG_CODE]}.png" width="20" height="15" style="vertical-align:middle;margin-right:5px;">${LANG_CODE.toUpperCase()}`;
 
   // Linki prawne — z parametrem języka + przetłumaczone etykiety
   const privacyLabels = {pl:'Polityka prywatności',en:'Privacy Policy',de:'Datenschutz',es:'Privacidad',fr:'Confidentialité'};
@@ -1588,7 +1619,8 @@ function applyLang(){
       <div class="dp-feature"><strong>🚫 ${dp.f2title}</strong>${dp.f2text}</div>
       <div class="dp-feature"><strong>🌍 ${dp.f3title}</strong>${dp.f3text}</div>
       <div class="dp-divider"></div>
-      <div class="dp-badge">🆓 ${dp.free}</div>`;
+      <div class="dp-badge">🆓 ${dp.free}</div>
+      <button id="btn-install-dp" onclick="installPWA()" class="dp-corner-btn" style="margin-top:20px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;">${LANG.install||'📲 Zainstaluj'}</button>`;
     if(dr) dr.innerHTML = `
       <div class="dp-feature"><strong>⌨️ ${dp.ctrlTitle}</strong>${dp.ctrlText}</div>
       <div class="dp-divider"></div>
@@ -1596,7 +1628,8 @@ function applyLang(){
       <div class="dp-divider"></div>
       <div class="dp-feature"><strong>🏆 ${dp.ptsTitle}</strong>${dp.ptsText}</div>
       <div class="dp-divider"></div>
-      <div class="dp-badge">💚 ${dp.noDownload}</div>`;
+      <div class="dp-badge">💚 ${dp.noDownload}</div>
+      <button id="menu-lang-btn-dp" onclick="toggleLang()" class="dp-corner-btn" style="margin-top:20px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;display:flex;align-items:center;gap:6px;"><img src="https://flagcdn.com/20x15/${({pl:'pl',en:'gb',de:'de',es:'es',fr:'fr'})[LANG_CODE]}.png" width="20" height="15" style="display:block;">${LANG_CODE.toUpperCase()}</button>`;
   }
 
   // Odśwież panel auth (przycisk Wyloguj w nowym języku)
@@ -3815,6 +3848,12 @@ const WispAuth = (function(){
         document.getElementById('li-btn-skip').textContent =
           t==='de'?'Ohne Anmeldung spielen':t==='es'?'Jugar sin cuenta':t==='fr'?'Jouer sans connexion':t==='pl'?'Graj bez logowania':'Play without account';
         li.style.display='flex';
+        const liClose = ()=>{ li.style.display='none'; sessionStorage.setItem('li_skip','1'); };
+        const liCloseBtn = document.getElementById('li-btn-close');
+        if(liCloseBtn){
+          liCloseBtn.addEventListener('click', liClose);
+          liCloseBtn.addEventListener('touchend', function(e){ e.preventDefault(); liClose(); });
+        }
       }, 1500);
     }
 
@@ -3877,13 +3916,17 @@ let _installPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _installPrompt = e;
-  const btn = document.getElementById('btn-install');
-  if(btn) btn.style.display = 'inline-block';
+  ['btn-install','btn-install-dp'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.style.display = 'inline-block';
+  });
 });
 window.addEventListener('appinstalled', () => {
   _installPrompt = null;
-  const btn = document.getElementById('btn-install');
-  if(btn) btn.style.display = 'none';
+  ['btn-install','btn-install-dp'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.style.display = 'none';
+  });
 });
 window.installPWA = async function(){
   if(!_installPrompt) return;

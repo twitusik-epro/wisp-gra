@@ -1,0 +1,45 @@
+================================================================
+WISP — DUCH LASU | OPIS DO GOOGLE PLAY (JĘZYK: POLSKI)
+================================================================
+
+NAZWA APLIKACJI (maks. 50 znaków):
+Wisp — Duch Lasu
+
+----------------------------------------------------------------
+KRÓTKI OPIS (maks. 80 znaków):
+Platformówka HTML5. Bez reklam, bez pobierania. Graj za darmo!
+
+----------------------------------------------------------------
+DŁUGI OPIS (maks. 4000 znaków):
+Wciel się w Wispa — świecącego ducha zaczarowanego lasu — i przeprowadź go przez 10 unikalnych poziomów pełnych wyzwań, wrogów i tajemnic.
+
+🌿 HISTORIA
+Wisp to duch śpiącego lasu, który musi przebudzić magię swojego świata. Każdy poziom to nowe środowisko, nowi wrogowie i nowe przeszkody. Czy dotrzesz do poziomu 10?
+
+🎮 ROZGRYWKA
+• Zbieraj złote klucze i aktywuj portale wyjściowe
+• Łap świetliki, żeby zdobywać punkty i wspinać się w rankingu
+• Unikaj wrogów lub skacz na nich od góry — jak w klasycznym Mario
+• Opanuj podwójny skok, żeby pokonywać trudniejsze platformy
+• Walcz z dynamicznym wiatrem, który na wyższych poziomach może zrzucić Cię z platformy
+
+🏆 CO NAS WYRÓŻNIA
+• Gra całkowicie bez reklam — żadnych banerów, żadnych przerw wideo
+• Działa bez pobierania dużych plików — otwiera się w kilka sekund
+• Synchronizacja postępów między telefonem a komputerem (po zalogowaniu)
+• Trzy poziomy trudności: Łatwy, Średni, Trudny
+• Globalny ranking graczy
+• System odznak i osiągnięć
+• Proceduralny wiatr wpływający na fizykę postaci — każda gra jest inna
+• Muzyka i efekty dźwiękowe dopasowane do atmosfery lasu
+
+📱 STEROWANIE
+• Wirtualny joystick (ruch) + przycisk skoku (prawy dolny róg)
+• Podwójny skok — wciśnij dwa razy żeby doskoczyć wyżej
+
+💚 MODEL DARMOWY BEZ NACISKU
+Grasz za darmo bez żadnych ograniczeń. Życia odnawiają się automatycznie co 30 minut aktywnej gry. Możesz kupić dodatkowe życia gdy Ci się skończą — ale nikt Cię do tego nie zmusza.
+
+Wisp — Duch Lasu to gra stworzona z pasji do klasycznych platformówek i miłości do natury. Bez korporacyjnych algorytmów reklam. Czysta, spokojna rozgrywka.
+
+================================================================

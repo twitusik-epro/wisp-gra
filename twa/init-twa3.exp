@@ -1,0 +1,91 @@
+#!/usr/bin/expect -f
+set timeout 300
+log_user 1
+
+spawn bubblewrap init --manifest https://wispplay.com/manifest.json
+
+# Domain (default: wispplay.com) 
+expect "Domain:"
+send "\r"
+
+# URL path (default: /game.html)
+expect "path"
+send "\r"
+
+# Application name
+expect "Application name"
+send "Wisp — Duch Lasu\r"
+
+# Launcher name  
+expect -re "short name|launcher name"
+send "Wisp\r"
+
+# Package name
+expect -re "package|Package"
+send "com.epro.wisp\r"
+
+# App version
+expect -re "app version|Version name"
+send "1.0\r"
+
+# App version code
+expect -re "version code|Version code"
+send "1\r"
+
+# Icon URL
+expect -re "icon|Icon"
+send "\r"
+
+# Maskable icon
+expect -re "maskable|Maskable"
+send "\r"
+
+# Theme color
+expect -re "theme|Theme"
+send "\r"
+
+# Background color
+expect -re "background|Background"
+send "\r"
+
+# Nav/Navigation color
+expect -re "nav|Nav"
+send "\r"
+
+# Display mode
+expect -re "display|Display"
+send "\r"
+
+# Orientation
+expect -re "orientation|Orientation"
+send "\r"
+
+# Notifications
+expect -re "notification|Notification"
+send "n\r"
+
+# Shortcuts
+expect -re "shortcut|Shortcut"
+send "n\r"
+
+# Key path
+expect -re "key path|Key path|signing"
+send "/opt/wisp-twa/wisp-release.keystore\r"
+
+# Alias
+expect -re "alias|Alias"
+send "wisp\r"
+
+# Passwords
+expect -re "pass|Pass"
+send "wisp2026release\r"
+
+expect -re "pass|Pass"
+send "wisp2026release\r"
+
+expect {
+  "generated" { puts "\n\nSUCCESS - project generated!" }
+  "Error" { puts "\n\nERROR occurred!" }
+  eof { puts "\n\nProcess finished" }
+  timeout { puts "\n\nTIMEOUT!" }
+}
