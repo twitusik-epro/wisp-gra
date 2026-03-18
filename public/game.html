@@ -3726,13 +3726,35 @@ const WispAuth = (function(){
     const token = getToken();
     if(!token){
       const msg = LANG_CODE==='pl'
-        ? 'Zaloguj się Google aby kupić życia i zapisać postęp!'
-        : (LANG_CODE==='de' ? 'Melde dich an um Leben zu kaufen!'
-        : (LANG_CODE==='es' ? '¡Inicia sesión para comprar vidas!'
-        : (LANG_CODE==='fr' ? 'Connectez-vous pour acheter des vies !'
-        : 'Log in with Google to buy lives and save your progress!')));
-      const panel = document.getElementById('auth-panel');
-      if(panel){ panel.innerHTML = `<div style="color:#ffd080;font-size:12px;background:rgba(80,50,0,.7);border:1px solid #806020;border-radius:8px;padding:8px 14px;margin-top:6px;">${msg}<br><button class="btn" onclick="WispAuth.login()" style="margin-top:6px;padding:5px 14px;font-size:11px;background:rgba(255,255,255,.9);color:#333;">🔑 Google</button></div>`; }
+        ? 'Aby zrobić zakupy musisz się zalogować, aby nie stracić zakupionych żyć po wyjściu z gry.'
+        : (LANG_CODE==='de' ? 'Um Einkäufe zu tätigen, musst du dich anmelden, damit deine Leben nicht verloren gehen.'
+        : (LANG_CODE==='es' ? 'Para realizar compras debes iniciar sesión, para no perder las vidas compradas al salir del juego.'
+        : (LANG_CODE==='fr' ? 'Pour effectuer des achats, vous devez vous connecter afin de ne pas perdre vos vies achetées en quittant le jeu.'
+        : 'To make purchases you need to log in, so your bought lives are not lost when you leave the game.')));
+      const loginLabel = LANG_CODE==='pl' ? 'Przejdź do logowania'
+        : (LANG_CODE==='de' ? 'Zum Login gehen'
+        : (LANG_CODE==='es' ? 'Ir al inicio de sesión'
+        : (LANG_CODE==='fr' ? 'Aller à la connexion'
+        : 'Go to login')));
+      // Jeśli jest result-screen (ekran game-over), pokaż modal na nim
+      const rs = document.getElementById('result-screen');
+      if(rs && rs.style.display !== 'none'){
+        // Usuń poprzedni modal jeśli istnieje
+        const existing = document.getElementById('login-required-modal');
+        if(existing) existing.remove();
+        const modal = document.createElement('div');
+        modal.id = 'login-required-modal';
+        modal.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(4,10,4,.95);z-index:20;border-radius:14px;padding:24px;pointer-events:all;';
+        modal.innerHTML = `
+          <div style="color:#ffd080;font-family:'Lora',serif;font-size:14px;text-align:center;line-height:1.7;max-width:280px;margin-bottom:18px;">${msg}</div>
+          <button class="btn btn-green" onclick="document.getElementById('login-required-modal').remove();WispAuth.login();" style="pointer-events:all;">${loginLabel}</button>
+          <button class="btn" onclick="document.getElementById('login-required-modal').remove();" style="margin-top:8px;padding:8px 20px;font-size:11px;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #602020;pointer-events:all;">✕</button>`;
+        rs.appendChild(modal);
+      } else {
+        // Fallback: menu główne — wpisz do auth-panel
+        const panel = document.getElementById('auth-panel');
+        if(panel){ panel.innerHTML = `<div style="color:#ffd080;font-size:12px;background:rgba(80,50,0,.7);border:1px solid #806020;border-radius:8px;padding:8px 14px;margin-top:6px;">${msg}<br><button class="btn" onclick="WispAuth.login()" style="margin-top:6px;padding:5px 14px;font-size:11px;background:rgba(255,255,255,.9);color:#333;">🔑 Google</button></div>`; }
+      }
       return;
     }
     // Zalogowany → Paddle Checkout overlay
