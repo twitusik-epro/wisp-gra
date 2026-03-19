@@ -1596,10 +1596,13 @@ function applyLang(){
   // Linki prawne — z parametrem języka + przetłumaczone etykiety
   const privacyLabels = {pl:'Polityka prywatności',en:'Privacy Policy',de:'Datenschutz',es:'Privacidad',fr:'Confidentialité'};
   const termsLabels   = {pl:'Regulamin',en:'Terms',de:'Nutzungsbedingungen',es:'Términos',fr:'Conditions'};
+  const deleteLabels  = {pl:'Usuń konto',en:'Delete Account',de:'Konto löschen',es:'Eliminar cuenta',fr:'Supprimer le compte'};
   const lp = document.getElementById('link-privacy');
   const lt = document.getElementById('link-terms');
+  const ld = document.getElementById('link-delete');
   if(lp){ lp.href = '/privacy.html?lang=' + LANG_CODE; lp.textContent = privacyLabels[LANG_CODE] || 'Privacy Policy'; }
   if(lt){ lt.href = '/terms.html?lang='   + LANG_CODE; lt.textContent = termsLabels[LANG_CODE]   || 'Terms'; }
+  if(ld){ ld.href = '/delete-account.html?lang=' + LANG_CODE; ld.textContent = deleteLabels[LANG_CODE] || 'Delete Account'; }
 
   // DIFF_CONFIG labels
   DIFF_CONFIG.easy.label   = LANG.diffLabel.easy;
