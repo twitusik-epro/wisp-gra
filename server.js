@@ -119,7 +119,7 @@ const stmts = {
   statsUsers:      db.prepare(`SELECT COUNT(*) as total, COUNT(CASE WHEN last_login > datetime('now','-7 days') THEN 1 END) as active_7d, COUNT(CASE WHEN last_login > datetime('now','-30 days') THEN 1 END) as active_30d, COUNT(CASE WHEN created_at > datetime('now','-7 days') THEN 1 END) as new_7d FROM users`),
   statsPurchases:  db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(CASE WHEN status='completed' THEN amount_eur_ct ELSE 0 END),0) as revenue_gr, COUNT(CASE WHEN status='completed' THEN 1 END) as completed FROM purchases`),
   recentPurchases: db.prepare(`SELECT p.id, p.user_id, p.package_id, p.lives, p.amount_pln_gr, p.amount_eur_ct, p.status, p.created_at, u.nick, u.email FROM purchases p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC LIMIT 100`),
-  purgeOldUsers:   db.prepare(`DELETE FROM users WHERE last_login < datetime('now','-3 years') AND last_login IS NOT NULL`),
+  purgeOldUsers:   db.prepare(`DELETE FROM users WHERE last_login < datetime('now','-90 days') AND last_login IS NOT NULL`),
 };
 
 // ─── Paddle ────────────────────────────────────────────────────────────────
@@ -495,10 +495,10 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// ─── Auto-cleanup nieaktywnych kont (>3 lata) ───────────────────────────────
+// ─── Auto-cleanup nieaktywnych kont (>90 dni) ───────────────────────────────
 function purgeStaleAccounts() {
   const r = stmts.purgeOldUsers.run();
-  if (r.changes > 0) console.log(`🗑️  Usunięto ${r.changes} nieaktywnych kont (>3 lata bez logowania)`);
+  if (r.changes > 0) console.log(`🗑️  Usunięto ${r.changes} nieaktywnych kont (>90 dni bez logowania)`);
 }
 purgeStaleAccounts(); // przy starcie
 setInterval(purgeStaleAccounts, 24 * 60 * 60 * 1000); // co dobę
