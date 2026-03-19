@@ -10,6 +10,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#040a04;color:#c0d8b0;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;}
 .wrap{max-width:420px;margin:0 auto;flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 20px 40px;}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;}
 .back{color:#6abf5e;text-decoration:none;font-size:13px;align-self:flex-start;margin-bottom:14px;}
 .back:hover{color:#90df70;}
 .lang-switcher{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:36px;align-self:flex-start;}
@@ -36,6 +37,7 @@ footer a{color:#4a7a4a;}
     <button class="lang-btn" onclick="setLang('fr')">🇫🇷 FR</button>
   </div>
 
+  <div class="center">
   <button id="delete-btn"></button>
   <div id="msg"></div>
 
@@ -63,6 +65,7 @@ footer a{color:#4a7a4a;}
       <ellipse cx="63" cy="56" rx="2.5" ry="3.5" fill="#a0ddff" opacity="0.8"/>
     </svg>
     <div class="branch">🌿 · 🍃 · 🌿</div>
+  </div>
   </div>
 </div>
 
