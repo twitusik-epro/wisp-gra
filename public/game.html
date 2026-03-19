@@ -463,6 +463,8 @@ canvas{
           <a id="link-privacy" href="/privacy.html" target="_blank" style="color:#3a6a3a;text-decoration:none;">Privacy Policy</a>
           &nbsp;·&nbsp;
           <a id="link-terms" href="/terms.html" target="_blank" style="color:#3a6a3a;text-decoration:none;">Terms</a>
+          &nbsp;·&nbsp;
+          <a id="link-delete" href="#" onclick="WispAuth && WispAuth.token ? showDeleteAccountModal() : window.open('/delete-account.html','_blank'); return false;" style="color:#3a6a3a;text-decoration:none;">Delete Account</a>
         </div>
       </div>
 
@@ -3956,6 +3958,45 @@ window.installPWA = async function(){
   const { outcome } = await _installPrompt.userChoice;
   if(outcome === 'accepted') _installPrompt = null;
 };
+
+function showDeleteAccountModal() {
+  const existing = document.getElementById('delete-account-modal');
+  if (existing) { existing.remove(); return; }
+  const m = document.createElement('div');
+  m.id = 'delete-account-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  m.innerHTML = `
+    <div style="background:#1a0a0a;border:1px solid #6a2020;border-radius:14px;padding:28px;max-width:320px;width:90%;text-align:center;">
+      <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
+      <div style="color:#f08080;font-size:17px;font-weight:bold;margin-bottom:10px;">Delete account?</div>
+      <div style="color:#a08080;font-size:13px;margin-bottom:22px;">This will permanently delete your account, progress, and all remaining lives. This cannot be undone.</div>
+      <button id="del-confirm" style="background:#8a1010;color:#ffd0d0;border:none;border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;width:100%;margin-bottom:8px;">Yes, delete my account</button>
+      <button onclick="document.getElementById('delete-account-modal').remove()" style="background:transparent;color:#6a8a6a;border:1px solid #2a4a2a;border-radius:8px;padding:8px 24px;font-size:13px;cursor:pointer;width:100%;">Cancel</button>
+    </div>`;
+  document.body.appendChild(m);
+  m.querySelector('#del-confirm').onclick = async () => {
+    const btn = m.querySelector('#del-confirm');
+    btn.textContent = '...';
+    btn.disabled = true;
+    try {
+      const r = await fetch('/api/account', { method: 'DELETE', headers: { Authorization: 'Bearer ' + WispAuth.token } });
+      if (r.ok) {
+        WispAuth.token = null;
+        localStorage.removeItem('wisp_jwt');
+        m.querySelector('div > div:nth-child(4)').textContent = 'Account deleted. Goodbye!';
+        btn.style.display = 'none';
+        setTimeout(() => { m.remove(); location.reload(); }, 2000);
+      } else {
+        btn.textContent = 'Error — try again';
+        btn.disabled = false;
+      }
+    } catch(e) {
+      btn.textContent = 'Error — try again';
+      btn.disabled = false;
+    }
+  };
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+}
 </script>
 </body>
 </html>

@@ -294,6 +294,11 @@ app.post('/auth/logout', requireAuth, (_req, res) => {
   res.json({ ok: true });
 });
 
+app.delete('/api/account', requireAuth, (req, res) => {
+  stmts.deleteUser.run(req.user.id);
+  res.json({ ok: true });
+});
+
 app.post('/api/account/nick', requireAuth, (req, res) => {
   const raw = typeof req.body.nick === 'string' ? req.body.nick.trim() : '';
   if (!raw) return res.status(400).json({ error: 'Nick nie może być pusty' });
