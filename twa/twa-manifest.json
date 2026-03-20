@@ -16,8 +16,8 @@
   "iconUrl": "https://wispplay.com/icon-512.png",
   "maskableIconUrl": "https://wispplay.com/icon-512.png",
   "monochromeIconUrl": "https://wispplay.com/icon-512.png",
-  "appVersion": "1",
-  "appVersionCode": 1,
+  "appVersion": "1.1",
+  "appVersionCode": 2,
   "signingKey": {
     "path": "/opt/wisp-twa/wisp-release.keystore",
     "alias": "wisp"
@@ -33,7 +33,11 @@
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://wispplay.com/manifest.json",
   "fallbackType": "customtabs",
-  "features": {},
+  "features": {
+    "playBilling": {
+      "enabled": true
+    }
+  },
   "alphaDependencies": {
     "enabled": false
   },
@@ -41,7 +45,7 @@
   "retainedBundles": [],
   "serviceAccountJsonFile": "",
   "additionalTrustedOrigins": [],
-  "playBillingVersion": "0",
+  "playBillingVersion": "2",
   "fingerprints": [
     {
       "name": "release",

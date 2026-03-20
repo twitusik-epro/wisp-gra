@@ -8,6 +8,7 @@ const passport   = require('passport');
 const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const jwt        = require('jsonwebtoken');
 const { Paddle, Environment } = require('@paddle/paddle-node-sdk');
+const { google } = require('googleapis');
 const Database   = require('better-sqlite3');
 
 // ─── Config ────────────────────────────────────────────────────────────────
@@ -85,8 +86,9 @@ const stmts = {
       last_login = CURRENT_TIMESTAMP
     RETURNING *
   `),
-  getUserById:    db.prepare('SELECT * FROM users WHERE id = ?'),
-  getUserByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
+  getUserById:        db.prepare('SELECT * FROM users WHERE id = ?'),
+  getUserByEmail:     db.prepare('SELECT * FROM users WHERE email = ?'),
+  getPurchaseByToken: db.prepare('SELECT id FROM purchases WHERE paddle_txn_id = ?'),
   addLives:       db.prepare('UPDATE users SET lives = lives + ? WHERE id = ?'),
   setScore:       db.prepare('UPDATE users SET score = ?, level = ?, difficulty = ? WHERE id = ?'),
   insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
@@ -128,9 +130,9 @@ const paddle = PADDLE_API_KEY ? new Paddle(PADDLE_API_KEY, {
 }) : null;
 
 const PACKAGES = {
-  pack_10: { lives: 10, amount:  99, price_id: 'pri_01kkrrj131kge5bgkxrg1dvybb', price_display: '0,99 €' },
-  pack_25: { lives: 25, amount: 199, price_id: 'pri_01kkrrm69dvc1rn4ke4gm22062', price_display: '1,99 €' },
-  pack_50: { lives: 50, amount: 399, price_id: 'pri_01kkrrnv2cv70zvrk0c781sdkg', price_display: '3,99 €' },
+  wisp_pack_10: { lives: 10, amount:  99, price_id: 'pri_01kkrrj131kge5bgkxrg1dvybb', price_display: '0,99 €' },
+  wisp_pack_25: { lives: 25, amount: 199, price_id: 'pri_01kkrrm69dvc1rn4ke4gm22062', price_display: '1,99 €' },
+  wisp_pack_50: { lives: 50, amount: 399, price_id: 'pri_01kkrrnv2cv70zvrk0c781sdkg', price_display: '3,99 €' },
 };
 
 // ─── Express App ───────────────────────────────────────────────────────────
@@ -484,6 +486,65 @@ async function handlePaddleWebhook(req, res) {
 
   res.json({ received: true });
 }
+
+// ─── Google Play Billing ─────────────────────────────────────────────────────
+const GP_PACKAGE   = 'com.epro.wisp';
+const GP_KEY_FILE  = path.join(__dirname, 'wisp-game-490213-62778a03e471.json');
+
+async function getAndroidPublisher() {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: GP_KEY_FILE,
+    scopes: ['https://www.googleapis.com/auth/androidpublisher'],
+  });
+  return google.androidpublisher({ version: 'v3', auth });
+}
+
+app.post('/api/gplay/verify', requireAuth, async (req, res) => {
+  const { package_id, purchase_token } = req.body;
+  const pkg = PACKAGES[package_id];
+  if (!pkg || !purchase_token) {
+    return res.status(400).json({ error: 'Nieprawidłowe dane' });
+  }
+  try {
+    const publisher = await getAndroidPublisher();
+    const result = await publisher.purchases.products.get({
+      packageName: GP_PACKAGE,
+      productId:   package_id,
+      token:       purchase_token,
+    });
+    const purchase = result.data;
+    // purchaseState: 0 = zakupiony, 1 = anulowany, 2 = oczekujący
+    if (purchase.purchaseState !== 0) {
+      return res.status(400).json({ error: 'Zakup nieważny' });
+    }
+    // Zabezpieczenie przed duplikatami — sprawdź czy token był już użyty
+    const existing = stmts.getPurchaseByToken.get(purchase_token);
+    if (existing) {
+      return res.status(409).json({ error: 'Token już wykorzystany' });
+    }
+    // Dodaj życia i zapisz zakup
+    stmts.insertPurchase.run({
+      user_id:       req.user.id,
+      paddle_txn_id: purchase_token,
+      package_id,
+      lives:         pkg.lives,
+      amount_eur_ct: pkg.amount,
+    });
+    stmts.addLives.run(pkg.lives, req.user.id);
+    console.log(`✅ [GP] Dodano ${pkg.lives} żyć uid=${req.user.id} pkg=${package_id}`);
+    // Consume — umożliwia ponowny zakup tego samego produktu
+    await publisher.purchases.products.consume({
+      packageName: GP_PACKAGE,
+      productId:   package_id,
+      token:       purchase_token,
+    });
+    const user = stmts.getUserById.get(req.user.id);
+    res.json({ ok: true, lives: user.lives });
+  } catch (err) {
+    console.error('❌ [GP] verify error:', err.message);
+    res.status(500).json({ error: 'Błąd weryfikacji zakupu' });
+  }
+});
 
 // ─── Health Check ───────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
