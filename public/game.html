@@ -3018,7 +3018,7 @@ function updatePhysics(){
 
   if(P.onGround) djUsed=false;
   if(jump && P.onGround && !jumpUsed){ P.vy=JUMP; jumpUsed=true; Audio.sfxJump(); }
-  else if(jump && !P.onGround && !jumpUsed && !djUsed){ P.vy=JUMP*0.82; djUsed=true; jumpUsed=true; Audio.sfxJump(); }
+  else if(jump && !P.onGround && !jumpUsed && !djUsed && GS.level>=3){ P.vy=JUMP*0.82; djUsed=true; jumpUsed=true; Audio.sfxJump(); }
   if(!jump) jumpUsed=false;
 
   // Wrap horizontally
