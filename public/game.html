@@ -1649,6 +1649,7 @@ function applyLang(){
 // ── Game state ──────────────────────────────────
 let GS = { state:'menu', lives:3, score:0, level:1, totalScore:0 };
 let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false, djUsed=false;
+const IS_TWA = document.referrer.startsWith('android-app://');
 let particles=[], camera={y:0}, frameT=0;
 
 // ── Player ──────────────────────────────────────
@@ -3774,7 +3775,7 @@ const WispAuth = (function(){
     if(!pkg){ _origBuyLives(n); return; }
 
     // Próbuj Google Play Billing (tylko w TWA na Androidzie)
-    if('getDigitalGoodsService' in window) {
+    if(IS_TWA && 'getDigitalGoodsService' in window) {
       window.getDigitalGoodsService('https://play.google.com/billing')
         .then(async service => {
           const details = await service.getDetails([pkg]);
