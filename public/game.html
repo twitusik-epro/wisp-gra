@@ -3774,19 +3774,37 @@ const WispAuth = (function(){
     const pkg = pkgMap[n];
     if(!pkg){ _origBuyLives(n); return; }
 
-    // Próbuj Google Play Billing (tylko w TWA na Androidzie)
+    // Google Play Billing przez Digital Goods API (tylko w TWA)
     if(IS_TWA && 'getDigitalGoodsService' in window) {
-      window.getDigitalGoodsService('https://play.google.com/billing')
-        .then(async service => {
-          const details = await service.getDetails([pkg]);
-          if(!details || !details.length) throw new Error('Brak produktu w GP');
+      (async () => {
+        let service;
+        try {
+          service = await window.getDigitalGoodsService('https://play.google.com/billing');
+        } catch(e) {
+          _buyWithPaddle(pkg, token); return;
+        }
+        let details;
+        try {
+          details = await service.getDetails([pkg]);
+        } catch(e) {
+          _buyWithPaddle(pkg, token); return;
+        }
+        if(!details || !details.length) {
+          _buyWithPaddle(pkg, token); return;
+        }
+        let response;
+        try {
           const request = new PaymentRequest(
             [{ supportedMethods: 'https://play.google.com/billing', data: { sku: pkg } }],
-            { total: { label: details[0].title, amount: { currency: 'EUR', value: '0' } } }
+            { total: { label: details[0].title || pkg, amount: { currency: 'EUR', value: '0' } } }
           );
-          const response = await request.show();
+          response = await request.show();
+        } catch(e) {
+          if(e.name !== 'AbortError') _buyWithPaddle(pkg, token);
+          return;
+        }
+        try {
           const purchaseToken = response.details.token;
-          // Wyślij token do serwera — weryfikacja + consume + dodanie żyć
           const r = await fetch('/api/gplay/verify', {
             method: 'POST',
             headers: { Authorization:'Bearer '+token, 'Content-Type':'application/json' },
@@ -3796,19 +3814,14 @@ const WispAuth = (function(){
           if(data.ok) {
             await response.complete('success');
             if(typeof updateLivesDisplay === 'function') updateLivesDisplay(data.lives);
-            if(typeof WispGame !== 'undefined' && WispGame.lives !== undefined) WispGame.lives = data.lives;
+            GS.lives = data.lives;
           } else {
             await response.complete('fail');
-            console.error('GP verify failed:', data.error);
           }
-        })
-        .catch(e => {
-          // Digital Goods niedostępne lub użytkownik anulował — fallback na Paddle
-          if(e && e.name !== 'AbortError') {
-            console.warn('GP Billing niedostępne, fallback Paddle:', e.message);
-            _buyWithPaddle(pkg, token);
-          }
-        });
+        } catch(e) {
+          console.error('GP billing error:', e);
+        }
+      })();
       return;
     }
 

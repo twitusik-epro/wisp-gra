@@ -176,8 +176,8 @@
 
         <service
             android:name=".DelegationService"
-            android:enabled="@bool/enableNotification"
-            android:exported="@bool/enableNotification">
+            android:enabled="true"
+            android:exported="true">
 
             
 
