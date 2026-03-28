@@ -190,5 +190,17 @@
         
 
         
+        <activity
+            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.chromium.intent.action.PAY" />
+            </intent-filter>
+            <meta-data
+                android:name="org.chromium.default_payment_method_name"
+                android:value="https://play.google.com/billing" />
+        </activity>
+
     </application>
 </manifest>

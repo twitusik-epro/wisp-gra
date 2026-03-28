@@ -94,15 +94,22 @@ const stmts = {
   insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
   insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
   topScores:        db.prepare(`
-    SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
-           u.avatar_url,
-           MAX(s.score) AS score,
-           MAX(s.badges) AS badges,
-           s.level, s.difficulty, s.created_at,
-           CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
-    FROM scores s
-    LEFT JOIN users u ON u.id = s.user_id
-    GROUP BY COALESCE(s.user_id || '', s.guest_nick)
+    SELECT nick,
+           MAX(avatar_url) AS avatar_url,
+           MAX(score) AS score,
+           MAX(badges) AS badges,
+           MAX(verified) AS verified
+    FROM (
+      SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
+             u.avatar_url,
+             MAX(s.score) AS score,
+             MAX(s.badges) AS badges,
+             CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
+      FROM scores s
+      LEFT JOIN users u ON u.id = s.user_id
+      GROUP BY COALESCE(s.user_id || '', s.guest_nick)
+    )
+    GROUP BY nick
     ORDER BY score DESC
     LIMIT 50
   `),
@@ -194,7 +201,7 @@ app.get('/api/admin/purchases', adminAuth, (_req, res) => {
 
 // Root redirect — zawsze świeża wersja gry (omija cache index.html w WebView)
 app.get('/', (req, res) => {
-  res.redirect(302, '/game.html');
+  res.redirect(301, '/game.html');
 });
 
 // Static files — gra HTML5
@@ -547,6 +554,7 @@ app.post('/api/gplay/verify', requireAuth, async (req, res) => {
 });
 
 // ─── Health Check ───────────────────────────────────────────────────────────
+
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',

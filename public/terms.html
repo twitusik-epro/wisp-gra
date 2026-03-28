@@ -192,13 +192,20 @@ footer a{color:#4a7a4a;}
   <p>Droit polonais.</p>
 </div>
 
-<footer>
+<footer id="site-footer">
   &copy; 2026 ePro sp. z o.o. &nbsp;·&nbsp; <a href="/privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms.html">Terms</a> &nbsp;·&nbsp; <a href="/delete-account.html">Delete Account</a> &nbsp;·&nbsp; <a href="/">Wisp: Duch Lasu</a>
 </footer>
 </div>
 
 <script>
 const TITLES = { pl:'Regulamin', en:'Terms of Service', de:'Nutzungsbedingungen', es:'Términos de Servicio', fr:'Conditions d\'utilisation' };
+const FOOTER = {
+  pl: { privacy:'Polityka Prywatności', terms:'Regulamin', delete:'Usuń konto', game:'Wisp: Duch Lasu' },
+  en: { privacy:'Privacy Policy', terms:'Terms', delete:'Delete Account', game:'Wisp: Ghost of the Forest' },
+  de: { privacy:'Datenschutzerklärung', terms:'Nutzungsbedingungen', delete:'Konto löschen', game:'Wisp: Geist des Waldes' },
+  es: { privacy:'Política de Privacidad', terms:'Términos', delete:'Eliminar cuenta', game:'Wisp: Espíritu del Bosque' },
+  fr: { privacy:'Politique de Confidentialité', terms:'Conditions', delete:'Supprimer le compte', game:'Wisp: Esprit de la Forêt' },
+};
 function setLang(code) {
   document.querySelectorAll('.lang-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
@@ -206,6 +213,9 @@ function setLang(code) {
   if (sec) sec.classList.add('active');
   document.querySelectorAll('.lang-btn').forEach(b => { if(b.textContent.toLowerCase().includes(code)) b.classList.add('active'); });
   document.getElementById('page-title').textContent = TITLES[code] || 'Terms of Service';
+  const f = FOOTER[code] || FOOTER.en;
+  document.getElementById('site-footer').innerHTML =
+    `&copy; 2026 ePro sp. z o.o. &nbsp;&middot;&nbsp; <a href="/privacy.html">${f.privacy}</a> &nbsp;&middot;&nbsp; <a href="/terms.html">${f.terms}</a> &nbsp;&middot;&nbsp; <a href="/delete-account.html">${f.delete}</a> &nbsp;&middot;&nbsp; <a href="/">${f.game}</a>`;
   try { localStorage.setItem('wisp_terms_lang', code); } catch(e) {}
 }
 const urlLang  = new URLSearchParams(window.location.search).get('lang');

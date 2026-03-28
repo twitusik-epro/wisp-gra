@@ -57,8 +57,8 @@ android {
         applicationId "com.epro.wisp"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 11
-        versionName "1.10"
+        versionCode 21
+        versionName "1.20"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -217,5 +217,6 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
-    implementation 'com.android.billingclient:billing:7.0.0'
+    implementation 'com.google.androidbrowserhelper:billing:1.1.0'
+    implementation 'com.android.billingclient:billing:7.1.1'
 }

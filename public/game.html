@@ -348,7 +348,6 @@ canvas{
   <div class="dp-feature"><strong>🌍 Ranking globalny</strong>Rywalizuj z graczami z całego świata</div>
   <div class="dp-divider"></div>
   <div class="dp-badge">🆓 Darmowa gra przeglądarkowa</div>
-  <button id="btn-install-dp" onclick="installPWA()" class="dp-corner-btn" style="display:none;margin-top:20px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;">📲 Zainstaluj</button>
 </div>
 
 <div id="wrap">
@@ -430,7 +429,6 @@ canvas{
       </div>
       <div id="wind-indicator"></div>
       <div id="overlay" style="background:rgba(4,10,4,.92);">
-        <button id="btn-install" onclick="installPWA()" style="display:none;position:absolute;top:10px;left:12px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">📲 Zainstaluj</button>
         <button onclick="toggleLang()" id="menu-lang-btn" style="position:absolute;top:10px;right:12px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">🌍 EN</button>
         <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
         <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
@@ -1003,7 +1001,17 @@ window.continueGame = function(){
   Audio.init();
   DIFF = save.diff || 'medium';
   const _slC = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  const savedLives = (typeof _slC === 'number' && _slC > 0) ? _slC : (save.lives > 0 ? save.lives : (DIFF_CONFIG[save.diff||'medium']||DIFF_CONFIG.medium).lives);
+  const savedLives = (typeof _slC === 'number' && _slC > 0) ? _slC : (save.lives > 0 ? save.lives : 0);
+  // Brak żyć — pokaż sklep zamiast startować grę
+  if(savedLives === 0){
+    GS = { state:'playing', lives:0, score:save.score, level:save.level, totalScore:save.score };
+    applyDifficulty();
+    document.getElementById('overlay').style.display='none';
+    document.getElementById('hud').style.display='flex';
+    updateHUD();
+    showResultScreen('dead');
+    return;
+  }
   GS = { state:'playing', lives:savedLives, score:save.score, level:save.level, totalScore:save.score };
   applyDifficulty();
   document.getElementById('overlay').style.display='none';
@@ -1037,7 +1045,6 @@ const LANGS = {
     play:         '▶ ZAGRAJ',
     continueBtn:  (lvl,sc) => `▶ Kontynuuj (Poziom ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Usuń zapis i zacznij od nowa',
-    install:      '📲 Zainstaluj',
     help:         '❓ Instrukcja',
     ranking:      '🏆 Ranking',
     badges:       '🏅 Odznaki',
@@ -1076,7 +1083,6 @@ const LANGS = {
     finishSub:    'Przywróciłeś światło do wszystkich zakątków<br>zaczarowanego lasu. Jesteś legendą.',
     playAgain:    '▶ Zagraj Ponownie',
     shopSub:      'Zakup dodatkowe życia, aby kontynuować!',
-    fromScratch:  'Od nowa (bez zakupu)',
     rankTitle:    '🏆 Ranking',
     rankSub:      'Globalny ranking — Top 20',
     rankEmpty:    'Brak wyników — zagraj i zostaw ślad w lesie! 🌿',
@@ -1130,7 +1136,6 @@ const LANGS = {
     play:         '▶ PLAY',
     continueBtn:  (lvl,sc) => `▶ Continue (Level ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Delete save & start over',
-    install:      '📲 Install app',
     help:         '❓ How to play',
     ranking:      '🏆 Ranking',
     badges:       '🏅 Badges',
@@ -1169,7 +1174,6 @@ const LANGS = {
     finishSub:    'You restored light to every corner<br>of the enchanted forest. You are a legend.',
     playAgain:    '▶ Play Again',
     shopSub:      'Buy extra lives to keep going!',
-    fromScratch:  'Start over (no purchase)',
     rankTitle:    '🏆 Ranking',
     rankSub:      'Global ranking — Top 20',
     rankEmpty:    'No scores yet — play and leave your mark! 🌿',
@@ -1224,7 +1228,6 @@ const LANGS = {
     play:         '▶ SPIELEN',
     continueBtn:  (lvl,sc) => `▶ Weiter (Level ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Speicher löschen & neu starten',
-    install:      '📲 App installieren',
     help:         '❓ Anleitung',
     ranking:      '🏆 Rangliste',
     badges:       '🏅 Abzeichen',
@@ -1263,7 +1266,6 @@ const LANGS = {
     finishSub:    'Du hast das Licht in jeden Winkel<br>des verzauberten Waldes zurückgebracht. Du bist eine Legende.',
     playAgain:    '▶ Nochmal spielen',
     shopSub:      'Kauf zusätzliche Leben um weiterzumachen!',
-    fromScratch:  'Von vorne (ohne Kauf)',
     rankTitle:    '🏆 Rangliste',
     rankSub:      'Globales Ranking — Top 20',
     rankEmpty:    'Noch keine Ergebnisse — spiel und hinterlasse eine Spur! 🌿',
@@ -1318,7 +1320,6 @@ const LANGS = {
     play:         '▶ JUGAR',
     continueBtn:  (lvl,sc) => `▶ Continuar (Nivel ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Borrar guardado y empezar de nuevo',
-    install:      '📲 Instalar app',
     help:         '❓ Instrucciones',
     ranking:      '🏆 Clasificación',
     badges:       '🏅 Insignias',
@@ -1357,7 +1358,6 @@ const LANGS = {
     finishSub:    'Restauraste la luz en cada rincón<br>del bosque encantado. Eres una leyenda.',
     playAgain:    '▶ Jugar de nuevo',
     shopSub:      '¡Compra vidas extra para continuar!',
-    fromScratch:  'Empezar de nuevo (sin compra)',
     rankTitle:    '🏆 Clasificación',
     rankSub:      'Clasificación global — Top 20',
     rankEmpty:    '¡Sin puntuaciones aún — juega y deja tu huella! 🌿',
@@ -1412,7 +1412,6 @@ const LANGS = {
     play:         '▶ JOUER',
     continueBtn:  (lvl,sc) => `▶ Continuer (Niveau ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Supprimer la sauvegarde',
-    install:      '📲 Installer l\'app',
     help:         '❓ Instructions',
     ranking:      '🏆 Classement',
     badges:       '🏅 Badges',
@@ -1451,7 +1450,6 @@ const LANGS = {
     finishSub:    'Vous avez restauré la lumière dans chaque recoin<br>de la forêt enchantée. Vous êtes une légende.',
     playAgain:    '▶ Rejouer',
     shopSub:      'Achetez des vies supplémentaires pour continuer !',
-    fromScratch:  'Recommencer (sans achat)',
     rankTitle:    '🏆 Classement',
     rankSub:      'Classement mondial — Top 20',
     rankEmpty:    'Aucun score — jouez et laissez votre trace ! 🌿',
@@ -1546,10 +1544,6 @@ function applyLang(){
     const btnClr = document.getElementById('btn-clear-save');
     if(btnClr) btnClr.textContent = LANG.clearSave;
   }
-  ['btn-install','btn-install-dp'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el && LANG.install) el.textContent = LANG.install;
-  });
 
   // Instrukcja
   document.querySelector('.help-title').textContent = LANG.helpTitle;
@@ -1625,8 +1619,7 @@ function applyLang(){
       <div class="dp-feature"><strong>🚫 ${dp.f2title}</strong>${dp.f2text}</div>
       <div class="dp-feature"><strong>🌍 ${dp.f3title}</strong>${dp.f3text}</div>
       <div class="dp-divider"></div>
-      <div class="dp-badge">🆓 ${dp.free}</div>
-      <button id="btn-install-dp" onclick="installPWA()" class="dp-corner-btn" style="margin-top:20px;background:rgba(10,40,10,.8);color:#80f080;border:1px solid #306030;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;align-self:center;">${LANG.install||'📲 Zainstaluj'}</button>`;
+      <div class="dp-badge">🆓 ${dp.free}</div>`;
     if(dr) dr.innerHTML = `
       <div class="dp-feature"><strong>⌨️ ${dp.ctrlTitle}</strong>${dp.ctrlText}</div>
       <div class="dp-divider"></div>
@@ -1649,7 +1642,9 @@ function applyLang(){
 // ── Game state ──────────────────────────────────
 let GS = { state:'menu', lives:3, score:0, level:1, totalScore:0 };
 let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false, djUsed=false;
-const IS_TWA = document.referrer.startsWith('android-app://');
+const IS_TWA = ('getDigitalGoodsService' in window) ||
+               document.referrer.startsWith('android-app://') ||
+               window.matchMedia('(display-mode: standalone)').matches;
 let particles=[], camera={y:0}, frameT=0;
 
 // ── Player ──────────────────────────────────────
@@ -2484,8 +2479,7 @@ function showShopButtons(){
       <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span>0,99 €</div>
       <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span>1,99 €</div>
       <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span>3,99 €</div>
-    </div>
-    <button class="btn btn-green" onclick="restartGame()" style="margin-top:14px;font-size:11px;padding:8px 20px">${LANG.fromScratch}</button>`;
+    </div>`;
 }
 
 function buyLives(n){
@@ -2534,15 +2528,6 @@ function nextLevel(){
     loadLevel(GS.level);
   });
 }
-function restartGame(){
-  const d = DIFF_CONFIG[DIFF] || DIFF_CONFIG.medium;
-  const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  const startLives = (typeof sl === 'number') ? sl : d.lives;
-  GS={state:'playing',lives:startLives,score:0,level:1,totalScore:0};
-  hideResultScreen();
-  loadLevel(1);
-  updateHUD();
-}
 function goToMainMenu(){
   isPaused = false;
   if(GS.state === 'playing'){
@@ -2571,7 +2556,6 @@ function goToMainMenu(){
 window.startGame=startGame;
 window.restartLevel=restartLevel;
 window.nextLevel=nextLevel;
-window.restartGame=restartGame;
 window.goToMainMenu=goToMainMenu;
 window.buyLives=buyLives;
 
@@ -3781,26 +3765,37 @@ const WispAuth = (function(){
         try {
           service = await window.getDigitalGoodsService('https://play.google.com/billing');
         } catch(e) {
-          _buyWithPaddle(pkg, token); return;
+          const errInfo = { step:'getDigitalGoodsService', name:e.name, message:e.message, code:e.code, str:String(e), ua:navigator.userAgent };
+          console.error('Błąd Digital Goods Service:', errInfo);
+          fetch('/api/debug-billing', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(errInfo)}).catch(()=>{});
+          if(confirm('Błąd połączenia z Play Store (' + e.message + '). Czy użyć płatności kartą?')) _buyWithPaddle(pkg, token);
+          return;
         }
         let details;
         try {
           details = await service.getDetails([pkg]);
         } catch(e) {
-          _buyWithPaddle(pkg, token); return;
+          console.error('Błąd getDetails:', e);
+          if(confirm('Błąd pobierania produktu z Play Store (' + e.message + '). Czy użyć płatności kartą?')) _buyWithPaddle(pkg, token);
+          return;
         }
         if(!details || !details.length) {
-          _buyWithPaddle(pkg, token); return;
+          console.error('getDetails zwróciło pustą tablicę dla SKU:', pkg);
+          if(confirm('Produkt nie znaleziony w Play Store (SKU: ' + pkg + '). Czy użyć płatności kartą?')) _buyWithPaddle(pkg, token);
+          return;
         }
         let response;
         try {
           const request = new PaymentRequest(
             [{ supportedMethods: 'https://play.google.com/billing', data: { sku: pkg } }],
-            { total: { label: details[0].title || pkg, amount: { currency: 'EUR', value: '0' } } }
+            { total: { label: details[0].title || pkg, amount: { currency: (details[0].price && details[0].price.currency) || 'PLN', value: '0' } } }
           );
           response = await request.show();
         } catch(e) {
-          if(e.name !== 'AbortError') _buyWithPaddle(pkg, token);
+          console.error('Błąd PaymentRequest:', e);
+          if(e.name !== 'AbortError'){
+            if(confirm('Błąd okna płatności Play Store (' + e.message + '). Czy użyć płatności kartą?')) _buyWithPaddle(pkg, token);
+          }
           return;
         }
         try {
@@ -4002,29 +3997,6 @@ const WispAuth = (function(){
 })();
 window.WispAuth = WispAuth;
 
-// PWA install prompt
-let _installPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _installPrompt = e;
-  ['btn-install','btn-install-dp'].forEach(id=>{
-    const btn = document.getElementById(id);
-    if(btn) btn.style.display = 'inline-block';
-  });
-});
-window.addEventListener('appinstalled', () => {
-  _installPrompt = null;
-  ['btn-install','btn-install-dp'].forEach(id=>{
-    const btn = document.getElementById(id);
-    if(btn) btn.style.display = 'none';
-  });
-});
-window.installPWA = async function(){
-  if(!_installPrompt) return;
-  _installPrompt.prompt();
-  const { outcome } = await _installPrompt.userChoice;
-  if(outcome === 'accepted') _installPrompt = null;
-};
 
 function showDeleteAccountModal() {
   const existing = document.getElementById('delete-account-modal');
