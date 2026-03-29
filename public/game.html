@@ -86,7 +86,7 @@ canvas{
   width:100%;height:100%;
   display:block;
 }
-#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
+#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;}
 #hud{position:absolute;top:0;left:0;right:0;padding:8px 10px;display:none;justify-content:space-between;align-items:center;gap:6px;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.3) 70%,transparent 100%);}
 #lives-row{display:flex;gap:3px;align-items:center;flex-shrink:0;}
 #hud-center{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
@@ -434,11 +434,11 @@ canvas{
         <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
         <div class="sub" id="menu-choosediff" style="color:#5a8a5a;margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
         <div class="diff-row">
-          <div class="diff-btn easy" id="diff-easy" onclick="selectDiff('easy')">
+          <div class="diff-btn easy selected" id="diff-easy" onclick="selectDiff('easy')">
             <span class="diff-icon">😊</span>Łatwy
             <span class="diff-lives">5 żyć na start</span>
           </div>
-          <div class="diff-btn medium selected" id="diff-medium" onclick="selectDiff('medium')">
+          <div class="diff-btn medium" id="diff-medium" onclick="selectDiff('medium')">
             <span class="diff-icon">😐</span>Średni
             <span class="diff-lives">3 życia na start</span>
           </div>
@@ -904,13 +904,27 @@ function resizeCanvas(){
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
+// Dostosuj #wrap do rzeczywistego widocznego viewport — naprawia nakrywanie przez pasek przeglądarki na Androidzie
+(function(){
+  const wrap = document.getElementById('wrap');
+  if(!wrap || !window.visualViewport) return;
+  function updateWrapHeight(){
+    const h = Math.max(window.visualViewport.height, 200);
+    wrap.style.height = h + 'px';
+    resizeCanvas();
+  }
+  window.visualViewport.addEventListener('resize', updateWrapHeight);
+  window.visualViewport.addEventListener('scroll', updateWrapHeight);
+  updateWrapHeight();
+})();
+
 // ── Difficulty ───────────────────────────────────
 const DIFF_CONFIG = {
-  easy:   { lives:5, gravMult:0.82, spdMult:0.80, windMult:0.50, enemySpdMult:0.70, label:'😊 Łatwy' },
-  medium: { lives:3, gravMult:1.00, spdMult:1.00, windMult:1.00, enemySpdMult:1.00, label:'😐 Średni' },
-  hard:   { lives:1, gravMult:1.22, spdMult:1.20, windMult:1.50, enemySpdMult:1.35, label:'💀 Trudny' },
+  easy:   { lives:5, gravMult:0.82, spdMult:0.80, windMult:0.50, enemySpdMult:0.70, scoreMult:1.0, label:'😊 Łatwy' },
+  medium: { lives:3, gravMult:1.00, spdMult:1.00, windMult:1.00, enemySpdMult:1.00, scoreMult:1.5, label:'😐 Średni' },
+  hard:   { lives:1, gravMult:1.22, spdMult:1.20, windMult:1.50, enemySpdMult:1.35, scoreMult:2.0, label:'💀 Trudny' },
 };
-let DIFF = 'medium';
+let DIFF = 'easy';
 
 function selectDiff(d){
   DIFF = d;
@@ -958,9 +972,8 @@ function clearProgress(){
 function initMenu(){
   const save = loadProgress();
   if(save){
-    // Przywróć wybrany poziom trudności
-    DIFF = save.diff || 'medium';
-    selectDiff(DIFF);
+    // Zawsze podświetl łatwy w menu (nie zapamiętuj ostatniej trudności)
+    selectDiff('easy');
     // Pokaż przycisk "Kontynuuj" jeśli gracz ma zapisany postęp
     if(save.level > 1 || save.score > 0){
       const wrap = document.getElementById('continue-wrap');
@@ -1119,7 +1132,7 @@ const LANGS = {
       free:'Darmowa gra przeglądarkowa',
       ctrlTitle:'Sterowanie PC',ctrlText:'← → lub A/D — ruch<br>Spacja lub ↑ — skok<br>P lub Esc — pauza',
       mobileTitle:'Też na telefonie',mobileText:'Wirtualny joystick + przycisk skoku. Działa offline jako PWA.',
-      ptsTitle:'Jak zdobyć punkty?',ptsText:'Świetlik: +100 pkt<br>Ukończenie poziomu: +500 pkt<br>Pokonanie wroga: +50 pkt',
+      ptsTitle:'Jak zdobyć punkty?',ptsText:'Świetlik: +100<br>Klucz: +200<br>Wróg: +150<br>Poziom: +500+(poz.×50)<br>Mnożnik: Łatwy×1.0 | Średni×1.5 | Trudny×2.0',
       noDownload:'Bez pobierania',
     },
   },
@@ -1210,7 +1223,7 @@ const LANGS = {
       free:'Free browser game',
       ctrlTitle:'PC Controls',ctrlText:'← → or A/D — move<br>Space or ↑ — jump<br>P or Esc — pause',
       mobileTitle:'Also on mobile',mobileText:'Virtual joystick + jump button. Works offline as PWA.',
-      ptsTitle:'How to score?',ptsText:'Wisp: +100 pts<br>Level complete: +500 pts<br>Defeat enemy: +50 pts',
+      ptsTitle:'How to score?',ptsText:'Wisp: +100<br>Key: +200<br>Enemy: +150<br>Level: +500+(lvl×50)<br>Multiplier: Easy×1.0 | Medium×1.5 | Hard×2.0',
       noDownload:'No download needed',
     },
   },
@@ -1302,7 +1315,7 @@ const LANGS = {
       free:'Kostenloses Browserspiel',
       ctrlTitle:'PC-Steuerung',ctrlText:'← → oder A/D — Bewegung<br>Leertaste oder ↑ — Sprung<br>P oder Esc — Pause',
       mobileTitle:'Auch auf dem Handy',mobileText:'Virtueller Joystick + Sprungknopf. Funktioniert offline als PWA.',
-      ptsTitle:'Wie Punkte sammeln?',ptsText:'Geist: +100 Pkt<br>Level abgeschlossen: +500 Pkt<br>Feind besiegt: +50 Pkt',
+      ptsTitle:'Wie Punkte sammeln?',ptsText:'Geist: +100<br>Schlüssel: +200<br>Feind: +150<br>Level: +500+(Lv.×50)<br>Multiplikator: Leicht×1.0 | Mittel×1.5 | Schwer×2.0',
       noDownload:'Kein Download nötig',
     },
   },
@@ -1394,7 +1407,7 @@ const LANGS = {
       free:'Juego de navegador gratuito',
       ctrlTitle:'Controles PC',ctrlText:'← → o A/D — mover<br>Espacio o ↑ — saltar<br>P o Esc — pausa',
       mobileTitle:'También en móvil',mobileText:'Joystick virtual + botón de salto. Funciona sin internet como PWA.',
-      ptsTitle:'¿Cómo puntuar?',ptsText:'Destello: +100 pts<br>Nivel completado: +500 pts<br>Enemigo derrotado: +50 pts',
+      ptsTitle:'¿Cómo puntuar?',ptsText:'Destello: +100<br>Llave: +200<br>Enemigo: +150<br>Nivel: +500+(nv.×50)<br>Multiplicador: Fácil×1.0 | Medio×1.5 | Difícil×2.0',
       noDownload:'Sin descarga',
     },
   },
@@ -1486,7 +1499,7 @@ const LANGS = {
       free:'Jeu navigateur gratuit',
       ctrlTitle:'Contrôles PC',ctrlText:'← → ou A/D — déplacement<br>Espace ou ↑ — saut<br>P ou Échap — pause',
       mobileTitle:'Aussi sur mobile',mobileText:'Joystick virtuel + bouton de saut. Fonctionne hors ligne en PWA.',
-      ptsTitle:'Comment marquer?',ptsText:'Feu follet : +100 pts<br>Niveau terminé : +500 pts<br>Ennemi vaincu : +50 pts',
+      ptsTitle:'Comment marquer?',ptsText:'Feu follet : +100<br>Clé : +200<br>Ennemi : +150<br>Niveau : +500+(nv.×50)<br>Multiplicateur : Facile×1.0 | Moyen×1.5 | Difficile×2.0',
       noDownload:'Sans téléchargement',
     },
   },
@@ -1527,6 +1540,9 @@ function applyLang(){
   if(btnBadgesLbl) btnBadgesLbl.textContent = LANG.badges;
   const btnBlogLbl = document.getElementById('btn-blog-lbl');
   if(btnBlogLbl) btnBlogLbl.textContent = '📝 ' + (LANG.blog||'Blog');
+  const BLOG_URLS = {pl:'/blog/', en:'/blog/en/', de:'/blog/de/', es:'/blog/es/', fr:'/blog/fr/'};
+  const btnBlog = document.getElementById('btn-blog');
+  if(btnBlog) btnBlog.href = BLOG_URLS[LANG_CODE] || '/blog/';
   const menuControls = document.getElementById('menu-controls');
   if(menuControls) menuControls.innerHTML = LANG.controls;
 
@@ -2499,7 +2515,9 @@ function startGame(){
   // _serverLives ustawiane przez syncProgress i setServerLives przy śmierci
   // Dla nowych/niezalogowanych graczy (null) użyj domyślnej trudności
   const sl = window.WispAuth && window.WispAuth.getServerLives ? window.WispAuth.getServerLives() : null;
-  const startLives = (typeof sl === 'number' && sl > 0) ? sl : d.lives;
+  // Użyj _serverLives tylko jeśli to zakupione życia (> 5 = max z trudności)
+  // Przy normalnym starcie zawsze używaj domyślnej liczby żyć wybranej trudności
+  const startLives = (typeof sl === 'number' && sl > 5) ? sl : d.lives;
   GS={state:'playing', lives:startLives, score:0, level:1, totalScore:0};
   applyDifficulty();
   clearProgress();
@@ -2936,7 +2954,7 @@ function playerDie(){
 function levelComplete(){
   if(GS.state!=='playing') return;
   GS.state='win';
-  GS.score+=500+(GS.level*50);
+  GS.score+=Math.round((500+(GS.level*50))*(DIFF_CONFIG[DIFF]?.scoreMult||1));
   Audio.sfxLevelComplete();
   spawnBurst(P.x+P.w/2, P.y+P.h/2, '#ffe080', 20);
   updateHUD();
@@ -3032,7 +3050,7 @@ function updatePhysics(){
       if(P.vy>1 && P.y+P.h < e.y+14){
         e.alive=false;
         P.vy=JUMP*0.55;
-        GS.score+=150;
+        GS.score+=Math.round(150*(DIFF_CONFIG[DIFF]?.scoreMult||1));
         Audio.sfxEnemyKill();
         spawnBurst(ex+10, e.y, e.color, 10);
         achStats.enemyKills++;
@@ -3050,7 +3068,7 @@ function updatePhysics(){
     if(Math.abs((P.x+P.w/2)-kx)<20 && Math.abs((P.y+P.h/2)-ky)<20){
       LVL.keyCollected=true;
       P.hasKey=true;
-      GS.score+=200;
+      GS.score+=Math.round(200*(DIFF_CONFIG[DIFF]?.scoreMult||1));
       Audio.sfxKey();
       spawnBurst(kx,ky,'#ffd700',14);
       achStats.keysCollected++;
@@ -3067,7 +3085,7 @@ function updatePhysics(){
     if(!g.alive) return;
     if(Math.abs((P.x+P.w/2)-g.x)<18 && Math.abs((P.y+P.h/2)-g.y)<18){
       g.alive=false;
-      GS.score+=100;
+      GS.score+=Math.round(100*(DIFF_CONFIG[DIFF]?.scoreMult||1));
       Audio.sfxGem();
       spawnBurst(g.x,g.y,LVL.gemColor,8);
       achStats.totalGems++;
@@ -3622,6 +3640,21 @@ document.addEventListener('visibilitychange', () => {
   } else {
     if(!isPaused) Audio.resume();
     _flLastTick = Date.now(); // reset ticka — nie naliczaj czasu nieaktywności
+    // Odśwież życia z serwera gdy wracamy do aplikacji (inny device mógł zmienić stan)
+    if(window.WispAuth && window.WispAuth.getToken && window.WispAuth.getToken()){
+      if(GS.state === 'menu'){
+        window.WispAuth.syncProgress().catch(()=>{});
+      } else if(GS.state === 'playing' && isPaused){
+        // Gra wstrzymana — zaktualizuj życia bez przerywania rozgrywki
+        window.WispAuth.syncLives().then(()=>{
+          const sl = window.WispAuth.getServerLives();
+          if(typeof sl === 'number' && sl !== GS.lives){
+            GS.lives = sl;
+            updateHUD();
+          }
+        }).catch(()=>{});
+      }
+    }
   }
 });
 
@@ -3808,8 +3841,9 @@ const WispAuth = (function(){
           const data = await r.json();
           if(data.ok) {
             await response.complete('success');
-            if(typeof updateLivesDisplay === 'function') updateLivesDisplay(data.lives);
             GS.lives = data.lives;
+            if(window.WispAuth && window.WispAuth.setServerLives) window.WispAuth.setServerLives(data.lives);
+            restartLevel(); // zamknij ekran śmierci i wznów grę z zakupionymi życiami
           } else {
             await response.complete('fail');
           }
@@ -3914,6 +3948,8 @@ const WispAuth = (function(){
     }
 
     updateAuthUI();
+    // Po OAuth redirect: wyrenderuj overlay ponownie gdy WispAuth jest już gotowy
+    if(token && typeof applyLang === 'function') setTimeout(applyLang, 0);
 
     // Popup zaproszenia do logowania — raz na sesję, tylko dla niezalogowanych
     if(!getToken() && !sessionStorage.getItem('li_skip')){
@@ -3997,6 +4033,21 @@ const WispAuth = (function(){
 })();
 window.WispAuth = WispAuth;
 
+// Polling synchronizacji żyć co 20s gdy gra nieaktywna (menu lub pauza)
+setInterval(()=>{
+  if(!WispAuth.getToken() || document.hidden) return;
+  if(GS.state === 'menu'){
+    WispAuth.syncProgress().catch(()=>{});
+  } else if(GS.state === 'playing' && isPaused){
+    WispAuth.syncLives().then(()=>{
+      const sl = WispAuth.getServerLives();
+      if(typeof sl === 'number' && sl !== GS.lives){
+        GS.lives = sl;
+        updateHUD();
+      }
+    }).catch(()=>{});
+  }
+}, 20000);
 
 function showDeleteAccountModal() {
   const existing = document.getElementById('delete-account-modal');
