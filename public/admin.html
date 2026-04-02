@@ -89,7 +89,7 @@ td .actions{display:flex;gap:6px;}
       <table>
         <thead>
           <tr>
-            <th>#</th><th>ID</th><th>Nick</th><th>E-mail</th><th>Poziom</th>
+            <th>#</th><th>Nick</th><th>E-mail</th><th>Poziom</th>
             <th>Wynik</th><th>Życia</th><th>Trudność</th>
             <th>Ostatnie logowanie</th><th>Dołączył</th><th>Akcje</th>
           </tr>
@@ -183,11 +183,10 @@ async function loadUsers(q) {
 
 function renderUsers(users) {
   const tb = document.getElementById('user-table');
-  if (!users.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">Brak użytkowników</td></tr>'; return; }
+  if (!users.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">Brak użytkowników</td></tr>'; return; }
   tb.innerHTML = users.map((u, i) => `
     <tr>
       <td style="color:#3a5a3a;font-size:12px">${i + 1}</td>
-      <td style="color:#3a6a3a">${u.id}</td>
       <td><strong style="color:#90d090">${esc(u.nick || '—')}</strong></td>
       <td style="color:#6a9a6a">${esc(u.email || '—')}</td>
       <td>${u.level}</td>

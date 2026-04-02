@@ -98,13 +98,17 @@ const stmts = {
            MAX(avatar_url) AS avatar_url,
            MAX(score) AS score,
            MAX(badges) AS badges,
-           MAX(verified) AS verified
+           MAX(verified) AS verified,
+           level,
+           difficulty
     FROM (
       SELECT COALESCE(u.nick, s.guest_nick, 'Gość') AS nick,
              u.avatar_url,
              MAX(s.score) AS score,
+             s.level,
+             s.difficulty,
              MAX(s.badges) AS badges,
-             CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END AS verified
+             MAX(CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END) AS verified
       FROM scores s
       LEFT JOIN users u ON u.id = s.user_id
       GROUP BY COALESCE(s.user_id || '', s.guest_nick)
@@ -121,8 +125,8 @@ const stmts = {
   resetProgress:     db.prepare('UPDATE users SET lives = ?, level = ?, score = ?, difficulty = ?, progress_ts = ? WHERE id = ?'),
 
   // Admin
-  listUsers:       db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users ORDER BY last_login DESC LIMIT 200`),
-  searchUsers:     db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users WHERE nick LIKE @q OR email LIKE @q ORDER BY last_login DESC LIMIT 50`),
+  listUsers:       db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 200`),
+  searchUsers:     db.prepare(`SELECT id, nick, email, lives, score, level, difficulty, created_at, last_login FROM users WHERE nick LIKE @q OR email LIKE @q ORDER BY created_at DESC LIMIT 50`),
   deleteUser:      db.prepare('DELETE FROM users WHERE id = ?'),
   setLives:        db.prepare('UPDATE users SET lives = ? WHERE id = ?'),
   statsUsers:      db.prepare(`SELECT COUNT(*) as total, COUNT(CASE WHEN last_login > datetime('now','-7 days') THEN 1 END) as active_7d, COUNT(CASE WHEN last_login > datetime('now','-30 days') THEN 1 END) as active_30d, COUNT(CASE WHEN created_at > datetime('now','-7 days') THEN 1 END) as new_7d FROM users`),
