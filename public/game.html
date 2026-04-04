@@ -68,6 +68,9 @@ body{display:flex;justify-content:center;align-items:stretch;}
   body{background:#020802;}
   #desktop-left,#desktop-right{display:flex;}
   #btn-install,#menu-lang-btn{display:none!important;}
+  #btn-install-gplay{display:none!important;}
+  #title-row{justify-content:center;}
+  #title-row h1{text-align:center;}
   .dp-corner-btn{display:block;}
 }
 @media(min-width:1100px){
@@ -335,6 +338,24 @@ canvas{
 .rank-you-pos{font-family:'Uncial Antiqua',cursive;font-size:13px;color:#a0d060;
   margin-top:10px;padding:8px 16px;background:rgba(40,80,20,.6);
   border-radius:20px;border:1px solid rgba(80,160,40,.4);}
+@keyframes installGlow{
+  0%,100%{box-shadow:0 0 14px rgba(40,200,80,.45),0 3px 10px rgba(0,0,0,.4);}
+  50%{box-shadow:0 0 24px rgba(40,255,100,.8),0 3px 14px rgba(0,0,0,.5);}
+}
+#title-row{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:0 14px;box-sizing:border-box;
+}
+#btn-install-gplay{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#1a7a3a,#2db558);
+  color:#fff;border-radius:10px;padding:5px 9px;text-decoration:none;
+  border:1px solid rgba(80,230,120,.45);
+  animation:installGlow 2s ease-in-out infinite;
+  flex-shrink:0;min-width:62px;touch-action:manipulation;cursor:pointer;
+  transition:transform .15s;
+}
+#btn-install-gplay:active{transform:scale(.95);}
 </style>
 </head>
 <body>
@@ -430,7 +451,14 @@ canvas{
       <div id="wind-indicator"></div>
       <div id="overlay" style="background:rgba(4,10,4,.92);">
         <button onclick="toggleLang()" id="menu-lang-btn" style="position:absolute;top:10px;right:12px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">🌍 EN</button>
-        <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
+        <div id="title-row">
+          <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
+          <a href="https://play.google.com/store/apps/details?id=com.epro.wisp" target="_blank" rel="noopener" id="btn-install-gplay">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-bottom:2px;"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+            <span id="btn-install-lbl" style="font-family:'Uncial Antiqua',cursive;font-size:11px;letter-spacing:.3px;">Zainstaluj</span>
+            <span style="font-size:9px;opacity:.75;font-family:'Lora',serif;margin-top:1px;">Google Play</span>
+          </a>
+        </div>
         <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
         <div class="sub" id="menu-choosediff" style="color:#5a8a5a;margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
         <div class="diff-row">
@@ -1107,6 +1135,7 @@ const LANGS = {
     freeLifeSoon: (h,m) => `🎁 Darmowe życie za ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 Otrzymałeś darmowe życie! ❤️',
     yourPos:      (n) => `🏆 Pozycja #${n} w rankingu!`,
+    install:      'Zainstaluj',
     diffLabel:    { easy:'😊 Łatwy', medium:'😐 Średni', hard:'💀 Trudny' },
     levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności','Próg Podziemia','Ciemne Korzenie','Kryształowa Grota','Głębokość Kryształu','Grzybnia','Purpurowe Pieczary','Labirynt Korzeni','Jantarowe Pieczary','Korzeń Czasu','Serce Lasu','Zamarznięty Świt','Śnieżna Polana','Lodowy Gaj','Kryształowy Wiatr','Śnieżyca','Zmrożony Jar','Mroźna Noc','Lodowy Labirynt','Arktyczna Przepaść','Lodowe Serce','Mglisty Świt','Zasłona Mgły','Gęsta Mgła','Zielona Otchłań','Mglisty Zmierzch','Ściana Cienia','Mglisty Mrok','Cień Bez Krawędzi','Mgła Wieczności','Ostatnia Mgła'],
     levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.','Głębiej, mały duchu...','Korzenie znają drogę...','Kryształy śpiewają w ciemności...','Głębiej, gdzie świat milknie...','Grzyby świecą zamiast gwiazd...','Purpura zalewa tunele...','Korzenie oplatają wszystko...','Bursztyn przechowuje sekrety lasu...','Czas płynie wolniej pod ziemią...','Tu bije serce lasu.','Mróz wita cię z zimnym uśmiechem...','Śnieg przysypuje wszystkie ślady...','Każdy oddech tworzy chmurę pary...','Wiatr niesie kryształki lodu...','Śnieżyca zasłania horyzont...','Lód pęka pod stopami...','Noc mroźna jak żelazo...','Labirynt lodu nie ma końca...','Arktyczny wicher wyje bez litości...','Tu zamarza samo serce zimy.','Mgła kryje ścieżkę...','W bieli nie widać końca...','Gęstnieje, gęstnieje...','Zieleń pochłania światło...','Zmierzch i mgła — jedno i to samo...','Cień nie ma krawędzi...','Mrok i mgła splecione na zawsze...','Nie widać niczego przed sobą...','Wieczność smakuje jak wilgoć...','To jest ostatni krok.'],
@@ -1198,6 +1227,7 @@ const LANGS = {
     freeLifeSoon: (h,m) => `🎁 Free life in ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 You got a free life! ❤️',
     yourPos:      (n) => `🏆 Ranking position #${n}!`,
+    install:      'Install',
     diffLabel:    { easy:'😊 Easy', medium:'😐 Medium', hard:'💀 Hard' },
     levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness','The Cave Threshold','Dark Roots','Crystal Grotto','Crystal Depths','Mushroom Garden','Purple Caverns','Root Labyrinth','Amber Caves','Root of Time','Heart of the Forest','Frozen Dawn','Snowy Glade','Ice Grove','Crystal Wind','Blizzard','The Frozen Ravine','Frosty Night','Ice Labyrinth','Arctic Abyss','Heart of Ice','Misty Dawn','The Veil of Mist','Dense Fog','The Green Abyss','Twilight Mist','Wall of Shadow','Midnight Fog','The Edgeless Dark','Fog of Eternity','The Last Mist'],
     levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.','Deeper, little spirit...','The roots know the way...','Crystals sing in the darkness...','Deeper, where the world falls silent...','Mushrooms glow instead of stars...','Purple floods the tunnels...','The roots entwine everything...','Amber holds the forest\'s secrets...','Time flows slower underground...','Here beats the heart of the forest.','Frost greets you with a cold smile...','Snow covers every trace...','Each breath becomes a cloud...','The wind carries ice crystals...','The blizzard hides the horizon...','Ice cracks beneath your feet...','The night is cold as iron...','The ice labyrinth has no end...','The arctic gale howls without mercy...','Here the very heart of winter freezes.','The mist hides the path...','In the white nothing ends...','It grows thicker and thicker...','The green devours the light...','Twilight and mist — one and the same...','The shadow has no edge...','Darkness and mist entwined forever...','Nothing is visible ahead...','Eternity tastes of moisture...','This is the final step.'],
@@ -1290,6 +1320,7 @@ const LANGS = {
     freeLifeSoon: (h,m) => `🎁 Gratis-Leben in ${h>0?h+'h ':''}${m}Min`,
     freeLifeGet:  '🎁 Du hast ein Gratis-Leben erhalten! ❤️',
     yourPos:      (n) => `🏆 Ranglistenposition #${n}!`,
+    install:      'Installieren',
     diffLabel:    { easy:'😊 Leicht', medium:'😐 Mittel', hard:'💀 Schwer' },
     levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis','Die Höhlenschwelle','Dunkle Wurzeln','Kristallgrotte','Kristalltiefe','Pilzgarten','Purpurhöhlen','Wurzellabyrinth','Bernsteinhöhlen','Wurzel der Zeit','Herz des Waldes','Gefrorene Morgenröte','Schneeweite','Eishain','Kristallwind','Schneesturm','Das gefrorene Tal','Frostige Nacht','Eislabyrinth','Arktischer Abgrund','Eisherz','Nebliger Morgen','Der Nebelschleier','Dichter Nebel','Der grüne Abgrund','Abendnebel','Schattenwand','Mitternachtsnebel','Das randlose Dunkel','Nebel der Ewigkeit','Der letzte Nebel'],
     levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.','Tiefer, kleiner Geist...','Die Wurzeln kennen den Weg...','Kristalle singen im Dunkeln...','Tiefer, wo die Welt schweigt...','Pilze leuchten statt Sterne...','Purpur flutet die Tunnel...','Die Wurzeln umschlingen alles...','Bernstein hütet die Geheimnisse...','Die Zeit fließt langsamer unter der Erde...','Hier schlägt das Herz des Waldes.','Der Frost begrüßt dich mit kaltem Lächeln...','Schnee bedeckt jede Spur...','Jeder Atemzug wird zu einer Wolke...','Der Wind trägt Eiskristalle...','Der Schneesturm verbirgt den Horizont...','Das Eis bricht unter deinen Füßen...','Die Nacht ist kalt wie Eisen...','Das Eislabyrinth hat kein Ende...','Der Arktiksturm heult ohne Gnade...','Hier friert das Herz des Winters selbst.','Der Nebel verbirgt den Weg...','Im Weiß endet nichts...','Er wird dichter und dichter...','Das Grün verschluckt das Licht...','Abend und Nebel — eins und dasselbe...','Der Schatten hat keine Kante...','Dunkel und Nebel für immer verflochten...','Nichts ist sichtbar voraus...','Die Ewigkeit schmeckt nach Feuchtigkeit...','Dies ist der letzte Schritt.'],
@@ -1382,6 +1413,7 @@ const LANGS = {
     freeLifeSoon: (h,m) => `🎁 Vida gratis en ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 ¡Recibiste una vida gratis! ❤️',
     yourPos:      (n) => `🏆 ¡Posición #${n} en la clasificación!`,
+    install:      'Instalar',
     diffLabel:    { easy:'😊 Fácil', medium:'😐 Normal', hard:'💀 Difícil' },
     levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas','El Umbral','Raíces Oscuras','Gruta de Cristal','Profundidades de Cristal','Jardín de Hongos','Cavernas Púrpuras','Laberinto de Raíces','Cavernas de Ámbar','Raíz del Tiempo','Corazón del Bosque','Alba Helada','Claro Nevado','Bosquecillo de Hielo','Viento de Cristal','Ventisca','El Barranco Helado','Noche Gélida','Laberinto de Hielo','Abismo Ártico','Corazón de Hielo','Amanecer Brumoso','El Velo de Niebla','Niebla Densa','El Abismo Verde','Crepúsculo Brumoso','Muro de Sombra','Niebla de Medianoche','La Oscuridad sin Bordes','Niebla de la Eternidad','La Última Niebla'],
     levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.','Más profundo, pequeño espíritu...','Las raíces conocen el camino...','Los cristales cantan en la oscuridad...','Más profundo, donde el mundo calla...','Los hongos brillan en lugar de estrellas...','El púrpura inunda los túneles...','Las raíces lo envuelven todo...','El ámbar guarda los secretos del bosque...','El tiempo fluye más lento bajo tierra...','Aquí late el corazón del bosque.','La escarcha te saluda con fría sonrisa...','La nieve cubre todas las huellas...','Cada aliento forma una nube...','El viento lleva cristales de hielo...','La ventisca oculta el horizonte...','El hielo cruje bajo tus pies...','La noche es fría como el hierro...','El laberinto de hielo no tiene fin...','El vendaval ártico aúlla sin piedad...','Aquí se congela el corazón del invierno.','La niebla oculta el camino...','En el blanco nada termina...','Se vuelve más y más densa...','El verde devora la luz...','Crepúsculo y niebla — lo mismo...','La sombra no tiene borde...','Oscuridad y niebla entrelazadas para siempre...','Nada se ve adelante...','La eternidad sabe a humedad...','Este es el último paso.'],
@@ -1474,6 +1506,7 @@ const LANGS = {
     freeLifeSoon: (h,m) => `🎁 Vie gratuite dans ${h>0?h+'h ':''}${m}min`,
     freeLifeGet:  '🎁 Vous avez reçu une vie gratuite ! ❤️',
     yourPos:      (n) => `🏆 Position #${n} au classement !`,
+    install:      'Installer',
     diffLabel:    { easy:'😊 Facile', medium:'😐 Normal', hard:'💀 Difficile' },
     levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres','Le Seuil','Racines Sombres','Grotte de Cristal','Profondeurs de Cristal','Jardin des Champignons','Cavernes Pourpres','Labyrinthe des Racines','Cavernes d\'Ambre','Racine du Temps','Cœur de la Forêt','Aube Glacée','Clairière Enneigée','Bosquet de Glace','Vent de Cristal','Blizzard','Le Ravin Gelé','Nuit Glaciale','Labyrinthe de Glace','Abîme Arctique','Cœur de Glace','Aube Brumeuse','Le Voile de Brume','Brouillard Dense','L\'Abîme Vert','Crépuscule Brumeux','Mur d\'Ombre','Brouillard de Minuit','L\'Obscurité sans Bords','Brouillard de l\'Éternité','La Dernière Brume'],
     levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.','Plus profond, petit esprit...','Les racines connaissent le chemin...','Les cristaux chantent dans l\'obscurité...','Plus profond, là où le monde se tait...','Les champignons brillent à la place des étoiles...','Le pourpre envahit les tunnels...','Les racines enveloppent tout...','L\'ambre garde les secrets de la forêt...','Le temps coule plus lentement sous terre...','Ici bat le cœur de la forêt.','Le givre vous accueille d\'un sourire froid...','La neige recouvre toutes les traces...','Chaque souffle forme un nuage...','Le vent porte des cristaux de glace...','Le blizzard cache l\'horizon...','La glace craque sous vos pieds...','La nuit est froide comme le fer...','Le labyrinthe de glace n\'a pas de fin...','La bourrasque arctique hurle sans pitié...','Ici se congèle le cœur même de l\'hiver.','Le brouillard cache le chemin...','Dans le blanc rien ne se termine...','Il s\'épaissit encore et encore...','Le vert dévore la lumière...','Crépuscule et brouillard — une seule chose...','L\'ombre n\'a pas de bord...','Ténèbres et brouillard entrelacés pour toujours...','Rien n\'est visible devant...','L\'éternité a un goût d\'humidité...','C\'est le dernier pas.'],
@@ -1553,6 +1586,8 @@ function applyLang(){
 
   // Przyciski menu
   document.getElementById('start-btn').textContent = LANG.play;
+  const btnInstallLbl = document.getElementById('btn-install-lbl');
+  if(btnInstallLbl) btnInstallLbl.textContent = LANG.install;
   const continueSave = loadProgress();
   if(continueSave){
     const btnC = document.getElementById('btn-continue');
