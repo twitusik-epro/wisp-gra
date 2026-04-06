@@ -3267,7 +3267,7 @@ function darken(hex, amt){
 function drawSpike(s){
   const sy=s.y-camera.y;
   if(sy<-30||sy>H+30) return;
-  const n=Math.floor(s.w/14);
+  const n=Math.max(1,Math.floor(s.w/14));
   const sw=s.w/n;
   // Glow for higher levels
   if(GS.level>=6){ctx.shadowColor='rgba(255,50,50,.4)';ctx.shadowBlur=8;}
