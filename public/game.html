@@ -3069,10 +3069,10 @@ function updatePhysics(){
   // Nie wychodź poza górę poziomu
   camera.y = Math.min(camera.y, 0);
 
-  // Spike death
+  // Spike death — P.vy>0: only deadly when falling (standing on platform sets vy=0 each frame)
   LVL.spikes.forEach(s=>{
     if(P.x+P.w>s.x && P.x<s.x+s.w &&
-       P.y+P.h>s.y-16 && P.y<s.y) playerDie();
+       P.y+P.h>s.y-16 && P.y<s.y && P.vy>0) playerDie();
   });
 
   // Enemy collision
