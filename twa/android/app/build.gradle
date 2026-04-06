@@ -57,8 +57,8 @@ android {
         applicationId "com.epro.wisp"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 24
-        versionName "1.23"
+        versionCode 25
+        versionName "1.24"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
