@@ -73,6 +73,8 @@ db.exec(`
 // Migracje
 try { db.exec('ALTER TABLE users ADD COLUMN progress_ts INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE scores ADD COLUMN guest_nick TEXT'); } catch {}
+try { db.exec('ALTER TABLE scores ADD COLUMN device_id TEXT'); } catch {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_scores_device ON scores(device_id)'); } catch {}
 
 // Prepared statements
 const stmts = {
@@ -92,7 +94,7 @@ const stmts = {
   addLives:       db.prepare('UPDATE users SET lives = lives + ? WHERE id = ?'),
   setScore:       db.prepare('UPDATE users SET score = ?, level = ?, difficulty = ? WHERE id = ?'),
   insertScore:      db.prepare('INSERT INTO scores (user_id, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
-  insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty, badges) VALUES (?, ?, ?, ?, ?)'),
+  insertGuestScore: db.prepare('INSERT INTO scores (guest_nick, score, level, difficulty, badges, device_id) VALUES (?, ?, ?, ?, ?, ?)'),
   topScores:        db.prepare(`
     SELECT nick,
            MAX(avatar_url) AS avatar_url,
@@ -111,7 +113,7 @@ const stmts = {
              MAX(CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END) AS verified
       FROM scores s
       LEFT JOIN users u ON u.id = s.user_id
-      GROUP BY COALESCE(s.user_id || '', s.guest_nick)
+      GROUP BY COALESCE(s.user_id || '', s.device_id, s.guest_nick)
     )
     GROUP BY nick
     ORDER BY score DESC
@@ -343,11 +345,35 @@ setInterval(() => {
 // ─── Game State Routes ──────────────────────────────────────────────────────
 // Zapis wyniku gościa (bez logowania)
 app.post('/api/score/guest', guestRateLimit, (req, res) => {
-  const { nick, score, level, difficulty, badges } = req.body;
+  const { nick, score, level, difficulty, badges, device_id } = req.body;
   if (typeof score !== 'number' || score <= 0) return res.status(400).json({ error: 'Nieprawidłowy wynik' });
   if (typeof level !== 'number' || level < 1) return res.status(400).json({ error: 'Nieprawidłowy poziom' });
-  const name = (typeof nick === 'string' ? nick.trim().slice(0, 20) : '') || 'Gość';
-  stmts.insertGuestScore.run(name, Math.floor(score), Math.min(level, 40), difficulty || 'medium', Math.min(parseInt(badges)||0, 12));
+  const name       = (typeof nick === 'string' ? nick.trim().slice(0, 20) : '') || 'Gość';
+  const devId      = (typeof device_id === 'string' && device_id.length >= 8) ? device_id.slice(0, 64) : null;
+  const sc         = Math.floor(score);
+  const lv         = Math.min(level, 40);
+  const diff       = difficulty || 'medium';
+  const badgeCount = Math.min(parseInt(badges) || 0, 12);
+
+  if (devId) {
+    // Jeden wpis per urządzenie — upsert
+    const existing = db.prepare('SELECT id, score FROM scores WHERE device_id = ? AND user_id IS NULL').get(devId);
+    if (existing) {
+      if (sc > existing.score) {
+        // Lepszy wynik → zaktualizuj wszystko (w tym nick)
+        db.prepare('UPDATE scores SET guest_nick=?, score=?, level=?, difficulty=?, badges=? WHERE id=?')
+          .run(name, sc, lv, diff, badgeCount, existing.id);
+      } else {
+        // Gorszy wynik → tylko zaktualizuj nick (gracz mógł go zmienić)
+        db.prepare('UPDATE scores SET guest_nick=? WHERE id=?').run(name, existing.id);
+      }
+    } else {
+      stmts.insertGuestScore.run(name, sc, lv, diff, badgeCount, devId);
+    }
+  } else {
+    // Brak device_id (stary klient) → klasyczny INSERT
+    stmts.insertGuestScore.run(name, sc, lv, diff, badgeCount, null);
+  }
   res.json({ ok: true });
 });
 

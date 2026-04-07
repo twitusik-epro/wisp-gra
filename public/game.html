@@ -39,7 +39,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Lora:ital,wght@0,400;1,300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;touch-action:none;background:#000;}
-body{display:flex;justify-content:center;align-items:stretch;}
+body{display:flex;justify-content:center;align-items:stretch;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
 #wrap{
   width:480px;max-width:100vw;
   height:100vh;height:100dvh;
@@ -2779,6 +2779,18 @@ function animateHeartLoss(){
 const RANK_KEY = 'wisp_ranking';
 const MAX_RANK = 10;
 
+const DEVICE_KEY = 'wisp_device_id';
+function getDeviceId(){
+  try{
+    let id = localStorage.getItem(DEVICE_KEY);
+    if(!id){
+      id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  }catch(e){ return null; }
+}
+
 function getRanking(){
   try{
     const r = localStorage.getItem(RANK_KEY);
@@ -2837,12 +2849,16 @@ function saveToRanking(score, level, diff){
   ranking.sort((a,b)=>b.score-a.score);
   const top = ranking.slice(0, MAX_RANK);
   try{ localStorage.setItem(RANK_KEY, JSON.stringify(top)); }catch(e){}
-  // Wyślij do globalnego rankingu (fire & forget)
-  fetch('/api/score/guest', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ nick: name, score, level, difficulty: diff, badges: unlockedAch.size })
-  }).catch(()=>{});
+  // Wyślij do globalnego rankingu tylko gdy niezalogowany
+  // (zalogowani zapisywani przez WispAuth.saveScore → /api/score)
+  const isLoggedIn = window.WispAuth && window.WispAuth.getToken && window.WispAuth.getToken();
+  if(!isLoggedIn){
+    fetch('/api/score/guest', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ nick: name, score, level, difficulty: diff, badges: unlockedAch.size, device_id: getDeviceId() })
+    }).catch(()=>{});
+  }
   return top;
 }
 
