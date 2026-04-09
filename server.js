@@ -205,11 +205,6 @@ app.get('/api/admin/purchases', adminAuth, (_req, res) => {
   res.json(rows);
 });
 
-// Root redirect — zawsze świeża wersja gry (omija cache index.html w WebView)
-app.get('/', (req, res) => {
-  res.redirect(301, '/game.html');
-});
-
 // Static files — gra HTML5
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders(res, filePath) {
