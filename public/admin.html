@@ -3,16 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wisp Admin</title>
+<title>Admin Panel</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0f0a;color:#b0ccb0;font-family:'Segoe UI',Arial,sans-serif;font-size:14px;}
-header{background:#0d1a0d;border-bottom:1px solid #1e3a1e;padding:12px 24px;display:flex;align-items:center;gap:16px;}
+header{background:#0d1a0d;border-bottom:1px solid #1e3a1e;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
 header h1{color:#7de060;font-size:18px;font-weight:700;}
 header .sub{color:#4a7a4a;font-size:12px;}
+.game-tabs{display:flex;gap:2px;border-bottom:2px solid #1e3a1e;padding:0 24px;}
+.game-tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:#4a7a4a;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;}
+.game-tab.active{color:#7de060;border-bottom-color:#7de060;}
+.game-tab:hover:not(.active){color:#90d090;}
 nav{display:flex;gap:2px;margin-left:auto;}
 nav button{background:none;border:1px solid #2a4a2a;color:#7aaa7a;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .15s;}
 nav button.active,nav button:hover{background:#1a3a1a;color:#a0e090;border-color:#4a7a4a;}
+.game-panel{display:none;}
+.game-panel.active{display:block;}
 main{padding:20px 24px;max-width:1200px;}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
 .card{background:#0d1a0d;border:1px solid #1e3a1e;border-radius:10px;padding:16px;}
@@ -52,87 +58,152 @@ td .actions{display:flex;gap:6px;}
 .toast{position:fixed;bottom:24px;right:24px;background:#1a4a1a;color:#90f090;border:1px solid #2a7a2a;border-radius:8px;padding:10px 18px;font-size:13px;z-index:200;animation:fadeIn .2s;display:none;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .empty{color:#3a6a3a;text-align:center;padding:32px;font-style:italic;}
-#refresh-time{font-size:11px;color:#2a4a2a;margin-left:auto;}
+.refresh-time{font-size:11px;color:#2a4a2a;margin-bottom:16px;}
 </style>
 </head>
 <body>
+
 <header>
   <div>
-    <h1>🌿 Wisp Admin</h1>
-    <div class="sub">wispplay.com — panel zarządzania</div>
+    <h1>🌿 Admin Panel</h1>
+    <div class="sub">wispplay.com — zarządzanie grami</div>
   </div>
-  <nav>
-    <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
-    <button onclick="showSection('purchases')">💳 Zakupy</button>
-  </nav>
 </header>
 
-<main>
-  <!-- DASHBOARD -->
-  <div id="section-dashboard" class="section active">
-    <div class="cards" id="stat-cards">
-      <div class="card"><div class="val" id="s-total">—</div><div class="lbl">Wszystkich graczy</div></div>
-      <div class="card"><div class="val" id="s-7d">—</div><div class="lbl">Aktywnych (7 dni)</div></div>
-      <div class="card"><div class="val" id="s-30d">—</div><div class="lbl">Aktywnych (30 dni)</div></div>
-      <div class="card"><div class="val" id="s-new7d">—</div><div class="lbl">Nowych (7 dni)</div></div>
-      <div class="card"><div class="val" id="s-revenue">—</div><div class="lbl">Przychód</div><div class="sub2" id="s-purchases">zakupy: —</div></div>
-    </div>
-    <div style="color:#3a6a3a;font-size:12px;margin-bottom:16px;" id="refresh-time"></div>
+<!-- Game tabs -->
+<div class="game-tabs">
+  <button class="game-tab active" onclick="switchGame('wisp',this)">🌿 Wisp</button>
+  <button class="game-tab" onclick="switchGame('fc',this)">🍄 Forest Cards</button>
+</div>
 
-    <!-- Lista użytkowników bezpośrednio na dashboardzie -->
-    <div class="toolbar">
-      <input type="text" id="user-search" placeholder="Szukaj po nicku lub e-mailu…" oninput="searchUsers()">
-      <button class="btn" onclick="loadUsers()">↺ Odśwież</button>
-      <span id="user-count" style="color:#3a6a3a;font-size:12px;"></span>
-    </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
+<!-- ═══════════════════════════════════════════════════════ WISP PANEL -->
+<div id="panel-wisp" class="game-panel active">
+  <div style="padding:12px 24px 0;display:flex;gap:2px;" id="wisp-nav">
+    <button class="btn active" onclick="wispShowSection('dashboard',this)">📊 Dashboard</button>
+    <button class="btn" onclick="wispShowSection('purchases',this)">💳 Zakupy</button>
+  </div>
+  <main>
+    <div id="wisp-section-dashboard" class="section active">
+      <div class="cards">
+        <div class="card"><div class="val" id="ws-total">—</div><div class="lbl">Wszyscy gracze</div></div>
+        <div class="card"><div class="val" id="ws-7d">—</div><div class="lbl">Aktywnych (7 dni)</div></div>
+        <div class="card"><div class="val" id="ws-30d">—</div><div class="lbl">Aktywnych (30 dni)</div></div>
+        <div class="card"><div class="val" id="ws-new7d">—</div><div class="lbl">Nowych (7 dni)</div></div>
+        <div class="card"><div class="val" id="ws-revenue">—</div><div class="lbl">Przychód</div><div class="sub2" id="ws-purchases">zakupy: —</div></div>
+      </div>
+      <div class="refresh-time" id="ws-refresh-time"></div>
+      <div class="toolbar">
+        <input type="text" id="ws-user-search" placeholder="Szukaj po nicku lub e-mailu…" oninput="wispSearchUsers()">
+        <button class="btn" onclick="wispLoadUsers()">↺ Odśwież</button>
+        <span id="ws-user-count" style="color:#3a6a3a;font-size:12px;"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
             <th>#</th><th>Nick</th><th>E-mail</th><th>Poziom</th>
             <th>Wynik</th><th>Życia</th><th>Trudność</th>
             <th>Ostatnie logowanie</th><th>Dołączył</th><th>Akcje</th>
-          </tr>
-        </thead>
-        <tbody id="user-table"></tbody>
-      </table>
+          </tr></thead>
+          <tbody id="ws-user-table"></tbody>
+        </table>
+      </div>
     </div>
-  </div>
 
-  <!-- USERS — ukryta (lista przeniesiona na dashboard) -->
-  <div id="section-users" class="section"></div>
-
-  <!-- PURCHASES -->
-  <div id="section-purchases" class="section">
-    <div class="toolbar">
-      <button class="btn" onclick="loadPurchases()">↺ Odśwież</button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
+    <div id="wisp-section-purchases" class="section">
+      <div class="toolbar">
+        <button class="btn" onclick="wispLoadPurchases()">↺ Odśwież</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
             <th>ID</th><th>Gracz</th><th>E-mail</th><th>Pakiet</th>
             <th>Życia</th><th>Kwota</th><th>Status</th><th>Data</th>
-          </tr>
-        </thead>
-        <tbody id="purchase-table"></tbody>
-      </table>
+          </tr></thead>
+          <tbody id="ws-purchase-table"></tbody>
+        </table>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
+</div>
 
-<!-- Modal: dodaj życia -->
+<!-- ═══════════════════════════════════════════════════════ FOREST CARDS PANEL -->
+<div id="panel-fc" class="game-panel">
+  <div style="padding:12px 24px 0;display:flex;gap:2px;" id="fc-nav">
+    <button class="btn active" onclick="fcShowSection('dashboard',this)">📊 Dashboard</button>
+    <button class="btn" onclick="fcShowSection('purchases',this)">💳 Zakupy</button>
+  </div>
+  <main>
+    <div id="fc-section-dashboard" class="section active">
+      <div class="cards">
+        <div class="card"><div class="val" id="fc-total">—</div><div class="lbl">Wszyscy gracze</div></div>
+        <div class="card"><div class="val" id="fc-7d">—</div><div class="lbl">Aktywnych (7 dni)</div></div>
+        <div class="card"><div class="val" id="fc-30d">—</div><div class="lbl">Aktywnych (30 dni)</div></div>
+        <div class="card"><div class="val" id="fc-new7d">—</div><div class="lbl">Nowych (7 dni)</div></div>
+        <div class="card"><div class="val" id="fc-revenue">—</div><div class="lbl">Przychód</div><div class="sub2" id="fc-purchases">zakupy: —</div></div>
+      </div>
+      <div class="refresh-time" id="fc-refresh-time"></div>
+      <div class="toolbar">
+        <input type="text" id="fc-user-search" placeholder="Szukaj po nicku lub e-mailu…" oninput="fcSearchUsers()">
+        <button class="btn" onclick="fcLoadUsers()">↺ Odśwież</button>
+        <span id="fc-user-count" style="color:#3a6a3a;font-size:12px;"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Nick</th><th>E-mail</th><th>Grzyby</th>
+            <th>Wygrane</th><th>Poziom bitwy</th><th>Wynik</th>
+            <th>Ostatnie logowanie</th><th>Dołączył</th><th>Akcje</th>
+          </tr></thead>
+          <tbody id="fc-user-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="fc-section-purchases" class="section">
+      <div class="toolbar">
+        <button class="btn" onclick="fcLoadPurchases()">↺ Odśwież</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Gracz</th><th>E-mail</th><th>Pakiet</th>
+            <th>Grzyby</th><th>Kwota</th><th>Status</th><th>Data</th>
+          </tr></thead>
+          <tbody id="fc-purchase-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Wisp — życia -->
 <div class="modal-bg" id="modal-lives">
   <div class="modal">
     <h3>❤️ Ustaw życia</h3>
-    <div id="modal-user-info" style="color:#4a8a4a;font-size:13px;margin-bottom:12px;"></div>
+    <div id="modal-lives-info" style="color:#4a8a4a;font-size:13px;margin-bottom:12px;"></div>
     <label>Nowa liczba żyć</label>
     <input type="number" id="modal-lives-val" min="0" max="9999" value="10">
-    <label style="margin-top:4px;">Lub dodaj / odejmij (delta)</label>
+    <label style="margin-top:4px;">Lub delta (+/-)</label>
     <input type="number" id="modal-lives-delta" placeholder="np. +5 lub -2">
     <div class="modal-btns">
       <button class="btn" onclick="submitLives()">✅ Zapisz</button>
-      <button class="btn red" onclick="closeModal()">Anuluj</button>
+      <button class="btn red" onclick="closeModal('modal-lives')">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Forest Cards — grzyby -->
+<div class="modal-bg" id="modal-mush">
+  <div class="modal">
+    <h3>🍄 Ustaw grzyby</h3>
+    <div id="modal-mush-info" style="color:#4a8a4a;font-size:13px;margin-bottom:12px;"></div>
+    <label>Nowa liczba grzybów</label>
+    <input type="number" id="modal-mush-val" min="0" max="99999" value="0">
+    <label style="margin-top:4px;">Lub delta (+/-)</label>
+    <input type="number" id="modal-mush-delta" placeholder="np. +10 lub -5">
+    <div class="modal-btns">
+      <button class="btn" onclick="submitMushrooms()">✅ Zapisz</button>
+      <button class="btn red" onclick="closeModal('modal-mush')">Anuluj</button>
     </div>
   </div>
 </div>
@@ -140,79 +211,116 @@ td .actions{display:flex;gap:6px;}
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Globals ────────────────────────────────────────────────────────────────
+let _activeGame = 'wisp';
 let _editUserId = null;
-let _searchTimer = null;
-let _allUsers = [];
+let _wsAllUsers = [], _wsSearchTimer = null;
+let _fcAllUsers = [], _fcSearchTimer = null;
 
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-' + name).classList.add('active');
-  if (event && event.target) event.target.classList.add('active');
-  if (name === 'purchases') loadPurchases();
-}
-
+// ─── Shared helpers ──────────────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
   const r = await fetch(path, opts);
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('pl-PL', { dateStyle:'short', timeStyle:'short' });
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background  = isError ? '#2a1010' : '#1a4a1a';
+  t.style.color       = isError ? '#f09090' : '#90f090';
+  t.style.borderColor = isError ? '#5a2020' : '#2a7a2a';
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  _editUserId = null;
+}
 
-async function loadStats() {
+// ─── Game tab switch ─────────────────────────────────────────────────────────
+function switchGame(game, btn) {
+  _activeGame = game;
+  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.game-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + game).classList.add('active');
+  btn.classList.add('active');
+  if (game === 'wisp') { wispLoadStats(); wispLoadUsers(); }
+  else                 { fcLoadStats();   fcLoadUsers();   }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// WISP
+// ══════════════════════════════════════════════════════════════════════════════
+function wispShowSection(name, btn) {
+  document.querySelectorAll('#panel-wisp .section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#wisp-nav .btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('wisp-section-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'purchases') wispLoadPurchases();
+}
+
+async function wispLoadStats() {
   try {
     const d = await apiFetch('/api/admin/stats');
-    document.getElementById('s-total').textContent   = d.users.total;
-    document.getElementById('s-7d').textContent      = d.users.active_7d;
-    document.getElementById('s-30d').textContent     = d.users.active_30d;
-    document.getElementById('s-new7d').textContent   = d.users.new_7d;
-    const rev = (d.purchases.revenue_gr / 100).toFixed(2);
-    document.getElementById('s-revenue').textContent = rev + ' €';
-    document.getElementById('s-purchases').textContent = `zakupy: ${d.purchases.completed} / ${d.purchases.total}`;
-    document.getElementById('refresh-time').textContent = 'Odświeżono: ' + new Date().toLocaleTimeString('pl-PL');
-  } catch(e) { showToast('Błąd ładowania statystyk', true); }
+    document.getElementById('ws-total').textContent   = d.users.total;
+    document.getElementById('ws-7d').textContent      = d.users.active_7d;
+    document.getElementById('ws-30d').textContent     = d.users.active_30d;
+    document.getElementById('ws-new7d').textContent   = d.users.new_7d;
+    const rev = ((d.purchases.revenue_gr ?? d.purchases.revenue_ct ?? 0) / 100).toFixed(2);
+    document.getElementById('ws-revenue').textContent = rev + ' €';
+    document.getElementById('ws-purchases').textContent = `zakupy: ${d.purchases.completed} / ${d.purchases.total}`;
+    document.getElementById('ws-refresh-time').textContent = 'Odświeżono: ' + new Date().toLocaleTimeString('pl-PL');
+  } catch(e) { showToast('Wisp: błąd statystyk', true); }
 }
 
-async function loadUsers(q) {
+async function wispLoadUsers(q) {
   try {
     const url = q ? `/api/admin/users?q=${encodeURIComponent(q)}` : '/api/admin/users';
-    _allUsers = await apiFetch(url);
-    renderUsers(_allUsers);
-    document.getElementById('user-count').textContent = `${_allUsers.length} użytkowników`;
-  } catch(e) { showToast('Błąd ładowania użytkowników', true); }
+    _wsAllUsers = await apiFetch(url);
+    wispRenderUsers(_wsAllUsers);
+    document.getElementById('ws-user-count').textContent = `${_wsAllUsers.length} użytkowników`;
+  } catch(e) { showToast('Wisp: błąd ładowania graczy', true); }
 }
 
-function renderUsers(users) {
-  const tb = document.getElementById('user-table');
+function wispRenderUsers(users) {
+  const tb = document.getElementById('ws-user-table');
   if (!users.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">Brak użytkowników</td></tr>'; return; }
   tb.innerHTML = users.map((u, i) => `
     <tr>
       <td style="color:#3a5a3a;font-size:12px">${i + 1}</td>
       <td><strong style="color:#90d090">${esc(u.nick || '—')}</strong></td>
       <td style="color:#6a9a6a">${esc(u.email || '—')}</td>
-      <td>${u.level}</td>
-      <td>⭐${u.score}</td>
-      <td>❤️ ${u.lives}</td>
+      <td>${u.level ?? '—'}</td>
+      <td>⭐ ${u.score ?? 0}</td>
+      <td>❤️ ${u.lives ?? 0}</td>
       <td><span class="badge ${u.difficulty==='hard'?'red':u.difficulty==='easy'?'green':'orange'}">${u.difficulty||'—'}</span></td>
       <td style="color:#4a7a4a;font-size:12px">${fmtDate(u.last_login)}</td>
       <td style="color:#4a7a4a;font-size:12px">${fmtDate(u.created_at)}</td>
       <td><div class="actions">
-        <button class="btn sm blue" onclick="openLivesModal(${u.id},'${esc(u.nick||u.email)}',${u.lives})">❤️ Życia</button>
-        <button class="btn sm red" onclick="deleteUser(${u.id},'${esc(u.nick||u.email)}')">🗑️</button>
+        <button class="btn sm blue" onclick="openLivesModal(${u.id},'${esc(u.nick||u.email)}',${u.lives??0})">❤️</button>
+        <button class="btn sm red" onclick="wispDeleteUser(${u.id},'${esc(u.nick||u.email)}')">🗑️</button>
       </div></td>
     </tr>`).join('');
 }
 
-function searchUsers() {
-  clearTimeout(_searchTimer);
-  const q = document.getElementById('user-search').value.trim();
-  if (q.length === 0) { renderUsers(_allUsers); return; }
-  _searchTimer = setTimeout(() => loadUsers(q), 400);
+function wispSearchUsers() {
+  clearTimeout(_wsSearchTimer);
+  const q = document.getElementById('ws-user-search').value.trim();
+  if (!q) { wispRenderUsers(_wsAllUsers); return; }
+  _wsSearchTimer = setTimeout(() => wispLoadUsers(q), 400);
 }
 
-async function loadPurchases() {
+async function wispLoadPurchases() {
   try {
     const rows = await apiFetch('/api/admin/purchases');
-    const tb = document.getElementById('purchase-table');
+    const tb = document.getElementById('ws-purchase-table');
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">Brak transakcji</td></tr>'; return; }
     tb.innerHTML = rows.map(p => `
       <tr>
@@ -220,91 +328,183 @@ async function loadPurchases() {
         <td><strong style="color:#90d090">${esc(p.nick||'—')}</strong></td>
         <td style="color:#6a9a6a;font-size:12px">${esc(p.email||'—')}</td>
         <td>${p.package_id||'—'}</td>
-        <td>❤️ ${p.lives}</td>
-        <td>${(p.amount_eur_ct/100).toFixed(2)} €</td>
+        <td>❤️ ${p.lives ?? p.mushrooms ?? '—'}</td>
+        <td>${((p.amount_eur_ct??0)/100).toFixed(2)} €</td>
         <td><span class="badge ${p.status==='completed'?'green':p.status==='pending'?'orange':'red'}">${p.status}</span></td>
         <td style="color:#4a7a4a;font-size:12px">${fmtDate(p.created_at)}</td>
       </tr>`).join('');
-  } catch(e) { showToast('Błąd ładowania zakupów', true); }
+  } catch(e) { showToast('Wisp: błąd zakupów', true); }
 }
 
-function openLivesModal(id, nick, currentLives) {
+function openLivesModal(id, nick, current) {
   _editUserId = id;
-  document.getElementById('modal-user-info').textContent = `Gracz: ${nick} | Obecne życia: ${currentLives}`;
-  document.getElementById('modal-lives-val').value = currentLives;
+  document.getElementById('modal-lives-info').textContent = `Gracz: ${nick} | Obecne życia: ${current}`;
+  document.getElementById('modal-lives-val').value = current;
   document.getElementById('modal-lives-delta').value = '';
   document.getElementById('modal-lives').classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('modal-lives').classList.remove('open');
-  _editUserId = null;
-}
-
 async function submitLives() {
   if (!_editUserId) return;
-  const livesVal = document.getElementById('modal-lives-val').value;
-  const deltaVal = document.getElementById('modal-lives-delta').value;
-  const body = deltaVal !== '' ? { delta: parseInt(deltaVal) } : { lives: parseInt(livesVal) };
+  const v = document.getElementById('modal-lives-val').value;
+  const d = document.getElementById('modal-lives-delta').value;
+  const body = d !== '' ? { delta: parseInt(d) } : { lives: parseInt(v) };
   try {
     const r = await apiFetch(`/api/admin/users/${_editUserId}/lives`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
     });
-    showToast(`✅ Życia zaktualizowane: ${r.lives}`);
-    closeModal();
-    loadUsers(document.getElementById('user-search').value.trim() || undefined);
+    showToast(`✅ Życia: ${r.lives}`);
+    closeModal('modal-lives');
+    wispLoadUsers(document.getElementById('ws-user-search').value.trim() || undefined);
   } catch(e) { showToast('Błąd: ' + e.message, true); }
 }
 
-async function deleteUser(id, nick) {
-  if (!confirm(`Usunąć konto gracza "${nick}" (ID: ${id})?\nTa operacja jest nieodwracalna.`)) return;
+async function wispDeleteUser(id, nick) {
+  if (!confirm(`Usunąć konto "${nick}" (ID: ${id})?`)) return;
   try {
     await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
     showToast(`🗑️ Konto ${nick} usunięte`);
-    loadUsers(document.getElementById('user-search').value.trim() || undefined);
+    wispLoadUsers(document.getElementById('ws-user-search').value.trim() || undefined);
   } catch(e) { showToast('Błąd: ' + e.message, true); }
 }
 
-function showToast(msg, isError) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = isError ? '#2a1010' : '#1a4a1a';
-  t.style.color = isError ? '#f09090' : '#90f090';
-  t.style.borderColor = isError ? '#5a2020' : '#2a7a2a';
-  t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, 3000);
+// ══════════════════════════════════════════════════════════════════════════════
+// FOREST CARDS
+// ══════════════════════════════════════════════════════════════════════════════
+function fcShowSection(name, btn) {
+  document.querySelectorAll('#panel-fc .section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#fc-nav .btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('fc-section-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'purchases') fcLoadPurchases();
 }
 
-function fmtDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleString('pl-PL', { dateStyle:'short', timeStyle:'short' });
+async function fcLoadStats() {
+  try {
+    const d = await apiFetch('/api/fc-admin/stats');
+    document.getElementById('fc-total').textContent   = d.users.total;
+    document.getElementById('fc-7d').textContent      = d.users.active_7d;
+    document.getElementById('fc-30d').textContent     = d.users.active_30d;
+    document.getElementById('fc-new7d').textContent   = d.users.new_7d;
+    const rev = ((d.purchases.revenue_ct ?? 0) / 100).toFixed(2);
+    document.getElementById('fc-revenue').textContent = rev + ' €';
+    document.getElementById('fc-purchases').textContent = `zakupy: ${d.purchases.completed} / ${d.purchases.total}`;
+    document.getElementById('fc-refresh-time').textContent = 'Odświeżono: ' + new Date().toLocaleTimeString('pl-PL');
+  } catch(e) { showToast('Forest Cards: błąd statystyk', true); }
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+async function fcLoadUsers(q) {
+  try {
+    const url = q ? `/api/fc-admin/users?q=${encodeURIComponent(q)}` : '/api/fc-admin/users';
+    _fcAllUsers = await apiFetch(url);
+    fcRenderUsers(_fcAllUsers);
+    document.getElementById('fc-user-count').textContent = `${_fcAllUsers.length} użytkowników`;
+  } catch(e) { showToast('Forest Cards: błąd ładowania graczy', true); }
 }
 
-// Zamknij modal klikając tło
-document.getElementById('modal-lives').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
-});
+function fcRenderUsers(users) {
+  const tb = document.getElementById('fc-user-table');
+  if (!users.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">Brak użytkowników</td></tr>'; return; }
+  tb.innerHTML = users.map((u, i) => `
+    <tr>
+      <td style="color:#3a5a3a;font-size:12px">${i + 1}</td>
+      <td><strong style="color:#90d090">${esc(u.nick || '—')}</strong></td>
+      <td style="color:#6a9a6a">${esc(u.email || '—')}</td>
+      <td>🍄 ${u.mushrooms ?? 0}</td>
+      <td>🏆 ${u.wins ?? 0}</td>
+      <td>${u.battle_level ?? 1}</td>
+      <td>⭐ ${u.score ?? 0}</td>
+      <td style="color:#4a7a4a;font-size:12px">${fmtDate(u.last_login)}</td>
+      <td style="color:#4a7a4a;font-size:12px">${fmtDate(u.created_at)}</td>
+      <td><div class="actions">
+        <button class="btn sm blue" onclick="openMushModal(${u.id},'${esc(u.nick||u.email)}',${u.mushrooms??0})">🍄</button>
+        <button class="btn sm red" onclick="fcDeleteUser(${u.id},'${esc(u.nick||u.email)}')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
 
-// Klawisz Enter w modalu
-document.getElementById('modal-lives-val').addEventListener('keydown', e => { if(e.key==='Enter') submitLives(); });
-document.getElementById('modal-lives-delta').addEventListener('keydown', e => { if(e.key==='Enter') submitLives(); });
+function fcSearchUsers() {
+  clearTimeout(_fcSearchTimer);
+  const q = document.getElementById('fc-user-search').value.trim();
+  if (!q) { fcRenderUsers(_fcAllUsers); return; }
+  _fcSearchTimer = setTimeout(() => fcLoadUsers(q), 400);
+}
 
-// Start
-loadStats();
-loadUsers();
+async function fcLoadPurchases() {
+  try {
+    const rows = await apiFetch('/api/fc-admin/purchases');
+    const tb = document.getElementById('fc-purchase-table');
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">Brak transakcji</td></tr>'; return; }
+    tb.innerHTML = rows.map(p => `
+      <tr>
+        <td style="color:#3a6a3a">${p.id}</td>
+        <td><strong style="color:#90d090">${esc(p.nick||'—')}</strong></td>
+        <td style="color:#6a9a6a;font-size:12px">${esc(p.email||'—')}</td>
+        <td>${p.package_id||'—'}</td>
+        <td>🍄 ${p.mushrooms ?? '—'}</td>
+        <td>${((p.amount_eur_ct??0)/100).toFixed(2)} €</td>
+        <td><span class="badge ${p.status==='completed'?'green':p.status==='pending'?'orange':'red'}">${p.status}</span></td>
+        <td style="color:#4a7a4a;font-size:12px">${fmtDate(p.created_at)}</td>
+      </tr>`).join('');
+  } catch(e) { showToast('Forest Cards: błąd zakupów', true); }
+}
 
-// Auto-odświeżanie co 60 sekund
+function openMushModal(id, nick, current) {
+  _editUserId = id;
+  document.getElementById('modal-mush-info').textContent = `Gracz: ${nick} | Grzyby: ${current}`;
+  document.getElementById('modal-mush-val').value = current;
+  document.getElementById('modal-mush-delta').value = '';
+  document.getElementById('modal-mush').classList.add('open');
+}
+
+async function submitMushrooms() {
+  if (!_editUserId) return;
+  const v = document.getElementById('modal-mush-val').value;
+  const d = document.getElementById('modal-mush-delta').value;
+  const body = d !== '' ? { delta: parseInt(d) } : { mushrooms: parseInt(v) };
+  try {
+    const r = await apiFetch(`/api/fc-admin/users/${_editUserId}/mushrooms`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
+    });
+    showToast(`✅ Grzyby: ${r.mushrooms}`);
+    closeModal('modal-mush');
+    fcLoadUsers(document.getElementById('fc-user-search').value.trim() || undefined);
+  } catch(e) { showToast('Błąd: ' + e.message, true); }
+}
+
+async function fcDeleteUser(id, nick) {
+  if (!confirm(`Usunąć konto "${nick}" (ID: ${id})?`)) return;
+  try {
+    await apiFetch(`/api/fc-admin/users/${id}`, { method: 'DELETE' });
+    showToast(`🗑️ Konto ${nick} usunięte`);
+    fcLoadUsers(document.getElementById('fc-user-search').value.trim() || undefined);
+  } catch(e) { showToast('Błąd: ' + e.message, true); }
+}
+
+// ─── Modal close on bg click ──────────────────────────────────────────────────
+document.getElementById('modal-lives').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-lives'); });
+document.getElementById('modal-mush').addEventListener('click',  e => { if(e.target===e.currentTarget) closeModal('modal-mush');  });
+document.getElementById('modal-lives-val').addEventListener('keydown',   e => { if(e.key==='Enter') submitLives();     });
+document.getElementById('modal-lives-delta').addEventListener('keydown', e => { if(e.key==='Enter') submitLives();     });
+document.getElementById('modal-mush-val').addEventListener('keydown',    e => { if(e.key==='Enter') submitMushrooms(); });
+document.getElementById('modal-mush-delta').addEventListener('keydown',  e => { if(e.key==='Enter') submitMushrooms(); });
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+wispLoadStats();
+wispLoadUsers();
+
 setInterval(() => {
-  const active = document.querySelector('.section.active');
-  if(!active) return;
-  if(active.id === 'section-dashboard') { loadStats(); loadUsers(); }
-  else if(active.id === 'section-purchases') loadPurchases();
+  if (_activeGame === 'wisp') {
+    const active = document.querySelector('#panel-wisp .section.active');
+    if (!active) return;
+    if (active.id === 'wisp-section-dashboard') { wispLoadStats(); wispLoadUsers(); }
+    else if (active.id === 'wisp-section-purchases') wispLoadPurchases();
+  } else {
+    const active = document.querySelector('#panel-fc .section.active');
+    if (!active) return;
+    if (active.id === 'fc-section-dashboard') { fcLoadStats(); fcLoadUsers(); }
+    else if (active.id === 'fc-section-purchases') fcLoadPurchases();
+  }
 }, 60000);
 </script>
 </body>

@@ -205,6 +205,32 @@ app.get('/api/admin/purchases', adminAuth, (_req, res) => {
   res.json(rows);
 });
 
+// ─── Forest Cards Admin Proxy ───────────────────────────────────────────────
+const FC_BASE  = 'http://localhost:3002';
+const FC_CREDS = Buffer.from(`${process.env.ADMIN_USER || 'admin'}:${process.env.ADMIN_PASS || 'changeme'}`).toString('base64');
+
+async function fcProxy(req, res) {
+  const url    = FC_BASE + req.path.replace('/api/fc-admin', '/api/admin') + (req.url.includes('?') ? '?' + req.url.split('?')[1] : '');
+  const opts   = {
+    method:  req.method,
+    headers: { 'Authorization': `Basic ${FC_CREDS}`, 'Content-Type': 'application/json' },
+  };
+  if (req.method !== 'GET' && req.body) opts.body = JSON.stringify(req.body);
+  try {
+    const r    = await fetch(url, opts);
+    const text = await r.text();
+    res.status(r.status).set('Content-Type', 'application/json').send(text);
+  } catch(e) {
+    res.status(502).json({ error: 'Forest Cards offline' });
+  }
+}
+
+app.get   ('/api/fc-admin/stats',               adminAuth, fcProxy);
+app.get   ('/api/fc-admin/users',               adminAuth, fcProxy);
+app.post  ('/api/fc-admin/users/:id/mushrooms', adminAuth, fcProxy);
+app.delete('/api/fc-admin/users/:id',           adminAuth, fcProxy);
+app.get   ('/api/fc-admin/purchases',           adminAuth, fcProxy);
+
 // Static files — gra HTML5
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders(res, filePath) {
