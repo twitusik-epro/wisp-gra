@@ -1,31 +1,424 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Wisp — Duch Lasu | Darmowa gra mobilna</title>
-<meta name="description" content="Przebudź magię zaczarowanego lasu. Prowadź Wispa przez 40 poziomów pełnych tajemnic. Darmowa gra przeglądarkowa na telefon i komputer.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WispPlay — Free Browser Games | Wisp & Forest Cards</title>
+<meta name="description" content="Play free browser games without downloading or ads. Wisp — a 2D platformer through 40 levels of an enchanted forest. Forest Cards — a card game in Wisp's world. Mobile & desktop.">
 <link rel="canonical" href="https://wispplay.com/">
-
-<!-- Open Graph -->
+<link rel="alternate" hreflang="en" href="https://wispplay.com/">
+<link rel="alternate" hreflang="pl" href="https://wispplay.com/">
+<link rel="alternate" hreflang="de" href="https://wispplay.com/">
+<link rel="alternate" hreflang="fr" href="https://wispplay.com/">
+<link rel="alternate" hreflang="es" href="https://wispplay.com/">
+<link rel="alternate" hreflang="x-default" href="https://wispplay.com/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wispplay.com/">
-<meta property="og:title" content="Wisp — Duch Lasu | Darmowa gra mobilna">
-<meta property="og:description" content="Przebudź magię zaczarowanego lasu. Prowadź Wispa przez 40 poziomów pełnych tajemnic.">
-<meta property="og:locale" content="pl_PL">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Wisp — Duch Lasu">
-<meta name="twitter:description" content="Darmowa gra przeglądarkowa. Przebudź magię zaczarowanego lasu.">
-
+<meta property="og:title" content="WispPlay — Free Browser Games">
+<meta property="og:description" content="Wisp and Forest Cards — free browser games, no download, no ads. Mobile & desktop.">
+<meta property="og:image" content="https://wispplay.com/icon-512.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WispPlay — Free Browser Games">
+<meta name="twitter:description" content="Wisp and Forest Cards — free browser games, no download, no ads.">
 <meta name="robots" content="index, follow">
-<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#040a04">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23071407'/><ellipse cx='32' cy='30' rx='13' ry='15' fill='%2380ee60'/><circle cx='27' cy='26' r='3' fill='%230a200a'/><circle cx='37' cy='26' r='3' fill='%230a200a'/><circle cx='28' cy='25' r='1.2' fill='white'/><circle cx='38' cy='25' r='1.2' fill='white'/></svg>">
-<script>window.location.replace('/game.html?v=' + Date.now());</script>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="/icon-192.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#050d05;color:#c0e0b8;font-family:'Georgia',serif;line-height:1.7;min-height:100vh;}
+a{color:#80ee60;text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* NAV */
+nav{background:#030803;border-bottom:1px solid #162816;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-logo{font-size:19px;font-weight:bold;color:#b0f080;letter-spacing:.3px;display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.nav-logo span{color:#60c040;}
+.nav-links{display:flex;gap:16px;font-size:14px;margin-left:auto;align-items:center;flex-wrap:wrap;}
+.nav-links a{color:#7aaa6a;}
+.nav-links a:hover{color:#b0f080;text-decoration:none;}
+.nav-play{background:#1a4a1a;border:1px solid #2e7a2e;color:#90ee70!important;padding:5px 13px;border-radius:20px;font-size:13px;transition:background .2s;}
+.nav-play:hover{background:#254a25!important;}
+.nav-lang{display:flex;gap:3px;align-items:center;flex-shrink:0;}
+.nav-lang button{background:transparent;border:1px solid transparent;color:#4a7a4a;font-size:12px;padding:3px 8px;border-radius:5px;cursor:pointer;font-family:'Georgia',serif;transition:all .15s;}
+.nav-lang button:hover{color:#90ee70;border-color:#2a5a2a;}
+.nav-lang button.active{background:#0d1e0d;border-color:#2a6a2a;color:#90ee70;font-weight:bold;}
+
+/* HERO */
+.hero{text-align:center;padding:68px 24px 52px;background:radial-gradient(ellipse at 50% 0%,#0c1e0c 0%,#050d05 70%);}
+.hero-badge{display:inline-block;font-size:12px;color:#4a8a4a;border:1px solid #1e4a1e;border-radius:20px;padding:4px 14px;margin-bottom:20px;letter-spacing:.8px;text-transform:uppercase;}
+.hero h1{font-size:clamp(28px,6vw,52px);color:#b8f090;margin-bottom:16px;line-height:1.2;font-family:'Georgia',serif;}
+.hero h1 em{color:#70d850;font-style:normal;}
+.hero p{font-size:clamp(15px,2.5vw,18px);color:#6a9a6a;max-width:540px;margin:0 auto 36px;line-height:1.7;}
+.hero-stars{color:#4a7a4a;font-size:13px;display:flex;justify-content:center;gap:22px;flex-wrap:wrap;}
+.hero-stars span{display:flex;align-items:center;gap:6px;}
+
+/* GAMES */
+.games-section{padding:52px 20px 60px;max-width:1000px;margin:0 auto;}
+.games-section>h2{text-align:center;font-size:clamp(17px,3vw,24px);color:#6a9a6a;font-weight:normal;margin-bottom:38px;letter-spacing:.5px;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;}
+
+/* GAME CARD */
+.game-card{background:#080f08;border:1px solid #1a3a1a;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s;}
+.game-card:hover{border-color:#2e6a2e;transform:translateY(-4px);}
+.card-header{padding:30px 26px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;background:linear-gradient(180deg,#0c1a0c,#080f08);}
+.card-icon{width:92px;height:92px;border-radius:22px;margin-bottom:18px;box-shadow:0 4px 24px rgba(0,200,0,.14);}
+.card-name{font-size:25px;color:#c0e8a0;margin-bottom:5px;}
+.card-subtitle{font-size:12px;color:#4a7a4a;text-transform:uppercase;letter-spacing:1px;}
+.card-body{padding:18px 26px 26px;flex:1;display:flex;flex-direction:column;}
+.card-desc{font-size:15px;color:#789a70;line-height:1.7;margin-bottom:18px;}
+.card-features{list-style:none;margin-bottom:22px;display:flex;flex-direction:column;gap:7px;}
+.card-features li{font-size:13px;color:#507050;display:flex;align-items:center;gap:8px;}
+.card-features li::before{content:'✓';color:#40904a;font-weight:bold;flex-shrink:0;}
+.card-actions{display:flex;flex-direction:column;gap:9px;margin-top:auto;}
+.btn-play{display:flex;align-items:center;justify-content:center;gap:8px;background:#1e5a1e;border:1px solid #2e8a2e;color:#a0ee80;padding:12px 20px;border-radius:10px;font-size:15px;font-family:'Georgia',serif;transition:background .2s,border-color .2s;}
+.btn-play:hover{background:#265a26;border-color:#3aaa3a;text-decoration:none;color:#b8f090;}
+.btn-gplay{display:flex;align-items:center;justify-content:center;gap:8px;background:#0c160c;border:1px solid #1e3a1e;color:#5a9a5a;padding:9px 20px;border-radius:10px;font-size:13px;font-family:'Georgia',serif;transition:background .2s;}
+.btn-gplay:hover{background:#101e10;border-color:#2a5a2a;text-decoration:none;color:#7aba7a;}
+.card-badge-new{display:inline-block;background:#1a3a1a;border:1px solid #2a6a2a;color:#70c060;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:2px 9px;border-radius:20px;margin-left:7px;vertical-align:middle;}
+
+.game-card.wisp{border-color:#1e4a1e;}
+.game-card.wisp .btn-play{background:#1a5a1a;border-color:#28882a;}
+.game-card.fcards{border-color:#1e3a2a;}
+.game-card.fcards .card-header{background:linear-gradient(180deg,#0a160e,#080f08);}
+.game-card.fcards .card-name{color:#b0e0c0;}
+.game-card.fcards .btn-play{background:#163a20;border-color:#2a7040;}
+
+/* BLOG */
+.blog-section{background:#030a03;border-top:1px solid #0f2a0f;border-bottom:1px solid #0f2a0f;padding:50px 20px;}
+.blog-inner{max-width:900px;margin:0 auto;}
+.blog-section h2{text-align:center;font-size:clamp(17px,3vw,23px);color:#6a9a6a;font-weight:normal;margin-bottom:7px;}
+.blog-sub{text-align:center;color:#3a5a3a;font-size:14px;margin-bottom:34px;}
+.blog-posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.blog-post{background:#080f08;border:1px solid #152815;border-radius:12px;padding:18px;transition:border-color .2s,transform .2s;position:relative;}
+.blog-post:hover{border-color:#2a5a2a;transform:translateY(-2px);}
+.blog-post a.stretch{position:absolute;inset:0;}
+.blog-emoji{font-size:26px;margin-bottom:10px;}
+.blog-tag{font-size:10px;color:#3a6a3a;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.blog-title{font-size:14px;color:#9ac88a;line-height:1.5;}
+.blog-more{text-align:center;margin-top:26px;}
+.blog-more a{color:#5a8a5a;font-size:14px;border:1px solid #1a3a1a;padding:8px 22px;border-radius:20px;display:inline-block;transition:border-color .2s,color .2s;}
+.blog-more a:hover{color:#8ac870;border-color:#2a5a2a;text-decoration:none;}
+
+/* FOOTER */
+footer{text-align:center;padding:34px 20px;font-size:12px;color:#2a4a2a;}
+.footer-logo{font-size:15px;color:#4a7a4a;margin-bottom:11px;}
+.footer-links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:11px;}
+.footer-links a{color:#3a6a3a;}
+.footer-links a:hover{color:#6a9a6a;text-decoration:none;}
+footer p{color:#1e3a1e;}
+</style>
 </head>
 <body>
-<p>Ładowanie gry...</p>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/icon-192.png" width="27" height="27" alt="WispPlay" style="border-radius:7px;">
+    <span>Wisp<span style="color:#4a8a4a;">Play</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#" id="nav-blog-link" data-t="nav_blog">Blog</a>
+    <a href="/game.html" class="nav-play" data-t="nav_play">▶ Play Wisp</a>
+  </div>
+  <div class="nav-lang">
+    <button onclick="setLang('en')" data-lang="en" class="active">EN</button>
+    <button onclick="setLang('pl')" data-lang="pl">PL</button>
+    <button onclick="setLang('de')" data-lang="de">DE</button>
+    <button onclick="setLang('fr')" data-lang="fr">FR</button>
+    <button onclick="setLang('es')" data-lang="es">ES</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-t="hero_badge">🌿 Two worlds. One adventure.</div>
+  <h1 data-t-html="hero_h1">Free browser<br><em>games</em></h1>
+  <p data-t="hero_p">Play without downloading or ads — on mobile and desktop. Enter Wisp's enchanted forest.</p>
+  <div class="hero-stars">
+    <span data-t="star1">🎮 No download</span>
+    <span data-t="star2">🚫 No ads</span>
+    <span data-t="star3">📱 Mobile & desktop</span>
+    <span data-t="star4">🆓 Completely free</span>
+  </div>
+</section>
+
+<section class="games-section">
+  <h2 data-t="games_h2">Choose your game</h2>
+  <div class="games-grid">
+
+    <div class="game-card wisp">
+      <div class="card-header">
+        <img class="card-icon" src="/icon-512.png" alt="Wisp game icon">
+        <div class="card-name">Wisp</div>
+        <div class="card-subtitle" data-t="wisp_sub">Spirit of the Forest · 2D Platformer</div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc" data-t="wisp_desc">Awaken the magic of the enchanted forest. Guide Wisp through 40 levels full of secrets, spikes and enemies. A fast, skill-based platformer against the clock.</p>
+        <ul class="card-features">
+          <li data-t="wisp_f1">40 levels of increasing difficulty</li>
+          <li data-t="wisp_f2">Modes: Easy, Medium, Doard</li>
+          <li data-t="wisp_f3">Rankings and badges</li>
+          <li data-t="wisp_f4">Touch joystick for mobile</li>
+        </ul>
+        <div class="card-actions">
+          <a href="/game.html" class="btn-play" data-t="btn_play_wisp">▶ Play now — free</a>
+          <a href="https://play.google.com/store/apps/details?id=com.epro.wisp" target="_blank" rel="noopener" class="btn-gplay" data-t="btn_gplay">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.37.21.8.22 1.2.03l12.54-7.01-2.88-2.9-10.86 9.88zM.5 2.08A1.49 1.49 0 0 0 0 3.22v17.56c0 .47.19.9.5 1.14l.06.05 9.84-9.84v-.23L.56 2.03l-.06.05zM20.3 10.53l-2.67-1.49-3.2 3.2 3.2 3.2 2.69-1.5c.77-.43.77-1.13-.02-1.41zM4.38.24L16.92 7.25l-2.88 2.9L3.18.27C3.58.08 4.01.1 4.38.24z"/></svg>
+            Google Play
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card fcards">
+      <div class="card-header">
+        <img class="card-icon" src="/fc-icon-512.png" alt="Forest Cards game icon">
+        <div class="card-name">Forest Cards <span class="card-badge-new" data-t="badge_new">New</span></div>
+        <div class="card-subtitle" data-t="fc_sub">Card Game · Wisp's World</div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc" data-t="fc_desc">Build your deck, defeat enemies and save the forest from darkness. A strategic card game set in Wisp's world. Collect cards, upgrade your deck, climb the rankings.</p>
+        <ul class="card-features">
+          <li data-t="fc_f1">40 levels of strategic battles</li>
+          <li data-t="fc_f2">Collection of unique cards</li>
+          <li data-t="fc_f3">Top 20 player ranking</li>
+          <li data-t="fc_f4">In-game shop (mushrooms 🍄)</li>
+        </ul>
+        <div class="card-actions">
+          <a href="https://cards.wispplay.com/" class="btn-play" data-t="btn_play_fc">▶ Play now — free</a>
+          <a href="https://play.google.com/store/apps/details?id=com.epro.forestcards" target="_blank" rel="noopener" class="btn-gplay" data-t="btn_gplay">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.37.21.8.22 1.2.03l12.54-7.01-2.88-2.9-10.86 9.88zM.5 2.08A1.49 1.49 0 0 0 0 3.22v17.56c0 .47.19.9.5 1.14l.06.05 9.84-9.84v-.23L.56 2.03l-.06.05zM20.3 10.53l-2.67-1.49-3.2 3.2 3.2 3.2 2.69-1.5c.77-.43.77-1.13-.02-1.41zM4.38.24L16.92 7.25l-2.88 2.9L3.18.27C3.58.08 4.01.1 4.38.24z"/></svg>
+            Google Play
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="blog-section">
+  <div class="blog-inner">
+    <h2 data-t="blog_h2">🌲 Game Blog</h2>
+    <p class="blog-sub" data-t="blog_sub">Guides, rankings and curiosities from the world of browser games</p>
+    <div class="blog-posts">
+      <div class="blog-post">
+        <a href="/blog/en/free-browser-games-no-download/" class="stretch" id="blog-link-1"></a>
+        <div class="blog-emoji">🎮</div>
+        <div class="blog-tag" data-t="tag_review">Overview</div>
+        <div class="blog-title" data-t="post1_title">Free browser games without downloading — why bother?</div>
+      </div>
+      <div class="blog-post">
+        <a href="/blog/en/platform-games-mobile/" class="stretch" id="blog-link-2"></a>
+        <div class="blog-emoji">📱</div>
+        <div class="blog-tag" data-t="tag_guide">Guide</div>
+        <div class="blog-title" data-t="post2_title">Platform games on mobile — best titles to play in the browser</div>
+      </div>
+      <div class="blog-post">
+        <a href="/blog/en/how-to-play-wisp-guide/" class="stretch" id="blog-link-3"></a>
+        <div class="blog-emoji">🌿</div>
+        <div class="blog-tag" data-t="tag_guide">Guide</div>
+        <div class="blog-title" data-t="post3_title">How to play Wisp — guide for beginners and advanced players</div>
+      </div>
+    </div>
+    <div class="blog-more">
+      <a href="/blog/en/" id="blog-more-link" data-t="blog_more">See all articles →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">🌿 WispPlay</div>
+  <div class="footer-links">
+    <a href="/game.html" data-t="footer_wisp">Wisp — game</a>
+    <a href="https://cards.wispplay.com/">Forest Cards</a>
+    <a href="#" id="footer-blog-link" data-t="nav_blog">Blog</a>
+    <a href="/privacy.html" data-t="footer_privacy">Privacy Policy</a>
+    <a href="/terms.html" data-t="footer_terms">Terms of Service</a>
+  </div>
+  <p data-t="footer_copy">© 2026 WispPlay · Free browser games · No ads · No downloads</p>
+</footer>
+
+<script>
+const T = {
+  en: {
+    nav_blog:'Blog', nav_play:'▶ Play Wisp',
+    hero_badge:'🌿 Two worlds. One adventure.',
+    hero_h1:'Free browser<br><em>games</em>',
+    hero_p:'Play without downloading or ads — on mobile and desktop. Enter Wisp\'s enchanted forest.',
+    star1:'🎮 No download', star2:'🚫 No ads', star3:'📱 Mobile & desktop', star4:'🆓 Completely free',
+    games_h2:'Choose your game',
+    wisp_sub:'Spirit of the Forest · 2D Platformer',
+    wisp_desc:'Awaken the magic of the enchanted forest. Guide Wisp through 40 levels full of secrets, spikes and enemies. A fast, skill-based platformer against the clock.',
+    wisp_f1:'40 levels of increasing difficulty', wisp_f2:'Modes: Easy, Medium, Doard', wisp_f3:'Rankings and badges', wisp_f4:'Touch joystick for mobile',
+    btn_play_wisp:'▶ Play now — free', btn_play_fc:'▶ Play now — free', btn_gplay:'Google Play', badge_new:'New',
+    fc_sub:'Card Game · Wisp\'s World',
+    fc_desc:'Build your deck, defeat enemies and save the forest from darkness. A strategic card game set in Wisp\'s world. Collect cards, upgrade your deck, climb the rankings.',
+    fc_f1:'40 levels of strategic battles', fc_f2:'Collection of unique cards', fc_f3:'Top 20 player ranking', fc_f4:'In-game shop (mushrooms 🍄)',
+    blog_h2:'🌲 Game Blog', blog_sub:'Guides, rankings and curiosities from the world of browser games',
+    tag_review:'Overview', tag_guide:'Guide',
+    post1_title:'Free browser games without downloading — why bother?',
+    post2_title:'Platform games on mobile — best titles to play in the browser',
+    post3_title:'How to play Wisp — guide for beginners and advanced players',
+    blog_more:'See all articles →',
+    footer_wisp:'Wisp — game', footer_privacy:'Privacy Policy', footer_terms:'Terms of Service',
+    footer_copy:'© 2026 WispPlay · Free browser games · No ads · No downloads',
+    blog_urls:['/blog/en/free-browser-games-no-download/','/blog/en/platform-games-mobile/','/blog/en/how-to-play-wisp-guide/'],
+    blog_root:'/blog/en/'
+  },
+  pl: {
+    nav_blog:'Blog', nav_play:'▶ Zagraj w Wispa',
+    hero_badge:'🌿 Dwa światy. Jedna przygoda.',
+    hero_h1:'Darmowe gry<br><em>przeglądarkowe</em>',
+    hero_p:'Zagraj bez pobierania i bez reklam — na telefon i komputer. Wejdź do zaczarowanego lasu Wispa.',
+    star1:'🎮 Bez pobierania', star2:'🚫 Bez reklam', star3:'📱 Telefon i komputer', star4:'🆓 W pełni darmowe',
+    games_h2:'Wybierz swoją grę',
+    wisp_sub:'Duch Lasu · Platformówka 2D',
+    wisp_desc:'Przebudź magię zaczarowanego lasu. Prowadź Wispa przez 40 poziomów pełnych tajemnic, kolców i wrogów. Szybka, zręcznościowa platformówka na czas.',
+    wisp_f1:'40 poziomów o rosnącym trudności', wisp_f2:'Tryby: Łatwy, Średni, Doard', wisp_f3:'Rankingi i odznaki', wisp_f4:'Joystick dotykowy na telefon',
+    btn_play_wisp:'▶ Zagraj teraz — za darmo', btn_play_fc:'▶ Zagraj teraz — za darmo', btn_gplay:'Google Play', badge_new:'Nowa',
+    fc_sub:'Gra Karciana · Świat Wispa',
+    fc_desc:'Buduj talię kart, pokonuj wrogów i ocal las przed ciemnością. Strategiczna gra karciana osadzona w świecie Wispa. Zbieraj karty, ulepszaj deck, wspinaj się w rankingu.',
+    fc_f1:'40 poziomów strategicznych walk', fc_f2:'Kolekcja unikalnych kart', fc_f3:'Ranking Top 20 graczy', fc_f4:'Sklep z ulepszeniami (grzyby 🍄)',
+    blog_h2:'🌲 Blog o grach', blog_sub:'Poradniki, rankingi i ciekawostki ze świata gier przeglądarkowych',
+    tag_review:'Przegląd', tag_guide:'Poradnik',
+    post1_title:'Darmowe gry przeglądarkowe bez pobierania — dlaczego warto?',
+    post2_title:'Gry platformowe na telefon — najlepsze tytuły do zagrania w przeglądarce',
+    post3_title:'Jak grać w Wisp — poradnik dla początkujących i zaawansowanych',
+    blog_more:'Zobacz wszystkie artykuły →',
+    footer_wisp:'Wisp — gra', footer_privacy:'Polityka prywatności', footer_terms:'Regulamin',
+    footer_copy:'© 2026 WispPlay · Darmowe gry przeglądarkowe · Bez reklam · Bez pobierania',
+    blog_urls:['/blog/darmowe-gry-przegladarkowe-bez-pobierania/','/blog/gry-platformowe-na-telefon/','/blog/jak-grac-w-wisp-poradnik/'],
+    blog_root:'/blog/'
+  },
+  de: {
+    nav_blog:'Blog', nav_play:'▶ Wisp spielen',
+    hero_badge:'🌿 Zwei Welten. Ein Abenteuer.',
+    hero_h1:'Kostenlose<br><em>Browserspiele</em>',
+    hero_p:'Spielen ohne Download und ohne Werbung — auf Handy und PC. Betritt Wisps verzauberten Wald.',
+    star1:'🎮 Kein Download', star2:'🚫 Keine Werbung', star3:'📱 Handy & PC', star4:'🆓 Völlig kostenlos',
+    games_h2:'Wähle dein Spiel',
+    wisp_sub:'Geist des Waldes · 2D-Plattformer',
+    wisp_desc:'Erwecke die Magie des verzauberten Waldes. Führe Wisp durch 40 Level voller Geheimnisse, Stacheln und Feinde. Ein schneller, geschicklichkeitsbasierter Plattformer gegen die Uhr.',
+    wisp_f1:'40 Level mit steigendem Schwierigkeitsgrad', wisp_f2:'Modi: Leicht, Mittel, Doard', wisp_f3:'Ranglisten und Abzeichen', wisp_f4:'Touch-Joystick für Handy',
+    btn_play_wisp:'▶ Jetzt spielen — kostenlos', btn_play_fc:'▶ Jetzt spielen — kostenlos', btn_gplay:'Google Play', badge_new:'Neu',
+    fc_sub:'Kartenspiel · Wisps Welt',
+    fc_desc:'Baue dein Deck, besiege Feinde und rette den Wald vor der Dunkelheit. Ein strategisches Kartenspiel in Wisps Welt. Sammle Karten, verbessere dein Deck, steige in der Rangliste auf.',
+    fc_f1:'40 Level strategischer Kämpfe', fc_f2:'Sammlung einzigartiger Karten', fc_f3:'Top-20-Rangliste', fc_f4:'In-Game-Shop (Pilze 🍄)',
+    blog_h2:'🌲 Spiele-Blog', blog_sub:'Anleitungen, Ranglisten und Wissenswertes aus der Welt der Browserspiele',
+    tag_review:'Überblick', tag_guide:'Anleitung',
+    post1_title:'Kostenlose Browserspiele ohne Download — warum lohnt es sich?',
+    post2_title:'Plattformspiele auf dem Handy — die besten Titel im Browser',
+    post3_title:'Wie man Wisp spielt — Anleitung für Anfänger und Fortgeschrittene',
+    blog_more:'Alle Artikel anzeigen →',
+    footer_wisp:'Wisp — Spiel', footer_privacy:'Datenschutz', footer_terms:'Nutzungsbedingungen',
+    footer_copy:'© 2026 WispPlay · Kostenlose Browserspiele · Keine Werbung · Kein Download',
+    blog_urls:['/blog/de/kostenlose-browser-spiele-ohne-download/','/blog/de/plattformspiele-handy/','/blog/de/wisp-spielanleitung/'],
+    blog_root:'/blog/de/'
+  },
+  fr: {
+    nav_blog:'Blog', nav_play:'▶ Jouer à Wisp',
+    hero_badge:'🌿 Deux mondes. Une aventure.',
+    hero_h1:'Jeux navigateur<br><em>gratuits</em>',
+    hero_p:'Jouez sans téléchargement ni publicité — sur mobile et PC. Entrez dans la forêt enchantée de Wisp.',
+    star1:'🎮 Sans téléchargement', star2:'🚫 Sans publicité', star3:'📱 Mobile & PC', star4:'🆓 Totalement gratuit',
+    games_h2:'Choisissez votre jeu',
+    wisp_sub:'Esprit de la Forêt · Plateforme 2D',
+    wisp_desc:'Réveillez la magie de la forêt enchantée. Guidez Wisp à travers 40 niveaux pleins de secrets, de piques et d\'ennemis. Un jeu de plateforme rapide et habile contre la montre.',
+    wisp_f1:'40 niveaux de difficulté croissante', wisp_f2:'Modes : Facile, Moyen, Doard', wisp_f3:'Classements et badges', wisp_f4:'Joystick tactile pour mobile',
+    btn_play_wisp:'▶ Jouer maintenant — gratuit', btn_play_fc:'▶ Jouer maintenant — gratuit', btn_gplay:'Google Play', badge_new:'Nouveau',
+    fc_sub:'Jeu de Cartes · Monde de Wisp',
+    fc_desc:'Construisez votre deck, battez des ennemis et sauvez la forêt de l\'obscurité. Un jeu de cartes stratégique dans le monde de Wisp. Collectez des cartes, améliorez votre deck, grimpez dans le classement.',
+    fc_f1:'40 niveaux de batailles stratégiques', fc_f2:'Collection de cartes uniques', fc_f3:'Classement Top 20', fc_f4:'Boutique en jeu (champignons 🍄)',
+    blog_h2:'🌲 Blog Jeux', blog_sub:'Guides, classements et curiosités du monde des jeux navigateur',
+    tag_review:'Aperçu', tag_guide:'Guide',
+    post1_title:'Jeux navigateur gratuits sans téléchargement — pourquoi les choisir ?',
+    post2_title:'Jeux de plateforme mobile — les meilleurs titres à jouer dans le navigateur',
+    post3_title:'Comment jouer à Wisp — guide pour débutants et joueurs avancés',
+    blog_more:'Voir tous les articles →',
+    footer_wisp:'Wisp — jeu', footer_privacy:'Politique de confidentialité', footer_terms:'Conditions d\'utilisation',
+    footer_copy:'© 2026 WispPlay · Jeux navigateur gratuits · Sans publicité · Sans téléchargement',
+    blog_urls:['/blog/fr/jeux-navigateur-gratuits-sans-telechargement/','/blog/fr/jeux-plateforme-mobile/','/blog/fr/comment-jouer-wisp-guide/'],
+    blog_root:'/blog/fr/'
+  },
+  es: {
+    nav_blog:'Blog', nav_play:'▶ Jugar a Wisp',
+    hero_badge:'🌿 Dos mundos. Una aventura.',
+    hero_h1:'Juegos de navegador<br><em>gratuitos</em>',
+    hero_p:'Juega sin descargar ni anuncios — en móvil y PC. Entra en el bosque encantado de Wisp.',
+    star1:'🎮 Sin descarga', star2:'🚫 Sin anuncios', star3:'📱 Móvil y PC', star4:'🆓 Completamente gratis',
+    games_h2:'Elige tu juego',
+    wisp_sub:'Espíritu del Bosque · Plataformas 2D',
+    wisp_desc:'Despierta la magia del bosque encantado. Guía a Wisp por 40 niveles llenos de secretos, pinchos y enemigos. Un juego de plataformas rápido y de habilidad contra el reloj.',
+    wisp_f1:'40 niveles de dificultad creciente', wisp_f2:'Modos: Fácil, Medio, Doard', wisp_f3:'Rankings e insignias', wisp_f4:'Joystick táctil para móvil',
+    btn_play_wisp:'▶ Jugar ahora — gratis', btn_play_fc:'▶ Jugar ahora — gratis', btn_gplay:'Google Play', badge_new:'Nuevo',
+    fc_sub:'Juego de Cartas · Mundo de Wisp',
+    fc_desc:'Construye tu mazo, derrota enemigos y salva el bosque de la oscuridad. Un juego de cartas estratégico en el mundo de Wisp. Colecciona cartas, mejora tu mazo, escala en el ranking.',
+    fc_f1:'40 niveles de batallas estratégicas', fc_f2:'Colección de cartas únicas', fc_f3:'Ranking Top 20', fc_f4:'Tienda en el juego (setas 🍄)',
+    blog_h2:'🌲 Blog de Juegos', blog_sub:'Guías, rankings y curiosidades del mundo de los juegos de navegador',
+    tag_review:'Resumen', tag_guide:'Guía',
+    post1_title:'Juegos de navegador gratuitos sin descargar — ¿por qué elegirlos?',
+    post2_title:'Juegos de plataformas en móvil — los mejores títulos para jugar en el navegador',
+    post3_title:'Cómo jugar a Wisp — guía para principiantes y jugadores avanzados',
+    blog_more:'Ver todos los artículos →',
+    footer_wisp:'Wisp — juego', footer_privacy:'Política de privacidad', footer_terms:'Términos de servicio',
+    footer_copy:'© 2026 WispPlay · Juegos de navegador gratuitos · Sin anuncios · Sin descarga',
+    blog_urls:['/blog/es/juegos-navegador-gratis-sin-descargar/','/blog/es/juegos-plataforma-movil/','/blog/es/como-jugar-wisp-guia/'],
+    blog_root:'/blog/es/'
+  }
+};
+
+const LANG_CODES = {en:'en',pl:'pl',de:'de',fr:'fr',es:'es'};
+
+function detectLang() {
+  const saved = localStorage.getItem('wp_lang');
+  if (saved && T[saved]) return saved;
+  const nav = (navigator.language || '').toLowerCase().slice(0,2);
+  return T[nav] ? nav : 'en';
+}
+
+function setLang(lang) {
+  if (!T[lang]) return;
+  localStorage.setItem('wp_lang', lang);
+  applyLang(lang);
+}
+
+function applyLang(lang) {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+
+  // text nodes
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = el.dataset.t;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  // innerHTML nodes (for tags like <em> inside)
+  document.querySelectorAll('[data-t-html]').forEach(el => {
+    const key = el.dataset.tHtml;
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+
+  // blog post links
+  const links = t.blog_urls || [];
+  ['blog-link-1','blog-link-2','blog-link-3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && links[i]) el.href = links[i];
+  });
+  const moreEl = document.getElementById('blog-more-link');
+  if (moreEl && t.blog_root) moreEl.href = t.blog_root;
+
+  // nav blog + footer blog
+  const blogRoot = t.blog_root || '/blog/en/';
+  document.getElementById('nav-blog-link').href = blogRoot;
+  document.getElementById('footer-blog-link').href = blogRoot;
+
+  // active button
+  document.querySelectorAll('.nav-lang button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+}
+
+applyLang(detectLang());
+</script>
 </body>
 </html>
