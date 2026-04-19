@@ -1700,7 +1700,8 @@ let keys = {}, tL=false, tR=false, tJ=false, jumpUsed=false, djUsed=false;
 const IS_TWA = ('getDigitalGoodsService' in window) ||
                document.referrer.startsWith('android-app://') ||
                window.matchMedia('(display-mode: standalone)').matches;
-let particles=[], camera={y:0}, frameT=0;
+let particles=[], camera={y:0}, frameT=0, animT=0, _dt=1, _loopLastTime=null, _physAcc=0;
+const _PHYS_STEP = 1000/60;
 
 // ── Player ──────────────────────────────────────
 const P = {
@@ -3504,11 +3505,30 @@ function drawWindEffect(){
 }
 
 // ── Main loop ────────────────────────────────────
-function loop(){
-  // Pauza — nie aktualizuj logiki gry
+function loop(now){
+  if(_loopLastTime === null) _loopLastTime = now;
+  const elapsed = Math.min(now - _loopLastTime, 200);
+  _loopLastTime = now;
+  _dt = elapsed / _PHYS_STEP;
+
+  // Stały krok fizyki 16.67ms — fizyka zawsze z dt=1, niezależnie od Hz ekranu
+  if(!isPaused && LVL && GS.state==='playing'){
+    _physAcc += elapsed;
+    let steps = 0;
+    while(_physAcc >= _PHYS_STEP && steps < 3){
+      updatePhysics();
+      updateEnemies();
+      updateParticles();
+      _physAcc -= _PHYS_STEP;
+      steps++;
+    }
+  }
+
+  // Pauza — nie renderuj
   if(isPaused){ requestAnimationFrame(loop); return; }
 
   frameT++;
+  animT += _dt;
   ctx.clearRect(0,0,W,H);
 
   if(LVL && (GS.state==='playing'||GS.state==='win'||GS.state==='dead_anim')){
@@ -3523,11 +3543,6 @@ function loop(){
     drawParticles();
     drawPlayer();
 
-    if(GS.state==='playing' && !isPaused){
-      updatePhysics();
-      updateEnemies();
-      updateParticles();
-    }
   } else if(GS.state==='menu'){
     // Animate background on menu
     const g=ctx.createLinearGradient(0,0,0,H);
@@ -4176,7 +4191,7 @@ function showDeleteAccountModal() {
     });
     requestAnimationFrame(draw);
   }
-  draw();
+  draw(0);
 })();
 </script>
 </body>
