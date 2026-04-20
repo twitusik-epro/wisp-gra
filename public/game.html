@@ -362,6 +362,18 @@ canvas{
 </head>
 <body>
 
+<!-- Splash screen — nowe logo, 2 sekundy przy starcie -->
+<div id="splash-screen" style="position:fixed;inset:0;z-index:9999;background:#040a04;display:flex;align-items:center;justify-content:center;transition:opacity .6s;">
+  <img src="/wisp-splash.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Wisp">
+</div>
+<script>
+  setTimeout(function(){
+    var s = document.getElementById('splash-screen');
+    s.style.opacity = '0';
+    setTimeout(function(){ s.style.display = 'none'; }, 650);
+  }, 2000);
+</script>
+
 <!-- Panel lewy — widoczny tylko na desktopie -->
 <div id="desktop-left">
   <div class="dp-logo">🌿 Wisp<span>Duch Lasu</span></div>
@@ -455,7 +467,7 @@ canvas{
         <canvas id="menu-particles" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
         <button onclick="toggleLang()" id="menu-lang-btn" style="position:absolute;top:10px;right:12px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">🌍 EN</button>
         <div id="title-row">
-          <img src="/wisp-menu-icon.png" width="60" height="60" alt="Wisp" class="menu-wisp-float">
+
           <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
           <a href="https://play.google.com/store/apps/details?id=com.epro.wisp" target="_blank" rel="noopener" id="btn-install-gplay">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-bottom:2px;"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
@@ -1701,6 +1713,13 @@ const IS_TWA = ('getDigitalGoodsService' in window) ||
                document.referrer.startsWith('android-app://') ||
                window.matchMedia('(display-mode: standalone)').matches;
 let particles=[], camera={y:0}, frameT=0, animT=0, _dt=1, _loopLastTime=null, _physAcc=0;
+
+let _wispSprite = null;
+(function(){
+  const img = new Image();
+  img.onload = function(){ _wispSprite = img; };
+  img.src = '/wisp-ghost.png?v=3';
+})();
 const _PHYS_STEP = 1000/60;
 
 // ── Player ──────────────────────────────────────
@@ -3429,45 +3448,29 @@ function drawPlayer(){
   });
 
   ctx.save();
-  ctx.translate(px+P.w/2,py+P.h/2);
 
   const bodyCol = GS.level>=8?'#60c0ff':GS.level>=6?'#c080ff':GS.level>=4?'#d0a0ff':'#80ee60';
-  ctx.shadowColor=bodyCol+'cc';
-  ctx.shadowBlur=16;
 
-  const bg=ctx.createRadialGradient(-2,-4,2,0,0,14);
-  bg.addColorStop(0,'#e8ffe0');
-  bg.addColorStop(0.4,bodyCol);
-  bg.addColorStop(1,'rgba(20,100,10,.3)');
-  ctx.fillStyle=bg;
-  ctx.beginPath();
-  ctx.ellipse(0,0,13,15,0,0,Math.PI*2);
-  ctx.fill();
+  // Glow wokół sprite'a
+  ctx.shadowColor = bodyCol;
+  ctx.shadowBlur = 22;
 
-  // Key glow if carrying
-  if(P.hasKey){
-    ctx.strokeStyle='rgba(255,215,0,.6)';
-    ctx.lineWidth=2;
-    ctx.beginPath();
-    ctx.arc(0,0,17,0,Math.PI*2);
-    ctx.stroke();
+  if(_wispSprite){
+    // Sprite ikony — lekko większy od hitboxa żeby glow był widoczny
+    ctx.drawImage(_wispSprite, px-6, py-10, 34, 38);
+  } else {
+    // Fallback zanim sprite się załaduje
+    ctx.fillStyle = bodyCol;
+    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2,12,0,Math.PI*2);ctx.fill();
   }
 
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#0a200a';
-  ctx.beginPath();ctx.arc(-4,-3,2.5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(4,-3,2.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='white';
-  ctx.beginPath();ctx.arc(-3,-4,1,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(5,-4,1,0,Math.PI*2);ctx.fill();
-
-  // Tail
-  ctx.strokeStyle=bodyCol+'66';
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(0,12);
-  ctx.quadraticCurveTo(6*Math.sin(P.animT),20,0,26);
-  ctx.stroke();
+  // Key glow
+  if(P.hasKey){
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(255,215,0,.6)';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2-2,16,0,Math.PI*2);ctx.stroke();
+  }
 
   ctx.restore();
 }
