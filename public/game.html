@@ -493,7 +493,7 @@ canvas{
             <span class="diff-lives">1 życie na start</span>
           </div>
         </div>
-        <button class="btn btn-green" id="start-btn" onclick="startGame()" style="margin-top:16px;">▶ ZAGRAJ</button>
+        <button class="btn btn-green" id="start-btn" onclick="startGame()" style="margin-top:16px;">▶ ZAGRAJ OD NOWA</button>
         <div id="continue-wrap"></div>
         <div style="display:flex;gap:5px;margin-top:8px;justify-content:center;">
           <button id="btn-help" onclick="showHelp()" style="background:rgba(20,40,60,.7);color:#90c0e0;border:1px solid #406080;border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer;touch-action:manipulation;"><span id="btn-help-lbl">❓ Instrukcja</span></button>
@@ -1107,7 +1107,7 @@ const LANGS = {
     livesEasy:    '5 żyć na start',
     livesMedium:  '3 życia na start',
     livesHard:    '1 życie na start',
-    play:         '▶ ZAGRAJ',
+    play:         '▶ ZAGRAJ OD NOWA',
     continueBtn:  (lvl,sc) => `▶ Kontynuuj (Poziom ${lvl}, ⭐${sc})`,
     clearSave:    '🗑 Usuń zapis i zacznij od nowa',
     help:         '❓ Instrukcja',
