@@ -2471,23 +2471,14 @@ function loadLevel(n){
 function updateHUD(){
   const lr = document.getElementById('lives-row');
   lr.innerHTML='';
-  if(GS.lives <= 5){
-    for(let i=0;i<GS.lives;i++){
-      const h=document.createElement('span');
-      h.className='heart';
-      h.textContent='❤️';
-      lr.appendChild(h);
-    }
-  } else {
-    const h=document.createElement('span');
-    h.className='heart';
-    h.textContent='❤️';
-    lr.appendChild(h);
-    const cnt=document.createElement('span');
-    cnt.style.cssText='font-family:Lora,serif;font-size:12px;color:#e09090;margin-left:3px;vertical-align:middle;';
-    cnt.textContent='×'+GS.lives;
-    lr.appendChild(cnt);
-  }
+  const h=document.createElement('span');
+  h.className='heart';
+  h.textContent= GS.lives > 0 ? '❤️' : '🖤';
+  lr.appendChild(h);
+  const cnt=document.createElement('span');
+  cnt.style.cssText='font-family:\'Uncial Antiqua\',cursive;font-size:13px;color:#e09090;margin-left:3px;vertical-align:middle;text-shadow:0 0 6px rgba(220,80,80,.6);';
+  cnt.textContent='×'+GS.lives;
+  lr.appendChild(cnt);
   document.getElementById('score-display').textContent='⭐ '+GS.score;
   const ld=document.getElementById('level-display');
   ld.textContent=LANG.levelWord+' '+GS.level;
