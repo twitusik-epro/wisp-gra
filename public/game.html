@@ -362,7 +362,7 @@ canvas{
 </head>
 <body>
 
-<!-- Splash screen — nowe logo, 2 sekundy przy starcie -->
+<!-- Splash screen — nowe logo, 0.75 sekundy przy starcie -->
 <div id="splash-screen" style="position:fixed;inset:0;z-index:9999;background:#040a04;display:flex;align-items:center;justify-content:center;transition:opacity .6s;">
   <img src="/wisp-splash.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Wisp">
 </div>
@@ -371,7 +371,7 @@ canvas{
     var s = document.getElementById('splash-screen');
     s.style.opacity = '0';
     setTimeout(function(){ s.style.display = 'none'; }, 650);
-  }, 2000);
+  }, 750);
 </script>
 
 <!-- Panel lewy — widoczny tylko na desktopie -->
