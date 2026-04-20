@@ -283,11 +283,11 @@ canvas{
 .hud-btn{width:32px;height:32px;border-radius:50%;background:rgba(0,20,0,.85);border:1px solid rgba(80,160,60,.6);
   display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;
   transition:all .15s;color:rgba(200,255,180,.95);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.7);
-  position:relative;overflow:hidden;}
+  position:relative;overflow:hidden;isolation:isolate;}
 #lang-btn{width:auto;padding:0 8px;border-radius:12px;white-space:nowrap;}
 .hud-btn:hover{background:rgba(40,90,30,.8);transform:scale(1.1);}
-.hud-btn.muted::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(to bottom-right,transparent 42%,#e03030 42%,#e03030 58%,transparent 58%);
+.hud-btn.muted::after{content:'';position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to bottom-right,transparent 40%,#e03030 40%,#e03030 60%,transparent 60%);
   border-radius:50%;pointer-events:none;}
 
 /* Pause screen */
