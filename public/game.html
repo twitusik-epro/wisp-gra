@@ -283,13 +283,10 @@ canvas{
 .hud-btn{width:32px;height:32px;border-radius:50%;background:rgba(0,20,0,.85);border:1px solid rgba(80,160,60,.6);
   display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;
   transition:all .15s;color:rgba(200,255,180,.95);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.7);
-  position:relative;overflow:hidden;}
+}
 #lang-btn{width:auto;padding:0 8px;border-radius:12px;white-space:nowrap;}
 .hud-btn:hover{background:rgba(40,90,30,.8);transform:scale(1.1);}
-.mslash{display:none;position:absolute;inset:0;border-radius:50%;pointer-events:none;
-  background:linear-gradient(to bottom-right,transparent 40%,#e03030 40%,#e03030 60%,transparent 60%);
-  transform:translateZ(0);}
-.hud-btn.muted .mslash{display:block;}
+.hud-btn.muted{background:rgba(90,0,0,.9);border-color:#cc2020;box-shadow:0 0 7px rgba(200,30,30,.6),0 1px 4px rgba(0,0,0,.7);}
 
 /* Pause screen */
 #pause-screen{position:absolute;inset:0;background:rgba(4,12,4,.94);
@@ -402,8 +399,8 @@ canvas{
         </div>
         <div id="hud-btns">
           <div class="hud-btn" id="lang-btn" onclick="toggleLang()" title="Language">🇬🇧 EN</div>
-          <div class="hud-btn" id="btn-mute" onclick="toggleMute()" title="Muzyka">🎵<span class="mslash"></span></div>
-          <div class="hud-btn" id="btn-sfx" onclick="toggleSfx()" title="Efekty">🔔<span class="mslash"></span></div>
+          <div class="hud-btn" id="btn-mute" onclick="toggleMute()" title="Muzyka">🎵</div>
+          <div class="hud-btn" id="btn-sfx" onclick="toggleSfx()" title="Efekty">🔔</div>
           <div class="hud-btn" id="btn-pause" onclick="togglePause()" title="Pauza">⏸</div>
           <div class="hud-btn" onclick="if(GS.state==='playing'&&!isPaused)togglePause();showRanking();" title="Ranking">🏆</div>
         </div>
