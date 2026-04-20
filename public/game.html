@@ -2785,7 +2785,7 @@ let isMuted = false;
 function toggleMute(){
   isMuted = !isMuted;
   const btn = document.getElementById('btn-mute');
-  btn.style.opacity = isMuted ? '0.35' : '';
+  btn.innerHTML = isMuted ? '<s>🎵</s>' : '🎵';
   try {
     if(isMuted) Audio.setMusicVol(0);
     else         Audio.setMusicVol(0.22);
@@ -3697,7 +3697,7 @@ startFreeLifeTimer();
 try{
   if(localStorage.getItem('wisp_music_mute')==='1'){
     isMuted=true;
-    document.getElementById('btn-mute').style.opacity='0.35';
+    document.getElementById('btn-mute').innerHTML='<s>🎵</s>';
     Audio.setMusicVol(0);
   }
 }catch(e){}
