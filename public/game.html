@@ -282,9 +282,13 @@ canvas{
 #hud-btns{display:flex;gap:5px;align-items:center;pointer-events:all;}
 .hud-btn{width:32px;height:32px;border-radius:50%;background:rgba(0,20,0,.85);border:1px solid rgba(80,160,60,.6);
   display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;
-  transition:all .15s;color:rgba(200,255,180,.95);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.7);}
+  transition:all .15s;color:rgba(200,255,180,.95);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.7);
+  position:relative;overflow:hidden;}
 #lang-btn{width:auto;padding:0 8px;border-radius:12px;white-space:nowrap;}
 .hud-btn:hover{background:rgba(40,90,30,.8);transform:scale(1.1);}
+.hud-btn.muted::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom-right,transparent 42%,#e03030 42%,#e03030 58%,transparent 58%);
+  border-radius:50%;pointer-events:none;}
 
 /* Pause screen */
 #pause-screen{position:absolute;inset:0;background:rgba(4,12,4,.94);
@@ -2785,7 +2789,7 @@ let isMuted = false;
 function toggleMute(){
   isMuted = !isMuted;
   const btn = document.getElementById('btn-mute');
-  btn.innerHTML = isMuted ? '<s>🎵</s>' : '🎵';
+  btn.classList.toggle('muted', isMuted);
   try {
     if(isMuted) Audio.setMusicVol(0);
     else         Audio.setMusicVol(0.22);
@@ -2797,7 +2801,7 @@ window.toggleMute = toggleMute;
 let isSfxMuted = false;
 function toggleSfx(){
   isSfxMuted = !isSfxMuted;
-  document.getElementById('btn-sfx').textContent = isSfxMuted ? '🔕' : '🔔';
+  document.getElementById('btn-sfx').classList.toggle('muted', isSfxMuted);
   try {
     if(isSfxMuted) Audio.setSfxVol(0);
     else            Audio.setSfxVol(1.0);
@@ -3697,14 +3701,14 @@ startFreeLifeTimer();
 try{
   if(localStorage.getItem('wisp_music_mute')==='1'){
     isMuted=true;
-    document.getElementById('btn-mute').innerHTML='<s>🎵</s>';
+    document.getElementById('btn-mute').classList.add('muted');
     Audio.setMusicVol(0);
   }
 }catch(e){}
 try{
   if(localStorage.getItem('wisp_sfx_mute')==='1'){
     isSfxMuted=true;
-    document.getElementById('btn-sfx').textContent='🔕';
+    document.getElementById('btn-sfx').classList.add('muted');
     Audio.setSfxVol(0);
   }
 }catch(e){}
