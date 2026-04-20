@@ -396,9 +396,9 @@ canvas{
           <div id="level-display">LEVEL 1</div>
         </div>
         <div id="hud-btns">
-          <div class="hud-btn" id="user-badge" style="display:none;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;"></div>
           <div class="hud-btn" id="lang-btn" onclick="toggleLang()" title="Language">🇬🇧 EN</div>
-          <div class="hud-btn" id="btn-mute" onclick="toggleMute()" title="Wycisz">🔊</div>
+          <div class="hud-btn" id="btn-mute" onclick="toggleMute()" title="Muzyka">🎵</div>
+          <div class="hud-btn" id="btn-sfx" onclick="toggleSfx()" title="Efekty">🔔</div>
           <div class="hud-btn" id="btn-pause" onclick="togglePause()" title="Pauza">⏸</div>
           <div class="hud-btn" onclick="if(GS.state==='playing'&&!isPaused)togglePause();showRanking();" title="Ranking">🏆</div>
         </div>
@@ -565,6 +565,7 @@ const Audio = (() => {
   let ctx = null;
   let musicNodes = [];
   let musicGain = null;
+  let sfxGain = null;
   let currentTheme = -1;
   let musicScheduled = false;
   let masterGain = null;
@@ -578,6 +579,9 @@ const Audio = (() => {
     musicGain = ctx.createGain();
     musicGain.gain.value = 0.22;
     musicGain.connect(masterGain);
+    sfxGain = ctx.createGain();
+    sfxGain.gain.value = 1.0;
+    sfxGain.connect(masterGain);
   }
 
   // ── Utility: play a single tone ──
@@ -592,7 +596,7 @@ const Audio = (() => {
     g.gain.setValueAtTime(vol, ctx.currentTime + delay + attack + sustain);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + attack + sustain + release);
     o.connect(g);
-    g.connect(dest || masterGain);
+    g.connect(dest || sfxGain);
     o.start(ctx.currentTime + delay);
     o.stop(ctx.currentTime + delay + attack + sustain + release + 0.05);
     return { o, g };
@@ -616,7 +620,7 @@ const Audio = (() => {
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
     src.connect(filt);
     filt.connect(g);
-    g.connect(masterGain);
+    g.connect(sfxGain);
     src.start(ctx.currentTime + delay);
     src.stop(ctx.currentTime + delay + duration + 0.05);
   }
@@ -648,7 +652,7 @@ const Audio = (() => {
     o.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.7);
     g.gain.setValueAtTime(0.2, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    o.connect(g); g.connect(masterGain);
+    o.connect(g); g.connect(sfxGain);
     o.start(); o.stop(ctx.currentTime + 0.85);
     noise(0.15, 0.4, 200, 0.5, 0.05);
   }
@@ -929,6 +933,8 @@ const Audio = (() => {
 
   return { init, sfxJump, sfxGem, sfxKey, sfxDie, sfxEnemyKill, sfxLevelComplete, sfxBuyLives, sfxLand, stopMusic, playAmbientLoop,
     setMasterVol: (v) => { if(masterGain) masterGain.gain.value = v; },
+    setMusicVol:  (v) => { if(musicGain)  musicGain.gain.value  = v; },
+    setSfxVol:    (v) => { if(sfxGain)    sfxGain.gain.value    = v; },
     suspend: suspendAudio,
     resume:  resumeAudio,
   };
@@ -2778,16 +2784,27 @@ window.togglePause = togglePause;
 let isMuted = false;
 function toggleMute(){
   isMuted = !isMuted;
-  document.getElementById('btn-mute').textContent = isMuted ? '🔇' : '🔊';
+  const btn = document.getElementById('btn-mute');
+  btn.style.opacity = isMuted ? '0.35' : '';
   try {
-    const ctx = Audio._getCtx && Audio._getCtx();
-    // Globalny gain obsługuje mute
-    if(isMuted) Audio.setMasterVol(0);
-    else         Audio.setMasterVol(0.7);
+    if(isMuted) Audio.setMusicVol(0);
+    else         Audio.setMusicVol(0.22);
   } catch(e){}
-  try{ localStorage.setItem('wisp_mute', isMuted?'1':'0'); }catch(e){}
+  try{ localStorage.setItem('wisp_music_mute', isMuted?'1':'0'); }catch(e){}
 }
 window.toggleMute = toggleMute;
+
+let isSfxMuted = false;
+function toggleSfx(){
+  isSfxMuted = !isSfxMuted;
+  document.getElementById('btn-sfx').textContent = isSfxMuted ? '🔕' : '🔔';
+  try {
+    if(isSfxMuted) Audio.setSfxVol(0);
+    else            Audio.setSfxVol(1.0);
+  } catch(e){}
+  try{ localStorage.setItem('wisp_sfx_mute', isSfxMuted?'1':'0'); }catch(e){}
+}
+window.toggleSfx = toggleSfx;
 
 // ── Heart break animation ────────────────────────
 function animateHeartLoss(){
@@ -3676,11 +3693,19 @@ if('serviceWorker' in navigator){
 }
 startFreeLifeTimer();
 
-// Przywróć stan wyciszenia
+// Przywróć stan wyciszenia muzyki i efektów
 try{
-  if(localStorage.getItem('wisp_mute')==='1'){
+  if(localStorage.getItem('wisp_music_mute')==='1'){
     isMuted=true;
-    document.getElementById('btn-mute').textContent='🔇';
+    document.getElementById('btn-mute').style.opacity='0.35';
+    Audio.setMusicVol(0);
+  }
+}catch(e){}
+try{
+  if(localStorage.getItem('wisp_sfx_mute')==='1'){
+    isSfxMuted=true;
+    document.getElementById('btn-sfx').textContent='🔕';
+    Audio.setSfxVol(0);
   }
 }catch(e){}
 
@@ -3954,7 +3979,6 @@ const WispAuth = (function(){
   function updateAuthUI(){
     const user  = getUser();
     const panel = document.getElementById('auth-panel');
-    const badge = document.getElementById('user-badge');
 
     if(user && getToken()){
       // Zalogowany
@@ -3962,7 +3986,6 @@ const WispAuth = (function(){
       const playerLabel  = LANG_CODE==='pl'?'Gracz':(LANG_CODE==='de'?'Spieler':(LANG_CODE==='es'?'Jugador':(LANG_CODE==='fr'?'Joueur':'Player')));
       const changeLabel  = LANG_CODE==='pl'?'✏️ Nick':(LANG_CODE==='de'?'✏️ Nick':(LANG_CODE==='es'?'✏️ Nick':'✏️ Nick'));
       if(panel) panel.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90d090;background:rgba(0,60,0,.4);border:1px solid #306030;border-radius:8px;padding:5px 12px;">${user.avatar_url?`<img src="${user.avatar_url}" style="width:22px;height:22px;border-radius:50%;">`:''}<span id="auth-nick-label">${user.nick||user.email||playerLabel}</span> <button class="btn" onclick="WispAuth.changeNick()" style="padding:3px 8px;font-size:10px;background:rgba(20,60,20,.7);color:#90d090;border:1px solid #306030;">${changeLabel}</button> <button class="btn" onclick="WispAuth.logout()" style="padding:3px 8px;font-size:10px;background:rgba(80,20,20,.7);color:#e09090;border:1px solid #602020;">${logoutLabel}</button></div>`;
-      if(badge){ badge.textContent = '👤 '+(user.nick||'?'); badge.style.display='flex'; }
     } else {
       // Niezalogowany
       const loginLabel = LANG_CODE==='pl'?'🔑 Zaloguj przez Google':(LANG_CODE==='de'?'🔑 Mit Google anmelden':(LANG_CODE==='es'?'🔑 Iniciar con Google':(LANG_CODE==='fr'?'🔑 Connexion Google':'🔑 Sign in with Google')));
@@ -4097,8 +4120,6 @@ const WispAuth = (function(){
       if(u){ u.nick = nick; localStorage.setItem('wisp_user', JSON.stringify(u)); }
       const label = document.getElementById('auth-nick-label');
       if(label) label.textContent = nick;
-      const badge = document.getElementById('user-badge');
-      if(badge) badge.textContent = '👤 '+nick;
     } catch(e){ console.error(e); }
   }
 
