@@ -2856,8 +2856,8 @@ function showResultScreen(type){
         ${posStr}
       </div>
       <div style="margin:10px 14px;background:rgba(255,255,255,0.06);border:1px solid ${accent}44;border-radius:10px;padding:10px 12px;flex-shrink:0;">
-        <div style="color:${accent};font-size:10px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;font-family:Lora,serif;">${LANG.eduTitle}</div>
-        <div style="color:#d8f0c0;font-size:12px;line-height:1.55;font-family:Lora,serif;">${fact}</div>
+        <div style="color:${accent};font-size:14px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;font-family:Lora,serif;text-align:center;">${LANG.eduTitle}</div>
+        <div style="color:#d8f0c0;font-size:17px;line-height:1.55;font-family:Lora,serif;text-align:center;">${fact}</div>
       </div>
       <div style="padding:0 14px 12px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
         <button class="btn btn-green" onclick="nextLevel()" style="margin:0;">${LANG.nextLevel}</button>
@@ -3136,6 +3136,11 @@ function _bgmStop() {
   _bgmWorld = 0;
 }
 function _bgmVol(v) { if (_bgmAudio) _bgmAudio.volume = v; }
+document.addEventListener('visibilitychange', () => {
+  if (!_bgmAudio) return;
+  if (document.hidden) { _bgmAudio.pause(); }
+  else if (!isMuted) { _bgmAudio.play().catch(()=>{}); }
+});
 
 function toggleMute(){
   isMuted = !isMuted;
