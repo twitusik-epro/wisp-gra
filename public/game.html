@@ -39,6 +39,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Lora:ital,wght@0,400;1,300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;touch-action:none;background:#000;}
+body{background-image:url('assets/ui/menu_bg_v3.png');background-size:cover;background-position:center top;background-attachment:fixed;}
 body{display:flex;justify-content:center;align-items:stretch;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
 #wrap{
   width:480px;max-width:100vw;
@@ -48,6 +49,7 @@ body{display:flex;justify-content:center;align-items:stretch;padding-top:env(saf
 }
 /* Desktop panels */
 #desktop-left,#desktop-right{
+  background:transparent;
   display:none;
   flex-direction:column;
   justify-content:center;
@@ -58,14 +60,14 @@ body{display:flex;justify-content:center;align-items:stretch;padding-top:env(saf
 }
 #desktop-left{align-items:flex-end;text-align:right;}
 #desktop-right{align-items:flex-start;text-align:left;}
-.dp-logo{font-family:'Uncial Antiqua',cursive;font-size:28px;color:#b0f080;text-shadow:0 0 20px rgba(120,255,60,.5);line-height:1.2;}
-.dp-logo span{display:block;font-size:14px;color:#60a040;font-family:'Lora',serif;font-style:italic;margin-top:4px;}
-.dp-feature{color:#6a9a6a;font-family:'Lora',serif;font-size:13px;line-height:1.7;}
-.dp-feature strong{display:block;color:#90c870;font-size:14px;margin-bottom:2px;}
-.dp-divider{width:1px;height:60px;background:linear-gradient(180deg,transparent,#1a4a1a,transparent);align-self:center;}
-.dp-badge{display:inline-block;background:#0a1a0a;border:1px solid #1a4a1a;border-radius:20px;padding:6px 14px;font-family:'Lora',serif;font-size:12px;color:#4a8a4a;}
+.dp-logo{font-family:'Uncial Antiqua',cursive;font-size:28px;color:#e8ffcc;text-shadow:0 0 16px rgba(60,180,20,.9),0 2px 8px rgba(0,0,0,.9);line-height:1.2;}
+.dp-logo span{display:block;font-size:14px;color:#d0f0a0;font-family:'Lora',serif;font-style:italic;margin-top:4px;text-shadow:0 1px 6px rgba(0,0,0,.8);}
+.dp-feature{color:#f0ffe0;font-family:'Lora',serif;font-size:13px;line-height:1.7;text-shadow:0 1px 6px rgba(0,0,0,.85);}
+.dp-feature strong{display:block;color:#d8ffaa;font-size:14px;margin-bottom:2px;text-shadow:0 0 10px rgba(80,220,20,.6),0 1px 6px rgba(0,0,0,.9);}
+.dp-divider{width:1px;height:60px;background:linear-gradient(180deg,transparent,rgba(200,255,150,.4),transparent);align-self:center;}
+.dp-badge{display:inline-block;background:transparent;border:none;border-radius:20px;padding:6px 14px;font-family:'Lora',serif;font-size:12px;color:#e8ffcc;text-shadow:0 1px 7px rgba(0,0,0,.95),0 0 12px rgba(0,0,0,.8);}
 @media(min-width:800px){
-  body{background:#020802;}
+  body{background:#0a0f08;}
   #desktop-left,#desktop-right{display:flex;}
   #btn-install,#menu-lang-btn{display:none!important;}
   #btn-install-gplay{display:none!important;}
@@ -101,7 +103,13 @@ canvas{
 #wind-indicator{position:absolute;top:52px;right:16px;font-size:13px;font-family:'Lora',serif;color:#a0d0ff;opacity:0;transition:opacity 0.3s;}
 
 /* Overlay */
-#overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;pointer-events:all;transition:opacity .4s;}
+#overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;pointer-events:all;transition:opacity .4s;
+  background-image:url('assets/ui/menu_bg_v3.png');background-size:cover;background-position:center top;}
+#overlay::before{content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(180deg,rgba(8,20,8,.18) 0%,rgba(4,12,4,.55) 60%,rgba(2,8,2,.82) 100%);
+  pointer-events:none;z-index:0;}
+#overlay>*{position:relative;z-index:1;}
+#overlay canvas{position:absolute!important;z-index:2;}
 #overlay h1{font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;line-height:1.4;margin-bottom:8px;}
 #overlay .sub{font-family:'Lora',serif;font-style:italic;font-size:15px;text-align:center;margin:6px 24px;line-height:1.6;}
 #overlay .big-score{font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;}
@@ -359,7 +367,7 @@ canvas{
 }
 #btn-install-gplay:active{transform:scale(.95);}
 @keyframes floatWisp{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.menu-wisp-float{animation:floatWisp 3s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(80,220,40,.5));flex-shrink:0;}
+.menu-wisp-float{animation:floatWisp 3s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(120,255,60,.8));flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -465,20 +473,20 @@ canvas{
         </div>
       </div>
       <div id="wind-indicator"></div>
-      <div id="overlay" style="background:rgba(4,10,4,.92);">
+      <div id="overlay" style="">
         <canvas id="menu-particles" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
         <button onclick="toggleLang()" id="menu-lang-btn" style="position:absolute;top:10px;right:12px;background:rgba(20,20,40,.7);color:#a0a0e0;border:1px solid #404060;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;z-index:5;">🌍 EN</button>
         <div id="title-row">
           <img src="/wisp-menu-icon.png?v=2" width="60" height="60" alt="Wisp" class="menu-wisp-float">
-          <h1 style="color:#b8f0a0;">🌿 Wisp</h1>
+          <h1 style="color:#d8ffa0;text-shadow:0 0 18px rgba(120,255,60,.7),0 2px 8px rgba(0,0,0,.8);">🌿 Wisp</h1>
           <a href="https://play.google.com/store/apps/details?id=com.epro.wisp" target="_blank" rel="noopener" id="btn-install-gplay">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-bottom:2px;"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
             <span id="btn-install-lbl" style="font-family:'Uncial Antiqua',cursive;font-size:11px;letter-spacing:.3px;">Zainstaluj</span>
             <span style="font-size:9px;opacity:.75;font-family:'Lora',serif;margin-top:1px;">Google Play</span>
           </a>
         </div>
-        <div class="sub" id="menu-subtitle" style="color:#6a9a6a;">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
-        <div class="sub" id="menu-choosediff" style="color:#5a8a5a;margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
+        <div class="sub" id="menu-subtitle" style="color:#c8f0a0;text-shadow:0 1px 8px rgba(0,0,0,.7);">Duch zaginionego lasu.<br>Przebudź magię — ocal swój świat.</div>
+        <div class="sub" id="menu-choosediff" style="color:#b0e890;text-shadow:0 1px 6px rgba(0,0,0,.6);margin-top:6px;font-size:13px;">Wybierz poziom trudności:</div>
         <div class="diff-row">
           <div class="diff-btn easy selected" id="diff-easy" onclick="selectDiff('easy')">
             <span class="diff-icon">😊</span>Łatwy
@@ -501,7 +509,7 @@ canvas{
           <button id="btn-badges" onclick="showAchievements()" style="background:rgba(10,30,40,.7);color:#80d0ff;border:1px solid #206080;border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer;touch-action:manipulation;"><span id="btn-badges-lbl">🏅 Odznaki</span></button>
           <a href="/blog/" id="btn-blog" style="background:rgba(10,30,10,.7);color:#80d080;border:1px solid #206020;border-radius:8px;padding:5px 7px;font-size:10px;text-decoration:none;display:flex;align-items:center;"><span id="btn-blog-lbl">📝 Blog</span></a>
         </div>
-        <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#3a6a3a;">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
+        <div class="sub" id="menu-controls" style="margin-top:10px;font-size:11px;color:#90c870;text-shadow:0 1px 4px rgba(0,0,0,.6);">Strzałki + Spacja &nbsp;|&nbsp; Joystick na ekranie</div>
         <!-- AUTH PANEL -->
         <div id="auth-panel" style="margin-top:10px;"></div>
         <div style="margin-top:12px;font-size:10px;color:#2a4a2a;" id="legal-links">
@@ -1142,6 +1150,7 @@ const LANGS = {
     world3Entry:  '❄️ Świat 3: Zimowy Las',
     world4Entry:  '🌫️ Świat 4: Las we Mgle',
     levelDone:    (n) => `✨ Poziom ${n}<br>Ukończony!`,
+    eduTitle:     '🌿 CZY WIESZ, ŻE…',
     nextLevel:    '▶ Następny Poziom',
     seeRanking:   '🏆 Zobacz ranking',
     finish:       '🌿 Las Ocalony!',
@@ -1161,7 +1170,7 @@ const LANGS = {
     yourPos:      (n) => `🏆 Pozycja #${n} w rankingu!`,
     install:      'Zainstaluj',
     diffLabel:    { easy:'😊 Łatwy', medium:'😐 Średni', hard:'💀 Trudny' },
-    levelNames:   ['Zaczarowany Las','Głęboki Las','Pradawny Gaj','Las o Zmierzchu','Purpurowa Knieja','Nocna Burza','Czarna Godzina','Zamarznięty Las','Lodowa Puszcza','Serce Ciemności','Próg Podziemia','Ciemne Korzenie','Kryształowa Grota','Głębokość Kryształu','Grzybnia','Purpurowe Pieczary','Labirynt Korzeni','Jantarowe Pieczary','Korzeń Czasu','Serce Lasu','Zamarznięty Świt','Śnieżna Polana','Lodowy Gaj','Kryształowy Wiatr','Śnieżyca','Zmrożony Jar','Mroźna Noc','Lodowy Labirynt','Arktyczna Przepaść','Lodowe Serce','Mglisty Świt','Zasłona Mgły','Gęsta Mgła','Zielona Otchłań','Mglisty Zmierzch','Ściana Cienia','Mglisty Mrok','Cień Bez Krawędzi','Mgła Wieczności','Ostatnia Mgła'],
+    levelNames:   ['Świt Zaczarowanego Lasu','Ścieżka Świetlistych Paproci','Polana Pradawnych Dębów','Magiczny Strumień','Tęczowa Przesieka','Las Świetlistych Run','Wodospad Czarów','Gaj Świecących Grzybów','Most Koron Drzew','Drzewo Życia','Brama Wiśniowych Kwiatów','Ogród Kolorowych Grzybów','Tęczowa Łąka Kwiatów','Dolina Motyli','Ogród Różany','Pole Lawendy o Zachodzie','Słonecznikowa Polana','Tajny Ogród Wróżek','Ogród Kryształowych Kwiatów','Raj Kwiatowego Finału','Złoty Świt Jesieni','Mglisty Ranek w Klonach','Bursztynowa Knieja','Gaj Czerwonych Klonów','Złota Godzina','Rzeka Przez Jesień','Stary Dąb o Zmierzchu','Wieczór ze Świetlikami','Fioletowy Zmierzch','Drzewo Złotych Liści','Pierwszy Śnieg','Sosnowy Las pod Śniegiem','Lodowa Jaskinia','Zamarznięte Jezioro','Śnieżne Szczyty','Las Lodowych Kryształów','Zorza Polarna','Zimowa Noc Gwiazd','Lodowy Pałac','Dom Wispa'],
     levelQuotes:  ['Odwagi, mały duchu...','Las woła dalej...','Ciemność gęstnieje...','Wiatr przyśpiesza...','Noc zapada nad lasem...','Burza nadchodzi...','Mróz ściska gałęzie...','Lód skrywa tajemnice...','Lodowa otchłań czeka...','To jest koniec... lub początek.','Głębiej, mały duchu...','Korzenie znają drogę...','Kryształy śpiewają w ciemności...','Głębiej, gdzie świat milknie...','Grzyby świecą zamiast gwiazd...','Purpura zalewa tunele...','Korzenie oplatają wszystko...','Bursztyn przechowuje sekrety lasu...','Czas płynie wolniej pod ziemią...','Tu bije serce lasu.','Mróz wita cię z zimnym uśmiechem...','Śnieg przysypuje wszystkie ślady...','Każdy oddech tworzy chmurę pary...','Wiatr niesie kryształki lodu...','Śnieżyca zasłania horyzont...','Lód pęka pod stopami...','Noc mroźna jak żelazo...','Labirynt lodu nie ma końca...','Arktyczny wicher wyje bez litości...','Tu zamarza samo serce zimy.','Mgła kryje ścieżkę...','W bieli nie widać końca...','Gęstnieje, gęstnieje...','Zieleń pochłania światło...','Zmierzch i mgła — jedno i to samo...','Cień nie ma krawędzi...','Mrok i mgła splecione na zawsze...','Nie widać niczego przed sobą...','Wieczność smakuje jak wilgoć...','To jest ostatni krok.'],
     achievements: [
       {name:'Pierwszy Świetlik',    desc:'Zbierz swój pierwszy świetlik'},
@@ -1234,6 +1243,7 @@ const LANGS = {
     world3Entry:  '❄️ World 3: Winter Forest',
     world4Entry:  '🌫️ World 4: Forest in the Mist',
     levelDone:    (n) => `✨ Level ${n}<br>Complete!`,
+    eduTitle:     '🌿 DID YOU KNOW…',
     nextLevel:    '▶ Next Level',
     seeRanking:   '🏆 See ranking',
     finish:       '🌿 Forest Saved!',
@@ -1253,7 +1263,7 @@ const LANGS = {
     yourPos:      (n) => `🏆 Ranking position #${n}!`,
     install:      'Install',
     diffLabel:    { easy:'😊 Easy', medium:'😐 Medium', hard:'💀 Hard' },
-    levelNames:   ['Enchanted Forest','The Deep Woods','Ancient Grove','Forest at Dusk','Purple Thicket','Night Storm','The Dark Hour','Frozen Forest','Ice Wilderness','Heart of Darkness','The Cave Threshold','Dark Roots','Crystal Grotto','Crystal Depths','Mushroom Garden','Purple Caverns','Root Labyrinth','Amber Caves','Root of Time','Heart of the Forest','Frozen Dawn','Snowy Glade','Ice Grove','Crystal Wind','Blizzard','The Frozen Ravine','Frosty Night','Ice Labyrinth','Arctic Abyss','Heart of Ice','Misty Dawn','The Veil of Mist','Dense Fog','The Green Abyss','Twilight Mist','Wall of Shadow','Midnight Fog','The Edgeless Dark','Fog of Eternity','The Last Mist'],
+    levelNames:   ['Enchanted Forest Dawn','Path of Glowing Ferns','Ancient Oak Clearing','The Magical Stream','Rainbow Canopy','Forest of Glowing Runes','Waterfall of Wonders','Luminous Mushroom Grove','Treetop Sky Bridge','The Tree of Life','Cherry Blossom Gate','Colorful Mushroom Garden','Rainbow Flower Meadow','Butterfly Valley','The Rose Garden','Lavender Sunset Field','Sunflower Meadow','Secret Fairy Garden','Crystal Flower Garden','Flower Meadow Paradise','Golden Autumn Dawn','Misty Maple Morning','Amber Forest','Red Maple Grove','Golden Hour Sunset','Autumn River','Ancient Oak at Dusk','Firefly Evening','Purple Twilight','Tree of Golden Leaves','First Snowfall','Snowy Pine Forest','Ice Crystal Cave','Frozen Lake','Snowy Mountain Forest','Ice Crystal Forest','Northern Lights','Winter Night of Stars','Ice Palace','Wisp\'s Home'],
     levelQuotes:  ['Courage, little spirit...','The forest calls onward...','The darkness thickens...','The wind picks up...','Night falls over the forest...','A storm is coming...','Frost grips the branches...','Ice hides its secrets...','The frozen abyss awaits...','This is the end... or the beginning.','Deeper, little spirit...','The roots know the way...','Crystals sing in the darkness...','Deeper, where the world falls silent...','Mushrooms glow instead of stars...','Purple floods the tunnels...','The roots entwine everything...','Amber holds the forest\'s secrets...','Time flows slower underground...','Here beats the heart of the forest.','Frost greets you with a cold smile...','Snow covers every trace...','Each breath becomes a cloud...','The wind carries ice crystals...','The blizzard hides the horizon...','Ice cracks beneath your feet...','The night is cold as iron...','The ice labyrinth has no end...','The arctic gale howls without mercy...','Here the very heart of winter freezes.','The mist hides the path...','In the white nothing ends...','It grows thicker and thicker...','The green devours the light...','Twilight and mist — one and the same...','The shadow has no edge...','Darkness and mist entwined forever...','Nothing is visible ahead...','Eternity tastes of moisture...','This is the final step.'],
     achievements: [
       {name:'First Wisp',           desc:'Collect your first wisp'},
@@ -1327,6 +1337,7 @@ const LANGS = {
     world3Entry:  '❄️ Welt 3: Winterwald',
     world4Entry:  '🌫️ Welt 4: Wald im Nebel',
     levelDone:    (n) => `✨ Level ${n}<br>Geschafft!`,
+    eduTitle:     '🌿 WUSSTEST DU…',
     nextLevel:    '▶ Nächstes Level',
     seeRanking:   '🏆 Rangliste ansehen',
     finish:       '🌿 Wald gerettet!',
@@ -1346,7 +1357,7 @@ const LANGS = {
     yourPos:      (n) => `🏆 Ranglistenposition #${n}!`,
     install:      'Installieren',
     diffLabel:    { easy:'😊 Leicht', medium:'😐 Mittel', hard:'💀 Schwer' },
-    levelNames:   ['Verzauberter Wald','Tiefer Wald','Uralter Hain','Wald in der Dämmerung','Purpurdickicht','Nachtsturm','Die dunkle Stunde','Gefrorener Wald','Eiswildnis','Herz der Finsternis','Die Höhlenschwelle','Dunkle Wurzeln','Kristallgrotte','Kristalltiefe','Pilzgarten','Purpurhöhlen','Wurzellabyrinth','Bernsteinhöhlen','Wurzel der Zeit','Herz des Waldes','Gefrorene Morgenröte','Schneeweite','Eishain','Kristallwind','Schneesturm','Das gefrorene Tal','Frostige Nacht','Eislabyrinth','Arktischer Abgrund','Eisherz','Nebliger Morgen','Der Nebelschleier','Dichter Nebel','Der grüne Abgrund','Abendnebel','Schattenwand','Mitternachtsnebel','Das randlose Dunkel','Nebel der Ewigkeit','Der letzte Nebel'],
+    levelNames:   ['Morgengrauen im Zauberwald','Pfad der Leuchtfarne','Lichtung der Uralteichen','Der magische Bach','Regenbogenwald','Wald der Leuchtrunen','Wasserfall der Wunder','Leuchtender Pilzhain','Baumkronenpfad','Der Baum des Lebens','Kirschblütentor','Bunter Pilzgarten','Regenbogenblumenwiese','Schmetterlingstal','Der Rosengarten','Lavendelfeld bei Sonnenuntergang','Sonnenblumenwiese','Geheimer Feengarten','Kristallblumengarten','Blumenparadies','Goldener Herbstmorgen','Nebliger Ahornmorgen','Bernsteinwald','Roter Ahornhain','Die goldene Stunde','Herbstfluss','Alte Eiche im Abendrot','Glühwürmchenabend','Violette Dämmerung','Baum der Goldblätter','Erster Schneefall','Verschneiter Kiefernwald','Eiskristallhöhle','Zugefrorener See','Verschneiter Bergwald','Eiskristallwald','Nordlichter','Winternacht der Sterne','Eispalast','Wisps Zuhause'],
     levelQuotes:  ['Mut, kleiner Geist...','Der Wald ruft weiter...','Die Dunkelheit wird dichter...','Der Wind nimmt zu...','Die Nacht senkt sich über den Wald...','Ein Sturm zieht auf...','Frost greift nach den Ästen...','Das Eis hütet seine Geheimnisse...','Der eisige Abgrund wartet...','Das ist das Ende... oder der Anfang.','Tiefer, kleiner Geist...','Die Wurzeln kennen den Weg...','Kristalle singen im Dunkeln...','Tiefer, wo die Welt schweigt...','Pilze leuchten statt Sterne...','Purpur flutet die Tunnel...','Die Wurzeln umschlingen alles...','Bernstein hütet die Geheimnisse...','Die Zeit fließt langsamer unter der Erde...','Hier schlägt das Herz des Waldes.','Der Frost begrüßt dich mit kaltem Lächeln...','Schnee bedeckt jede Spur...','Jeder Atemzug wird zu einer Wolke...','Der Wind trägt Eiskristalle...','Der Schneesturm verbirgt den Horizont...','Das Eis bricht unter deinen Füßen...','Die Nacht ist kalt wie Eisen...','Das Eislabyrinth hat kein Ende...','Der Arktiksturm heult ohne Gnade...','Hier friert das Herz des Winters selbst.','Der Nebel verbirgt den Weg...','Im Weiß endet nichts...','Er wird dichter und dichter...','Das Grün verschluckt das Licht...','Abend und Nebel — eins und dasselbe...','Der Schatten hat keine Kante...','Dunkel und Nebel für immer verflochten...','Nichts ist sichtbar voraus...','Die Ewigkeit schmeckt nach Feuchtigkeit...','Dies ist der letzte Schritt.'],
     achievements: [
       {name:'Erstes Irrlicht',       desc:'Sammle dein erstes Irrlicht'},
@@ -1420,6 +1431,7 @@ const LANGS = {
     world3Entry:  '❄️ Mundo 3: Bosque de Invierno',
     world4Entry:  '🌫️ Mundo 4: Bosque en la Niebla',
     levelDone:    (n) => `✨ ¡Nivel ${n}<br>completado!`,
+    eduTitle:     '🌿 ¿SABÍAS QUE…',
     nextLevel:    '▶ Siguiente nivel',
     seeRanking:   '🏆 Ver clasificación',
     finish:       '🌿 ¡Bosque salvado!',
@@ -1439,7 +1451,7 @@ const LANGS = {
     yourPos:      (n) => `🏆 ¡Posición #${n} en la clasificación!`,
     install:      'Instalar',
     diffLabel:    { easy:'😊 Fácil', medium:'😐 Normal', hard:'💀 Difícil' },
-    levelNames:   ['Bosque Encantado','El Bosque Profundo','Arboleda Ancestral','Bosque al Anochecer','Espesura Púrpura','Tormenta Nocturna','La Hora Oscura','Bosque Helado','Páramo de Hielo','Corazón de las Tinieblas','El Umbral','Raíces Oscuras','Gruta de Cristal','Profundidades de Cristal','Jardín de Hongos','Cavernas Púrpuras','Laberinto de Raíces','Cavernas de Ámbar','Raíz del Tiempo','Corazón del Bosque','Alba Helada','Claro Nevado','Bosquecillo de Hielo','Viento de Cristal','Ventisca','El Barranco Helado','Noche Gélida','Laberinto de Hielo','Abismo Ártico','Corazón de Hielo','Amanecer Brumoso','El Velo de Niebla','Niebla Densa','El Abismo Verde','Crepúsculo Brumoso','Muro de Sombra','Niebla de Medianoche','La Oscuridad sin Bordes','Niebla de la Eternidad','La Última Niebla'],
+    levelNames:   ['Amanecer del Bosque Encantado','Sendero de Helechos Luminosos','Claro de los Robles Ancestrales','El Arroyo Mágico','Dosel Arcoíris','Bosque de las Runas Brillantes','Cascada de los Encantos','Bosque de Setas Luminosas','Puente en las Copas','El Árbol de la Vida','Portal de los Cerezos','Jardín de Setas Coloridas','Prado de Flores Arcoíris','Valle de las Mariposas','El Jardín de Rosas','Campo de Lavanda al Atardecer','Prado de Girasoles','Jardín Secreto de las Hadas','Jardín de Flores de Cristal','Paraíso Floral','Alba Dorada de Otoño','Mañana Brumosa de Arces','Bosque Ámbar','Arboleda de Arces Rojos','La Hora Dorada','Río de Otoño','Roble Ancestral al Atardecer','Tarde de Luciérnagas','Crepúsculo Violeta','Árbol de Hojas Doradas','Primera Nevada','Pinar Nevado','Cueva de Cristales de Hielo','Lago Helado','Bosque de Montaña Nevado','Bosque de Cristales de Hielo','Auroras Boreales','Noche de Invierno Estrellada','Palacio de Hielo','El Hogar de Wisp'],
     levelQuotes:  ['Valor, pequeño espíritu...','El bosque sigue llamando...','La oscuridad se espesa...','El viento arrecia...','La noche cae sobre el bosque...','Se avecina una tormenta...','La helada agarra las ramas...','El hielo guarda sus secretos...','El abismo helado espera...','Este es el fin... o el principio.','Más profundo, pequeño espíritu...','Las raíces conocen el camino...','Los cristales cantan en la oscuridad...','Más profundo, donde el mundo calla...','Los hongos brillan en lugar de estrellas...','El púrpura inunda los túneles...','Las raíces lo envuelven todo...','El ámbar guarda los secretos del bosque...','El tiempo fluye más lento bajo tierra...','Aquí late el corazón del bosque.','La escarcha te saluda con fría sonrisa...','La nieve cubre todas las huellas...','Cada aliento forma una nube...','El viento lleva cristales de hielo...','La ventisca oculta el horizonte...','El hielo cruje bajo tus pies...','La noche es fría como el hierro...','El laberinto de hielo no tiene fin...','El vendaval ártico aúlla sin piedad...','Aquí se congela el corazón del invierno.','La niebla oculta el camino...','En el blanco nada termina...','Se vuelve más y más densa...','El verde devora la luz...','Crepúsculo y niebla — lo mismo...','La sombra no tiene borde...','Oscuridad y niebla entrelazadas para siempre...','Nada se ve adelante...','La eternidad sabe a humedad...','Este es el último paso.'],
     achievements: [
       {name:'Primer Destello',       desc:'Recoge tu primer destello'},
@@ -1513,6 +1525,7 @@ const LANGS = {
     world3Entry:  '❄️ Monde 3 : Forêt d\'Hiver',
     world4Entry:  '🌫️ Monde 4 : Forêt dans le Brouillard',
     levelDone:    (n) => `✨ Niveau ${n}<br>Terminé !`,
+    eduTitle:     '🌿 LE SAVIEZ-VOUS…',
     nextLevel:    '▶ Niveau suivant',
     seeRanking:   '🏆 Voir le classement',
     finish:       '🌿 Forêt sauvée !',
@@ -1532,7 +1545,7 @@ const LANGS = {
     yourPos:      (n) => `🏆 Position #${n} au classement !`,
     install:      'Installer',
     diffLabel:    { easy:'😊 Facile', medium:'😐 Normal', hard:'💀 Difficile' },
-    levelNames:   ['Forêt Enchantée','La Forêt Profonde','Bosquet Ancestral','Forêt au Crépuscule','Fourré Pourpre','Tempête Nocturne','L\'Heure Sombre','Forêt Gelée','Wilderness de Glace','Cœur des Ténèbres','Le Seuil','Racines Sombres','Grotte de Cristal','Profondeurs de Cristal','Jardin des Champignons','Cavernes Pourpres','Labyrinthe des Racines','Cavernes d\'Ambre','Racine du Temps','Cœur de la Forêt','Aube Glacée','Clairière Enneigée','Bosquet de Glace','Vent de Cristal','Blizzard','Le Ravin Gelé','Nuit Glaciale','Labyrinthe de Glace','Abîme Arctique','Cœur de Glace','Aube Brumeuse','Le Voile de Brume','Brouillard Dense','L\'Abîme Vert','Crépuscule Brumeux','Mur d\'Ombre','Brouillard de Minuit','L\'Obscurité sans Bords','Brouillard de l\'Éternité','La Dernière Brume'],
+    levelNames:   ['L\'Aube de la Forêt Enchantée','Sentier des Fougères Lumineuses','Clairière des Chênes Ancestraux','Le Ruisseau Magique','Canopée Arc-en-ciel','Forêt des Runes Lumineuses','Cascade des Merveilles','Bosquet des Champignons Lumineux','Pont des Cimes','L\'Arbre de Vie','Portail des Cerisiers','Jardin des Champignons Colorés','Prairie des Fleurs Arc-en-ciel','Vallée des Papillons','Le Jardin des Roses','Champ de Lavande au Coucher du Soleil','Prairie des Tournesols','Jardin Secret des Fées','Jardin de Fleurs de Cristal','Paradis Floral','Aube Dorée d\'Automne','Matin Brumeux des Érables','Forêt d\'Ambre','Bosquet d\'Érables Rouges','L\'Heure Dorée','Rivière d\'Automne','Vieux Chêne au Crépuscule','Soirée des Lucioles','Crépuscule Violet','Arbre aux Feuilles d\'Or','Première Neige','Forêt de Pins Enneigée','Grotte de Cristaux de Glace','Lac Gelé','Forêt de Montagne Enneigée','Forêt de Cristaux de Glace','Aurores Boréales','Nuit d\'Hiver Étoilée','Palais de Glace','La Maison de Wisp'],
     levelQuotes:  ['Courage, petit esprit...','La forêt appelle encore...','Les ténèbres s\'épaississent...','Le vent s\'intensifie...','La nuit tombe sur la forêt...','Une tempête approche...','Le gel saisit les branches...','La glace cache ses secrets...','L\'abîme glacé attend...','C\'est la fin... ou le début.','Plus profond, petit esprit...','Les racines connaissent le chemin...','Les cristaux chantent dans l\'obscurité...','Plus profond, là où le monde se tait...','Les champignons brillent à la place des étoiles...','Le pourpre envahit les tunnels...','Les racines enveloppent tout...','L\'ambre garde les secrets de la forêt...','Le temps coule plus lentement sous terre...','Ici bat le cœur de la forêt.','Le givre vous accueille d\'un sourire froid...','La neige recouvre toutes les traces...','Chaque souffle forme un nuage...','Le vent porte des cristaux de glace...','Le blizzard cache l\'horizon...','La glace craque sous vos pieds...','La nuit est froide comme le fer...','Le labyrinthe de glace n\'a pas de fin...','La bourrasque arctique hurle sans pitié...','Ici se congèle le cœur même de l\'hiver.','Le brouillard cache le chemin...','Dans le blanc rien ne se termine...','Il s\'épaissit encore et encore...','Le vert dévore la lumière...','Crépuscule et brouillard — une seule chose...','L\'ombre n\'a pas de bord...','Ténèbres et brouillard entrelacés pour toujours...','Rien n\'est visible devant...','L\'éternité a un goût d\'humidité...','C\'est le dernier pas.'],
     achievements: [
       {name:'Premier Feu Follet',    desc:'Collectez votre premier feu follet'},
@@ -1732,7 +1745,7 @@ const _PHYS_STEP = 1000/60;
 
 // ── Player ──────────────────────────────────────
 const P = {
-  x:80,y:600,w:26,h:34,
+  x:80,y:600,w:31,h:41,
   vx:0,vy:0,onGround:false,dead:false,
   animT:0, trail:[], hasKey:false, invincible:0
 };
@@ -1806,8 +1819,11 @@ const THEMES = [
 
 // ── Level colours per theme ─────────────────────
 function themeGemColor(t){
-  const cols=['#80ff60','#80ff60','#80ff60','#df80ff','#df80ff','#80dfff','#80dfff','#80f0ff','#80f0ff','#ff8060','#40e0d0','#40e0d0','#a040ff','#a040ff','#ff40d0','#ff40d0','#ffaa20','#ffaa20','#ff6040','#ff8c40','#c0e8ff','#c0e8ff','#80d0ff','#80d0ff','#e0f0ff','#e0f0ff','#b0d8f0','#b0d8f0','#d0e8ff','#ffffff','#88cc88','#88cc88','#66aa66','#66aa66','#aabbaa','#aabbaa','#7a9a7a','#7a9a7a','#b0c8b0','#e8f8e8'];
-  return cols[t]||'#80ff60';
+  // Kontrastowe kolory do jasnych teł AI — per świat
+  if(t<=9)  return '#FF22CC'; // Świat 1 (zielony las) → jaskrawy róż/magenta
+  if(t<=19) return '#00EEFF'; // Świat 2 (łąka kwiatów) → jaskrawy cyan
+  if(t<=29) return '#4488FF'; // Świat 3 (złota jesień) → jaskrawy niebieski
+  return '#FFAA00';            // Świat 4 (zima) → jaskrawy złoty
 }
 function themeEnemyColor(t){
   const cols=['#ff6040','#ff6040','#ff6040','#c040ff','#c040ff','#4080ff','#4080ff','#40d0ff','#40d0ff','#ff2020','#40ffcc','#40ffcc','#aa60ff','#aa60ff','#ff60e0','#ff60e0','#ffcc40','#ffcc40','#ff4020','#ff6000','#60b0e0','#60b0e0','#4090c0','#4090c0','#80c8e8','#80c8e8','#3070a0','#3070a0','#204060','#102030','#a0b880','#a0b880','#80a060','#80a060','#90a890','#90a890','#607060','#607060','#404840','#202820'];
@@ -1829,8 +1845,8 @@ function buildLevel(n){
     {plat:[
       [0,680,480,20,'g'],[60,560,120,16],[240,500,100,16],[100,420,90,16],
       [280,360,110,16],[60,290,80,16],[220,220,130,16],[80,150,100,16],[260,90,120,16]],
-     spk:[[190,664,30],[340,664,40]],
-     gem:[[100,540],[270,480],[130,400],[310,340],[90,270],[260,200],[110,130],[300,70]],
+     spk:[[160,664,30],[312,664,30],[312,484,20],[352,74,20]],
+     gem:[[100,540],[270,480],[130,400],[310,340],[90,270],[260,200],[110,130],[270,130]],
      goal:[290,50], sx:80, sy:620},
     // 2
     {plat:[
@@ -1838,7 +1854,7 @@ function buildLevel(n){
       [140,610,80,16,1,60,1.5],[50,530,90,16],[220,480,70,16,1,80,2],[330,530,80,16],
       [130,410,100,16],[290,350,90,16,1,70,1.8],[60,280,80,16],[230,210,110,16],
       [80,140,90,16],[260,80,120,16]],
-     spk:[[185,664,110],[100,514,20],[330,514,20]],
+     spk:[[141,664,30],[117,664,30],[332,664,30],[417,664,30],[312,194,20]],
      gem:[[170,590],[280,460],[80,510],[360,475],[155,390],[310,330],[85,260],[265,190],[105,120],[295,60]],
      goal:[300,40], sx:60, sy:630},
     // 3
@@ -1850,7 +1866,7 @@ function buildLevel(n){
       [100,310,70,16],[290,260,80,16],
       [140,200,70,16,1,70,2.2],[280,150,80,16],
       [100,90,90,16],[270,40,120,16]],
-     spk:[[105,664,270],[220,514,20]],
+     spk:[[111,664,30],[65,664,30],[398,664,30],[445,664,30],[332,134,20]],
      gem:[[110,600],[310,580],[175,510],[340,470],[85,410],[265,360],[120,290],[310,240],[155,180],[300,130],[120,70],[305,20]],
      goal:[300,0], sx:30, sy:640},
     // 4 — dark, wind starts, enemies
@@ -1862,7 +1878,7 @@ function buildLevel(n){
       [260,340,90,16,1,90,2.2],[60,270,80,16],
       [220,210,100,16],[80,140,80,16],
       [250,80,120,16]],
-     spk:[[155,664,170],[180,444,20],[310,474,20]],
+     spk:[[131,664,30],[97,664,30],[357,664,30],[427,664,30],[342,64,20]],
      gem:[[130,590],[280,560],[80,490],[230,440],[345,470],[125,380],[285,320],[85,250],[245,190],[100,120],[275,60]],
      goal:[280,40], sx:50, sy:640,
      enemies:[[200,610,60,1.2],[300,400,80,1.5]]},
@@ -1875,7 +1891,7 @@ function buildLevel(n){
       [260,350,70,16,1,70,1.8],[50,280,90,16],
       [230,220,80,16],[100,160,70,16],
       [260,100,100,16],[80,40,120,16]],
-     spk:[[125,664,230],[85,504,20],[225,454,20]],
+     spk:[[121,664,30],[78,664,30],[381,664,30],[438,664,30],[112,264,20],[332,84,20]],
      gem:[[145,565],[270,570],[85,465],[235,415],[345,480],[120,380],[280,330],[70,225],[250,200],[120,140],[280,80],[100,20]],
      goal:[100,0], sx:40, sy:640, needsKey:true,
      keyPos:[290,60],
@@ -1889,7 +1905,7 @@ function buildLevel(n){
       [260,360,80,16],[60,290,70,16],
       [220,230,80,16,1,90,2],[90,170,70,16],
       [260,110,90,16],[80,50,110,16]],
-     spk:[[105,664,270],[235,464,20],[105,404,20]],
+     spk:[[121,664,30],[121,664,30],[398,664,30],[445,664,30]],
      gem:[[115,565],[300,580],[85,510],[245,425],[360,455],[125,330],[280,340],[85,270],[245,210],[110,150],[280,90],[100,30]],
      goal:[100,10], sx:40, sy:640,
      enemies:[[160,610,80,1.5],[310,480,70,1.8],[180,360,90,1.6],[260,230,80,1.7]]},
@@ -1902,7 +1918,7 @@ function buildLevel(n){
       [255,355,75,16],[55,285,70,16],
       [215,225,75,16,1,95,2.2],[85,165,65,16],
       [255,105,85,16],[75,45,105,16]],
-     spk:[[95,664,290],[95,399,20],[225,459,20],[270,339,20]],
+     spk:[[116,664,30],[116,664,30],[406,664,30],[448,664,30]],
      gem:[[105,560],[310,575],[80,510],[235,420],[350,450],[115,325],[275,300],[80,265],[240,205],[105,145],[275,85],[95,25]],
      goal:[95,5], sx:35, sy:645, needsKey:true,
      keyPos:[280,80],
@@ -1916,7 +1932,7 @@ function buildLevel(n){
       [250,350,70,16],[50,280,65,16],
       [210,220,70,16,1,100,2.6],[80,160,60,16],
       [250,100,80,16],[70,40,100,16]],
-     spk:[[85,664,310],[220,454,20],[90,394,20],[265,334,20]],
+     spk:[[111,664,30],[111,664,30],[414,664,30],[452,664,30]],
      gem:[[100,555],[315,570],[75,505],[230,415],[355,445],[110,320],[270,295],[75,260],[235,200],[100,140],[270,80],[90,20]],
      goal:[90,0], sx:30, sy:650,
      enemies:[[145,600,90,1.8],[305,470,80,2],[165,350,95,1.9],[255,220,85,2.1],[170,100,75,1.7]]},
@@ -1929,7 +1945,7 @@ function buildLevel(n){
       [245,345,65,16],[45,275,60,16],
       [205,215,65,16,1,105,2.8],[75,155,55,16],
       [245,95,75,16],[65,35,95,16]],
-     spk:[[75,664,330],[215,449,20],[85,389,20],[260,329,20],[210,199,20]],
+     spk:[[106,664,20],[431,664,20]],
      gem:[[95,550],[320,565],[70,500],[225,410],[350,440],[105,315],[265,290],[70,255],[230,160],[95,135],[265,75],[85,15]],
      goal:[85,0], sx:25, sy:655, needsKey:true,
      keyPos:[265,60],
@@ -1943,7 +1959,7 @@ function buildLevel(n){
       [240,340,60,16],[40,270,55,16],
       [200,210,60,16,1,110,3],[70,150,50,16],
       [240,90,70,16],[60,30,90,16]],
-     spk:[[65,664,350],[70,384,20],[210,444,20],[255,324,20],[205,194,20],[75,134,20]],
+     spk:[[101,664,20],[438,664,20],[78,134,20]],
      gem:[[90,545],[325,560],[65,495],[220,405],[355,435],[100,310],[260,285],[65,250],[225,155],[90,60],[260,70],[80,10]],
      goal:[80,0], sx:20, sy:660,
      enemies:[[135,590,100,2.3],[315,460,90,2.5],[155,340,105,2.2],[245,210,95,2.6],[150,90,85,2.1],[270,340,80,2.4]]},
@@ -1956,7 +1972,7 @@ function buildLevel(n){
       [140,380,100,16],[240,320,80,16,1,80,1.6],
       [60,250,90,16],[240,190,100,16],
       [100,120,80,16],[260,60,120,16]],
-     spk:[[145,664,190],[110,584,20],[300,544,20],[150,364,20],[280,304,20]],
+     spk:[[131,664,30],[91,664,30],[365,664,30],[431,664,30],[212,364,20],[312,174,20],[352,44,20]],
      gem:[[140,545],[270,540],[90,470],[310,430],[165,325],[265,300],[85,230],[265,170],[120,100],[295,40]],
      goal:[290,20], sx:50, sy:640,
      needsKey:true, keyPos:[90,180],
@@ -1971,7 +1987,7 @@ function buildLevel(n){
       [50,290,80,16,1,70,1.5],[240,240,90,16],
       [80,170,80,16],[260,120,80,16],
       [100,60,90,16],[240,10,130,16]],
-     spk:[[105,664,270],[100,594,20],[315,564,20],[130,384,20],[295,344,20]],
+     spk:[[111,664,30],[65,664,30],[398,664,30],[445,664,30],[162,44,20]],
      gem:[[120,555],[315,525],[80,490],[275,450],[145,345],[325,305],[80,270],[265,220],[100,150],[285,100],[120,40],[270,-10]],
      goal:[270,-20], sx:30, sy:650,
      enemies:[[195,670,60,1.2],[200,460,70,1.3],[185,250,80,1.4]]},
@@ -1986,7 +2002,7 @@ function buildLevel(n){
       [60,220,70,16],[230,170,80,16,1,90,1.8],
       [80,110,80,16],[240,60,100,16],
       [80,10,120,16]],
-     spk:[[85,664,310],[150,514,20],[310,474,20],[155,304,20],[315,264,20]],
+     spk:[[101,664,30],[52,664,30],[414,664,30],[452,664,30],[172,-6,20]],
      gem:[[95,590],[330,570],[175,440],[315,435],[75,410],[275,370],[155,265],[325,225],[85,200],[255,150],[105,90],[265,40],[100,-10]],
      goal:[110,-10], sx:20, sy:655,
      needsKey:true, keyPos:[100,70],
@@ -2002,7 +2018,7 @@ function buildLevel(n){
       [50,210,65,16],[230,160,70,16],
       [100,100,65,16,1,90,2.1],[260,50,80,16],
       [70,-10,110,16]],
-     spk:[[65,664,350],[150,514,20],[300,474,20],[130,304,20],[305,254,20],[120,194,20]],
+     spk:[[96,664,20],[438,664,20]],
      gem:[[80,590],[345,570],[165,440],[300,435],[65,410],[265,360],[145,265],[325,215],[75,190],[255,140],[120,80],[285,30],[90,-30]],
      goal:[100,-30], sx:15, sy:660,
      enemies:[[200,670,50,1.4],[200,470,70,1.5],[210,280,80,1.6],[195,160,70,1.4]]},
@@ -2016,7 +2032,7 @@ function buildLevel(n){
       [100,310,65,16],[290,260,70,16,1,80,1.9],
       [50,200,70,16],[240,150,75,16],
       [90,90,80,16],[250,40,100,16]],
-     spk:[[95,664,295],[155,594,20],[310,564,20],[155,404,20],[310,354,20]],
+     spk:[[111,664,30],[111,664,30],[406,664,30],[448,664,30],[142,74,20]],
      gem:[[110,590],[320,525],[175,500],[315,460],[75,400],[275,350],[120,290],[315,240],[75,180],[265,95],[110,70],[275,20]],
      goal:[275,20], sx:30, sy:650,
      needsKey:true, keyPos:[110,50],
@@ -2032,7 +2048,7 @@ function buildLevel(n){
       [45,215,65,16],[235,165,70,16],
       [95,105,65,16,1,90,2.1],[265,55,80,16],
       [60,-5,110,16]],
-     spk:[[65,664,350],[165,519,20],[310,479,20],[120,309,20],[310,259,20],[120,199,20],[240,149,20]],
+     spk:[[96,664,20],[438,664,20]],
      gem:[[80,600],[340,575],[180,445],[325,440],[70,415],[265,365],[135,235],[330,220],[70,195],[260,110],[115,85],[290,35],[80,-25]],
      goal:[80,-25], sx:15, sy:660,
      enemies:[[200,670,50,1.5],[200,475,75,1.6],[205,280,80,1.7],[200,160,70,1.6]]},
@@ -2047,7 +2063,7 @@ function buildLevel(n){
       [40,225,60,16],[235,175,65,16,1,95,2.2],
       [95,115,60,16],[270,65,75,16],
       [55,-15,120,16]],
-     spk:[[55,664,370],[165,529,20],[310,489,20],[115,319,20],[315,269,20],[115,209,20],[240,159,20]],
+     spk:[[91,664,20],[445,664,20]],
      gem:[[70,595],[340,580],[180,455],[320,450],[65,425],[265,375],[125,245],[330,230],[65,205],[260,120],[115,95],[295,45],[75,-35]],
      goal:[75,-35], sx:10, sy:660,
      needsKey:true, keyPos:[100,75],
@@ -2063,7 +2079,7 @@ function buildLevel(n){
       [40,220,55,16],[240,170,60,16,1,110,2.6],
       [95,110,55,16,1,105,2.7],[270,60,70,16],
       [50,-15,115,16]],
-     spk:[[50,664,380],[165,524,20],[310,484,20],[115,314,20],[315,264,20],[115,204,20],[245,154,20]],
+     spk:[[91,664,20],[448,664,20],[113,314,20]],
      gem:[[65,595],[345,575],[185,450],[320,445],[65,420],[265,370],[130,240],[335,225],[65,200],[265,115],[115,90],[295,40],[70,-35]],
      goal:[70,-35], sx:10, sy:660,
      enemies:[[195,670,40,1.7],[200,480,70,1.8],[205,280,75,1.9],[195,165,65,1.8],[190,50,55,1.7]]},
@@ -2078,7 +2094,7 @@ function buildLevel(n){
       [35,225,55,16],[245,175,55,16,1,115,2.9],
       [100,115,50,16,1,110,3],[275,65,70,16],
       [45,-15,120,16]],
-     spk:[[45,664,390],[170,529,20],[320,489,20],[115,319,20],[320,269,20],[115,209,20],[245,159,20],[110,99,20]],
+     spk:[[86,664,20],[452,664,20]],
      gem:[[60,595],[355,580],[190,455],[325,450],[60,425],[270,340],[125,280],[340,230],[60,205],[270,120],[120,60],[300,45],[65,-35]],
      goal:[65,-35], sx:5, sy:660,
      needsKey:true, keyPos:[105,75],
@@ -2094,7 +2110,7 @@ function buildLevel(n){
       [35,220,50,16],[250,170,50,16,1,120,3.1],
       [100,110,45,16,1,115,3.2],[285,60,60,16],
       [50,-15,120,16]],
-     spk:[[45,664,390],[45,594,20],[340,574,20],[180,524,20],[310,484,20],[45,424,20],[255,374,20],[115,314,20],[335,264,20],[45,204,20],[255,154,20],[115,94,20],[255,44,20]],
+     spk:[[86,664,20],[452,664,20],[142,-31,20]],
      gem:[[55,555],[360,535],[195,450],[325,445],[55,385],[270,335],[120,275],[350,225],[55,165],[270,115],[120,55],[305,40],[70,-35]],
      goal:[70,-35], sx:5, sy:660,
      enemies:[[195,670,35,2],[195,475,65,2.2],[210,275,70,2.3],[195,160,60,2.2],[185,50,50,2],[260,390,60,2.3],[255,175,55,2.1],[185,295,50,2.2]]},
@@ -2108,7 +2124,7 @@ function buildLevel(n){
       [60,330,70,16],[245,308,65,16],
       [145,238,72,16],[340,218,58,16],
       [45,150,75,16],[215,115,88,16]],
-     spk:[[120,664,240],[90,584,12],[265,468,12],[270,292,12]],
+     spk:[[106,664,30],[78,664,30],[381,664,30],[438,664,30]],
      gem:[[120,580],[285,560],[80,490],[250,430],[155,395],[340,375],[85,310],[260,253],[165,218],[355,198],[70,130],[240,95]],
      goal:[245,85], sx:25, sy:655,
      needsKey:true, keyPos:[340,375],
@@ -2124,7 +2140,7 @@ function buildLevel(n){
       [52,320,65,16],[195,296,60,16],
       [328,272,62,16],[82,212,66,16],
       [222,162,78,16],[75,92,88,16]],
-     spk:[[80,664,320],[88,592,12],[345,501,12],[78,409,12]],
+     spk:[[103,664,30],[103,664,30],[414,664,30],[452,664,30],[272,146,20]],
      gem:[[108,553],[310,565],[68,495],[228,437],[348,463],[98,370],[232,383],[375,361],[78,300],[210,276],[344,252],[107,192],[240,142],[100,72]],
      goal:[105,62], sx:22, sy:655,
      enemies:[[112,598,74,1.9],[216,472,82,2.0],[100,405,77,2.1]]},
@@ -2139,7 +2155,7 @@ function buildLevel(n){
       [48,318,62,16],[190,294,58,16],
       [322,270,59,16,1,78,2.1],[78,210,63,16],
       [218,158,74,16],[65,90,84,16]],
-     spk:[[72,664,336],[82,590,12],[342,500,12],[74,407,12],[322,254,12]],
+     spk:[[101,664,20],[429,664,20]],
      gem:[[105,551],[308,563],[64,493],[225,435],[344,461],[95,368],[228,346],[370,358],[74,298],[205,274],[337,215],[103,190],[236,138],[90,70]],
      goal:[100,60], sx:20, sy:655,
      needsKey:true, keyPos:[370,358],
@@ -2155,7 +2171,7 @@ function buildLevel(n){
       [45,316,60,16],[188,292,58,16],
       [318,268,56,16,1,82,2.3],[74,208,62,16],
       [215,156,71,16],[60,88,82,16]],
-     spk:[[65,664,350],[78,588,12],[338,498,12],[70,405,12],[198,468,12],[325,252,12]],
+     spk:[[99,664,20],[434,664,20]],
      gem:[[102,549],[305,561],[61,491],[222,433],[340,459],[92,366],[225,344],[367,356],[71,296],[203,272],[333,213],[99,188],[233,136],[85,68]],
      goal:[95,58], sx:18, sy:658,
      enemies:[[98,594,79,2.1],[206,468,85,2.3],[88,401,79,2.2],[222,373,73,2.4]]},
@@ -2170,7 +2186,7 @@ function buildLevel(n){
       [44,314,58,16],[185,290,56,16,1,82,2.3],
       [315,266,52,16],[70,206,60,16],
       [210,155,68,16],[57,87,80,16]],
-     spk:[[60,664,360],[75,586,12],[335,496,12],[70,403,12],[200,466,12],[72,298,12]],
+     spk:[[99,664,20],[438,664,20]],
      gem:[[100,547],[302,559],[60,489],[220,431],[338,457],[90,364],[222,342],[363,354],[70,259],[200,270],[330,246],[95,186],[228,135],[82,67]],
      goal:[92,57], sx:18, sy:658,
      needsKey:true, keyPos:[363,354],
@@ -2186,7 +2202,7 @@ function buildLevel(n){
       [42,312,56,16],[182,288,54,16],
       [312,264,50,16,1,82,2.4],[68,204,58,16],
       [208,153,65,16,1,88,2.3],[54,85,77,16]],
-     spk:[[55,664,370],[73,584,12],[332,494,12],[68,401,12],[198,464,12],[320,248,12]],
+     spk:[[97,664,20],[441,664,20]],
      gem:[[98,545],[299,557],[58,487],[217,429],[335,455],[88,362],[220,340],[361,352],[68,257],[197,268],[327,209],[93,184],[226,133],[80,65]],
      goal:[90,55], sx:16, sy:658,
      enemies:[[93,590,82,2.3],[200,464,88,2.5],[85,397,81,2.4],[216,369,75,2.6],[92,288,77,2.3]]},
@@ -2201,7 +2217,7 @@ function buildLevel(n){
       [40,310,53,16],[179,286,52,16],
       [308,262,48,16,1,83,2.6],[66,202,56,16],
       [206,151,63,16],[51,83,75,16]],
-     spk:[[50,664,380],[70,582,12],[329,492,12],[66,399,12],[195,462,12],[66,294,12],[180,270,12]],
+     spk:[[97,664,20],[445,664,20]],
      gem:[[95,543],[296,555],[56,485],[215,427],[332,453],[86,360],[217,338],[358,350],[66,255],[194,231],[323,242],[91,182],[224,131],[78,63]],
      goal:[88,53], sx:16, sy:658,
      needsKey:true, keyPos:[358,350],
@@ -2217,7 +2233,7 @@ function buildLevel(n){
       [38,308,51,16,1,90,2.7],[176,284,50,16],
       [305,260,46,16,1,84,2.7],[64,200,54,16],
       [204,149,61,16,1,90,2.6],[49,81,73,16]],
-     spk:[[47,664,386],[68,580,12],[326,490,12],[63,397,12],[192,460,12],[64,292,12],[316,244,12]],
+     spk:[[95,664,20],[447,664,20]],
      gem:[[92,541],[293,553],[54,483],[212,425],[329,451],[84,358],[214,336],[355,348],[64,253],[191,229],[320,205],[89,180],[221,129],[76,61]],
      goal:[86,51], sx:14, sy:660,
      enemies:[[88,586,86,2.6],[194,460,92,2.8],[81,393,84,2.7],[210,365,78,2.9],[88,284,80,2.6],[194,262,74,2.8]]},
@@ -2232,7 +2248,7 @@ function buildLevel(n){
       [36,306,48,16],[174,282,47,16],
       [302,258,44,16,1,85,3.1],[62,198,51,16],
       [202,147,59,16],[47,79,71,16]],
-     spk:[[43,664,394],[66,578,12],[323,488,12],[61,395,12],[189,458,12],[62,290,12],[313,242,12],[174,266,12]],
+     spk:[[93,664,20],[449,664,20]],
      gem:[[89,539],[290,551],[52,481],[210,423],[326,449],[82,356],[211,334],[352,346],[62,251],[188,227],[317,203],[87,178],[219,127],[74,59]],
      goal:[84,49], sx:12, sy:660,
      needsKey:true, keyPos:[352,346],
@@ -2248,7 +2264,7 @@ function buildLevel(n){
       [33,304,46,16],[171,280,45,16,1,88,3.2],
       [299,256,42,16],[59,196,48,16,1,92,3.1],
       [200,145,57,16],[45,77,69,16]],
-     spk:[[40,664,400],[60,576,12],[320,486,12],[58,393,12],[186,456,12],[60,288,12],[310,240,12],[170,264,12],[58,180,12],[210,129,12]],
+     spk:[[91,664,20],[452,664,20]],
      gem:[[86,537],[288,549],[50,479],[207,421],[323,447],[80,354],[208,332],[349,344],[60,249],[185,225],[314,201],[85,176],[216,90],[72,57],[280,547],[88,468]],
      goal:[82,47], sx:10, sy:660,
      enemies:[[84,582,90,3.0],[188,456,96,3.2],[77,389,88,3.1],[204,361,82,3.3],[84,280,84,3.0],[190,258,78,3.2],[80,379,73,3.1],[196,277,68,3.3]]},
@@ -2262,7 +2278,7 @@ function buildLevel(n){
       [62,332,70,16],[248,310,65,16],
       [148,240,70,16],[342,220,58,16],
       [48,152,74,16],[218,118,86,16]],
-     spk:[[110,664,260],[95,586,12],[275,472,12],[275,294,12]],
+     spk:[[109,664,30],[71,664,30],[389,664,30],[441,664,30]],
      gem:[[122,582],[290,562],[82,492],[248,433],[158,398],[343,378],[88,312],[263,255],[168,220],[357,200],[73,132],[243,98]],
      goal:[248,88], sx:28, sy:655,
      needsKey:true, keyPos:[343,378],
@@ -2278,7 +2294,7 @@ function buildLevel(n){
       [54,321,63,16],[198,298,61,16],
       [330,274,62,16],[84,214,65,16],
       [224,164,77,16],[78,94,88,16]],
-     spk:[[78,664,324],[90,592,12],[347,503,12],[80,410,12]],
+     spk:[[105,664,20],[425,664,20],[273,148,20]],
      gem:[[110,553],[313,566],[70,496],[230,438],[350,464],[100,371],[234,384],[377,362],[80,301],[213,278],[346,254],[109,194],[242,144],[103,74]],
      goal:[108,64], sx:24, sy:656,
      enemies:[[115,598,75,2.0],[218,473,83,2.1],[103,406,78,2.2]]},
@@ -2293,7 +2309,7 @@ function buildLevel(n){
       [50,319,61,16],[192,296,59,16],
       [324,272,59,16,1,80,2.2],[80,212,62,16],
       [220,160,73,16],[66,92,83,16]],
-     spk:[[70,664,340],[85,590,12],[343,501,12],[76,408,12],[325,256,12]],
+     spk:[[103,664,20],[431,664,20]],
      gem:[[106,551],[310,564],[66,494],[227,436],[346,462],[97,369],[230,347],[371,359],[76,299],[207,276],[339,217],[105,192],[238,140],[91,72]],
      goal:[101,62], sx:22, sy:657,
      needsKey:true, keyPos:[371,359],
@@ -2309,7 +2325,7 @@ function buildLevel(n){
       [47,316,58,16],[190,293,57,16],
       [320,269,55,16,1,83,2.4],[75,209,61,16],
       [217,157,70,16],[61,89,81,16]],
-     spk:[[63,664,354],[80,588,12],[336,498,12],[73,405,12],[200,468,12],[327,253,12]],
+     spk:[[101,664,20],[435,664,20]],
      gem:[[103,549],[306,561],[63,491],[224,433],[342,459],[94,366],[227,344],[369,356],[73,296],[205,273],[335,214],[100,189],[235,137],[86,69]],
      goal:[96,59], sx:20, sy:658,
      enemies:[[100,594,80,2.2],[205,468,86,2.4],[89,401,80,2.3],[224,373,74,2.5]]},
@@ -2324,7 +2340,7 @@ function buildLevel(n){
       [46,314,56,16],[187,291,55,16,1,83,2.4],
       [317,267,51,16],[72,207,59,16],
       [212,156,69,16],[58,88,80,16]],
-     spk:[[58,664,364],[78,586,12],[338,496,12],[72,403,12],[202,466,12],[74,275,12]],
+     spk:[[99,664,20],[439,664,20],[54,298,20]],
      gem:[[101,547],[296,559],[61,489],[221,431],[340,457],[91,364],[224,342],[365,354],[72,224],[202,271],[332,247],[97,187],[230,136],[83,68]],
      goal:[93,58], sx:18, sy:658,
      needsKey:true, keyPos:[365,354],
@@ -2340,7 +2356,7 @@ function buildLevel(n){
       [44,312,54,16],[184,289,53,16],
       [314,265,49,16,1,83,2.5],[70,205,57,16],
       [210,154,66,16,1,89,2.4],[55,86,77,16]],
-     spk:[[54,664,372],[76,584,12],[334,494,12],[70,401,12],[200,464,12],[322,249,12]],
+     spk:[[98,664,20],[442,664,20]],
      gem:[[99,545],[293,557],[59,487],[218,429],[337,455],[89,362],[221,340],[363,352],[70,257],[199,269],[329,210],[95,185],[228,134],[80,66]],
      goal:[91,56], sx:17, sy:659,
      enemies:[[95,590,83,2.4],[201,464,89,2.6],[86,397,83,2.5],[218,369,77,2.7],[94,288,79,2.4]]},
@@ -2355,7 +2371,7 @@ function buildLevel(n){
       [42,310,51,16],[181,287,51,16],
       [311,263,47,16,1,84,2.7],[67,203,55,16],
       [208,152,63,16],[52,84,74,16]],
-     spk:[[50,664,380],[73,582,12],[326,492,12],[68,399,12],[197,462,12],[68,271,12],[182,251,12]],
+     spk:[[97,664,20],[445,664,20],[189,271,20]],
      gem:[[97,543],[290,555],[57,485],[215,427],[333,453],[87,360],[218,338],[360,350],[68,220],[196,197],[326,243],[93,183],[226,132],[78,64]],
      goal:[89,54], sx:16, sy:659,
      needsKey:true, keyPos:[360,350],
@@ -2371,7 +2387,7 @@ function buildLevel(n){
       [40,308,49,16,1,92,2.9],[178,285,49,16],
       [308,261,44,16,1,86,2.9],[65,201,53,16],
       [206,150,61,16,1,91,2.8],[50,82,72,16]],
-     spk:[[46,664,388],[70,580,12],[324,490,12],[66,397,12],[194,460,12],[66,269,12],[314,245,12]],
+     spk:[[95,664,20],[447,664,20]],
      gem:[[94,541],[287,553],[55,483],[212,425],[330,451],[85,358],[215,336],[357,348],[66,218],[193,230],[323,206],[91,181],[223,130],[76,62]],
      goal:[87,52], sx:14, sy:660,
      enemies:[[89,586,87,2.8],[195,460,93,3.0],[82,393,85,2.9],[212,365,79,3.1],[89,284,82,2.8],[195,263,76,3.0]]},
@@ -2386,7 +2402,7 @@ function buildLevel(n){
       [38,306,46,16],[175,283,45,16],
       [305,259,42,16],[63,199,50,16],
       [204,148,59,16],[48,80,70,16]],
-     spk:[[43,664,394],[68,578,12],[321,488,12],[64,395,12],[191,458,12],[64,267,12],[315,243,12],[175,247,12]],
+     spk:[[93,664,20],[449,664,20],[183,267,20]],
      gem:[[91,539],[284,551],[53,481],[209,423],[327,449],[83,356],[212,334],[354,346],[64,216],[190,193],[320,204],[89,179],[220,128],[74,60]],
      goal:[85,50], sx:12, sy:660,
      needsKey:true, keyPos:[354,346],
@@ -2402,7 +2418,7 @@ function buildLevel(n){
       [35,304,44,16],[172,281,43,16,1,89,3.4],
       [302,257,40,16],[60,197,48,16,1,93,3.3],
       [202,146,57,16],[46,78,68,16]],
-     spk:[[40,664,400],[64,576,12],[318,486,12],[62,393,12],[188,456,12],[62,265,12],[312,241,12],[172,245,12],[60,181,12],[213,130,12]],
+     spk:[[91,664,20],[452,664,20],[43,288,20]],
      gem:[[88,537],[281,549],[51,479],[206,421],[324,447],[81,354],[209,332],[351,344],[62,214],[187,191],[317,202],[87,177],[217,91],[72,58],[276,547],[91,431]],
      goal:[83,48], sx:10, sy:660,
      enemies:[[85,582,92,3.2],[189,456,98,3.4],[78,389,90,3.3],[205,361,84,3.6],[85,280,86,3.2],[191,259,80,3.4],[79,377,74,3.3],[195,275,70,3.5]]},
@@ -2441,8 +2457,77 @@ function buildLevel(n){
 let LVL = null;
 const BASE_H = 720; // oryginalna wysokość na której projektowano poziomy
 
+// ── Platform textures ────────────────────────────
+const _platTextures = {};
+const _platPatterns = {};
+const PLAT_IMGS = {
+  w1: ['w1_log','w1_stone'],
+  w2: ['w2_mushroom','w2_flower'],
+  w3: ['w3_wood','w3_rock'],
+  w4: ['w4_ice','w4_snow'],
+};
+function getPlatWorld(lvl){ return lvl<=10?'w1':lvl<=20?'w2':lvl<=30?'w3':'w4'; }
+
+function preloadPlatTextures(lvl){
+  const world = getPlatWorld(lvl);
+  if(_platPatterns[world]) return;
+  (PLAT_IMGS[world]||[]).forEach(name=>{
+    const img = new Image();
+    img.src = `assets/platforms/${name}.png`;
+    img.onload = ()=>{ _platTextures[name]=img; _platPatterns[world]=null; };
+    _platTextures[name] = img;
+  });
+}
+function getPlatPattern(world){
+  if(_platPatterns[world]) return _platPatterns[world];
+  const names = PLAT_IMGS[world]||[];
+  // wybierz losowo między dwoma wariantami, ale deterministycznie per poziom
+  const name = names[(GS.level) % names.length];
+  const img = _platTextures[name];
+  if(img && img.complete && img.naturalWidth){
+    // Przeskaluj do wysokości platformy przed stworzeniem wzoru
+    const ph = 24; // docelowa wysokość wzoru
+    const scale = ph / img.naturalHeight;
+    const pw = Math.round(img.naturalWidth * scale);
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = pw; offCanvas.height = ph;
+    const offCtx = offCanvas.getContext('2d');
+    offCtx.drawImage(img, 0, 0, pw, ph);
+    const pat = ctx.createPattern(offCanvas, 'repeat-x');
+    _platPatterns[world] = pat;
+    return pat;
+  }
+  return null;
+}
+[1,11,21,31].forEach(preloadPlatTextures);
+
+// ── Spike colors per world (kontrastowe z tłem) ──
+const SPIKE_COLORS = {
+  w1: { col:'#FF3344', glow:'rgba(255,50,60,0.55)',  dark:'#8B0010' },
+  w2: { col:'#FF1122', glow:'rgba(255,80,20,0.55)',  dark:'#7A0000' },
+  w3: { col:'#00AAFF', glow:'rgba(0,160,255,0.55)',  dark:'#004488' },
+  w4: { col:'#FF6600', glow:'rgba(255,120,0,0.55)',  dark:'#883300' },
+};
+
+// ── Background images ────────────────────────────
+const bgImgs = {};
+function getBgImg(n){
+  if(bgImgs[n]) return bgImgs[n];
+  const img = new Image();
+  img.src = `assets/bg/level${String(n).padStart(2,'0')}.png`;
+  bgImgs[n] = img;
+  // preload next
+  if(n<40 && !bgImgs[n+1]){
+    const nx=new Image(); nx.src=`assets/bg/level${String(n+1).padStart(2,'0')}.png`; bgImgs[n+1]=nx;
+  }
+  return img;
+}
+// Preload first 3 levels immediately
+[1,2,3].forEach(getBgImg);
+
 // ── Load level ──────────────────────────────────
 function loadLevel(n){
+  getBgImg(n);
   LVL = buildLevel(n);
 
   // Skaluj wszystkie współrzędne Y do aktualnej wysokości canvasa
@@ -2459,12 +2544,13 @@ function loadLevel(n){
   P.vx=0; P.vy=0; P.dead=false; P.hasKey=false;
   P.trail=[]; P.invincible=0;
   camera.y=0; particles=[];
+  initBgParticles();
   updateHUD();
   document.getElementById('key-indicator').style.opacity='0';
   showWindIndicator();
   // Start ambient music for this theme group
-  const themeIdx = Math.min(n-1, 9);
-  Audio.playAmbientLoop(themeIdx);
+  Audio.stopMusic();
+  _bgmPlay(n);
 }
 
 // ── HUD ─────────────────────────────────────────
@@ -2484,6 +2570,236 @@ function updateHUD(){
   ld.textContent=LANG.levelWord+' '+GS.level;
   ld.style.color = GS.level>=8?'#80c0ff':GS.level>=6?'#c0a0ff':GS.level>=4?'#d0a0ff':'#a0d080';
   ld.style.textShadow='0 0 8px '+ld.style.color;
+}
+
+// ── Ciekawostki edukacyjne — 40 poziomów ─────────────────────────────────
+const EDU_FACTS_ALL = {
+  pl: [
+  // Świat 1 — Zaczarowany Las (poz. 1–10)
+  "W jednym hektarze lasu żyje ponad 1000 różnych gatunków owadów — więcej niż w całym mieście!",
+  "Najstarsze drzewo na świecie — sosna oścista — ma ponad 5000 lat i rośnie w górach USA.",
+  "Dąb szypułkowy może produkować nawet 70 000 żołędzi rocznie, z których wyrośnie zaledwie kilka drzew.",
+  "Leśna sieć grzybni pod ziemią łączy drzewa i przekazuje im wodę i składniki odżywcze — to „leśny Internet”!",
+  "Sowa obraca głowę o 270 stopni, bo ma aż 14 kręgów szyjnych — człowiek ma tylko 7.",
+  "Pająk przez całe życie wytwarza siedem rodzajów jedwabiu — każdy do innego celu: łapania, chodzenia, budowania.",
+  "Biedronka siedmiokropka w ciągu jednego lata może zjeść ponad 5000 mszyc — jest najlepszym ogrodnikiem!",
+  "Mrówki znają drogę do mrowiska dzięki własnym śladom zapachowym i obserwacji położenia słońca.",
+  "Woda przesączona przez 1 hektar lasu jest tak czysta jak woda mineralna z butelki.",
+  "Lis posiada ponad 20 różnych dźwięków głosowych — szczeka, wyje, chrypi i śpiewa jak ptak!",
+  // Świat 2 — Magiczne Grzyby i Kwiaty (poz. 11–20)
+  "Grzyb Armillaria w Oregonie żyje ponad 8000 lat i zajmuje 9 km² — to największy żywy organizm na Ziemi!",
+  "Pszczoła miodna musi odwiedzić około 2 milionów kwiatów, żeby zebrać 1 kg miodu.",
+  "Motyle wyczuwają smak stopami — mają receptory smakowe w przylgach na nogach.",
+  "Grzyby nie są ani roślinami, ani zwierzętami — tworzą osobne królestwo liczące 1,5 miliona gatunków.",
+  "Słonecznik to w rzeczywistości 1000–2000 małych kwiatów zebranych razem w jeden koszyczek.",
+  "Pszczoły tańczą! Specjalny taniec kolisty informuje inne pszczoły, gdzie leżą kwiaty z nektarem.",
+  "Korzenie drzew i grzyby tworzą partnerstwo: drzewa dają cukry, grzyby dostarczają wodę i minerały.",
+  "Dżdżownica przetwarza glębę swojego ciężaru każdej doby i produkuje najlepszy naturalny nawóz.",
+  "Mlecz, zwany chwastem, jest w pełni jadalny i zawiera więcej witaminy C niż cytryna!",
+  "Rośliny ostrzegają się nawzajem przed szkodnikami — wydzielają związki chemiczne w powietrzu.",
+  // Świat 3 — Złota Jesień (poz. 21–30)
+  "Jesienią liście żółkną i czerwienieją, bo drzewo wycofuje zielony chlorofil i odkrywa ukryte barwniki.",
+  "Wiewiórka zakopuje do 10 000 orzechów każdej jesieni i potrafi odnaleźć większość dzięki węchowi.",
+  "Bocian biały przelata z Polski do Afryki Subsaharyjskiej — ponad 10 000 km w jedną stronę!",
+  "Żołędzie dębu kiełkują dopiero po zimie — nasionko potrzebuje chłodu, żeby przerwać uśpienie.",
+  "Jeleń podczas rykowiska traci nawet 20% masy ciała, bo jest zbyt zajęty walkami, żeby jeść.",
+  "Niedźwiedź brunatny przed hibernacją tyje o 30–40 kg — to zapas tłuszczu na całą zimę.",
+  "Liść klonu wiruje opadając jak helikopter dzięki specjalnemu kształtowi skrzydełka.",
+  "Grzyby są najskuteczniejszymi recyklerami na Ziemi — rozkładają martwe drewno szybciej niż cokolwiek innego.",
+  "Jeż w hibernacji zwalnia oddech z 50 do zaledwie 8 oddechów na minutę i obniża ciepłotę ciała do 10°C.",
+  "Drzewa w lesie przekazują sobie sygnały przez grzybnię i powietrze, gdy jedno z nich jest zaatakowane.",
+  // Świat 4 — Zimowe Królestwo (poz. 31–40)
+  "Każdy płatek śniegu ma zawsze 6 ramion, bo cząsteczki wody krystalizują w struktury sześciokątne.",
+  "Śnieg nie jest biały — jego kryształki są przezroczyste. Biel pochodzi od odbicia całego światła słonecznego.",
+  "Niedźwiedź polarny ma przeźroczystą sierść i czarną skórę — sierść przewodzi promieniowanie UV do ciała.",
+  "Pingwiny cesarskie tworzą zwarte kręgi i obracają się co kilka minut, żeby każdy miał kolej w ciepłym środku.",
+  "Woda jest jedyną substancją na Ziemi, która jako lód jest lżejsza niż w stanie ciekłym — dlatego lód pływa!",
+  "Arktyka to zamarznięty ocean, a Antarktyka to kontynent pod lodem grubości nawet 4,7 km.",
+  "Renifer jest jedynym jeleniem, u którego poroże mają zarówno samce, jak i samice.",
+  "Ryby przeżywają zimę pod lodem, bo woda przy dnie nigdy nie spada poniżej 4°C — to jej najgęstsza forma.",
+  "Najniższa temperatura zmierzona na Ziemi wyniosła −89,2°C — zanotowano ją na stacji w Antarktydzie.",
+  "Foka obrączkowana może wstrzymać oddech pod wodą przez 45 minut, spowalniając serce do 4 uderzeń na minutę.",
+  ],
+  en: [
+  "Over 1,000 different insect species live in one hectare of forest — more than in an entire city!",
+  "The oldest tree in the world — a bristlecone pine — is over 5,000 years old and grows in the mountains of the USA.",
+  "An English oak can produce up to 70,000 acorns per year, yet only a few will grow into trees.",
+  "An underground fungal network connects trees and transfers water and nutrients between them — the “forest internet”!",
+  "An owl can turn its head 270 degrees because it has 14 neck vertebrae — humans have only 7.",
+  "A spider produces seven types of silk throughout its life — each for a different purpose: catching, walking, building.",
+  "A seven-spot ladybird can eat over 5,000 aphids in a single summer — making it nature’s best gardener!",
+  "Ants find their way home thanks to their own scent trails and by observing the position of the sun.",
+  "Water filtered through 1 hectare of forest is as clean as bottled mineral water.",
+  "A fox has over 20 different vocal sounds — it barks, howls, rasps and even sings like a bird!",
+  "The Armillaria fungus in Oregon is over 8,000 years old and covers 9 km² — the largest living organism on Earth!",
+  "A honeybee must visit about 2 million flowers to collect 1 kg of honey.",
+  "Butterflies taste with their feet — they have taste receptors in the pads on their legs.",
+  "Fungi are neither plants nor animals — they form their own kingdom with 1.5 million species.",
+  "A sunflower is actually 1,000–2,000 tiny flowers gathered together in one head.",
+  "Bees dance! A special waggle dance tells other bees exactly where flowers with nectar are located.",
+  "Tree roots and fungi form a partnership: trees provide sugars, while fungi supply water and minerals.",
+  "An earthworm processes soil equal to its own body weight every day, producing the best natural fertilizer.",
+  "The dandelion, often called a weed, is completely edible and contains more vitamin C than a lemon!",
+  "Plants warn each other about pests by releasing chemical compounds into the air.",
+  "Leaves turn yellow and red in autumn because trees withdraw green chlorophyll, revealing hidden pigments.",
+  "A squirrel buries up to 10,000 nuts every autumn and can find most of them using its sense of smell.",
+  "The white stork flies from Poland to sub-Saharan Africa — over 10,000 km in one direction!",
+  "Acorns only germinate after winter — the seed needs cold to break its dormancy.",
+  "A stag loses up to 20% of its body weight during the rut, because it’s too busy fighting to eat.",
+  "Before hibernation, a brown bear gains 30–40 kg — a fat reserve that lasts all winter.",
+  "A maple leaf spins as it falls like a helicopter, thanks to the special shape of its wing.",
+  "Fungi are the most efficient recyclers on Earth — they break down dead wood faster than anything else.",
+  "During hibernation, a hedgehog slows its breathing from 50 to just 8 breaths per minute and drops its body temperature to 10°C.",
+  "Trees in a forest exchange signals through the fungal network and air when one of them is under attack.",
+  "Every snowflake always has 6 arms, because water molecules crystallize into hexagonal structures.",
+  "Snow is not white — its crystals are transparent. The whiteness comes from reflecting all sunlight.",
+  "A polar bear has transparent fur and black skin — the fur channels UV radiation to the body.",
+  "Emperor penguins form tight circles and rotate every few minutes so that everyone gets a turn in the warm center.",
+  "Water is the only substance on Earth where the solid form (ice) is lighter than liquid — that’s why ice floats!",
+  "The Arctic is a frozen ocean, while Antarctica is a continent beneath ice up to 4.7 km thick.",
+  "The reindeer is the only deer where both males and females grow antlers.",
+  "Fish survive winter under the ice because the water at the bottom never drops below 4°C — its densest form.",
+  "The lowest temperature ever recorded on Earth was −89.2°C — measured at a station in Antarctica.",
+  "The ringed seal can hold its breath underwater for 45 minutes, slowing its heart to just 4 beats per minute.",
+  ],
+  de: [
+  "In einem Hektar Wald leben über 1.000 verschiedene Insektenarten — mehr als in einer ganzen Stadt!",
+  "Der älteste Baum der Welt — eine Grannenkiefer — ist über 5.000 Jahre alt und wächst in den Bergen der USA.",
+  "Eine Stieleiche kann jährlich bis zu 70.000 Eicheln produzieren, von denen jedoch nur wenige zu Bäumen heranwachsen.",
+  "Ein unterirdisches Pilznetzwerk verbindet die Bäume und überträgt Wasser und Nährstoffe — das „Wald-Internet“!",
+  "Eine Eule kann ihren Kopf um 270 Grad drehen, weil sie 14 Halswirbel hat — der Mensch hat nur 7.",
+  "Eine Spinne produziert in ihrem Leben sieben Arten von Seide — jede für einen anderen Zweck: Fangen, Laufen, Bauen.",
+  "Ein Marienkäfer kann in einem einzigen Sommer über 5.000 Blattläuse fressen — der beste Gärtner der Natur!",
+  "Ameisen finden ihren Weg nach Hause dank eigener Duftspuren und der Beobachtung der Sonnenposition.",
+  "Wasser, das durch 1 Hektar Wald gefiltert wird, ist so rein wie abgefülltes Mineralwasser.",
+  "Ein Fuchs hat über 20 verschiedene Lautäußerungen — er bellt, heult, krächzt und singt wie ein Vogel!",
+  "Der Hallimasch-Pilz in Oregon ist über 8.000 Jahre alt und bedeckt 9 km² — der größte lebende Organismus der Erde!",
+  "Eine Honigbiene muss etwa 2 Millionen Blüten besuchen, um 1 kg Honig zu sammeln.",
+  "Schmetterlinge schmecken mit den Füßen — sie haben Geschmacksrezeptoren in den Haftscheiben ihrer Beine.",
+  "Pilze sind weder Pflanzen noch Tiere — sie bilden ein eigenes Reich mit 1,5 Millionen Arten.",
+  "Eine Sonnenblume besteht tatsächlich aus 1.000–2.000 kleinen Blüten, die zusammen einen Blütenkorb bilden.",
+  "Bienen tanzen! Ein spezieller Schwänzeltanz zeigt anderen Bienen genau, wo sich Blüten mit Nektar befinden.",
+  "Baumwurzeln und Pilze gehen eine Partnerschaft ein: Bäume liefern Zucker, Pilze liefern Wasser und Mineralien.",
+  "Ein Regenwurm verarbeitet täglich Erde in Höhe seines eigenen Körpergewichts und produziert den besten Naturdünger.",
+  "Der Löwenzahn, oft als Unkraut bezeichnet, ist vollständig essbar und enthält mehr Vitamin C als eine Zitrone!",
+  "Pflanzen warnen sich gegenseitig vor Schädlingen, indem sie chemische Verbindungen in die Luft abgeben.",
+  "Im Herbst färben sich Blätter gelb und rot, weil Bäume das grüne Chlorophyll zurückziehen und verborgene Farbstoffe freilegen.",
+  "Ein Eichhörnchen vergräbt im Herbst bis zu 10.000 Nüsse und kann die meisten davon mit seinem Geruchssinn wiederfinden.",
+  "Der Weißstorch fliegt von Polen nach Subsahara-Afrika — über 10.000 km in eine Richtung!",
+  "Eicheln keimen erst nach dem Winter — der Samen braucht Kälte, um aus der Ruhe zu erwachen.",
+  "Ein Hirsch verliert während der Brunft bis zu 20 % seines Körpergewichts, weil er zu sehr mit Kämpfen beschäftigt ist, um zu fressen.",
+  "Vor der Winterruhe nimmt ein Braunbär 30–40 kg zu — ein Fettvorrat für den gesamten Winter.",
+  "Ein Ahornblatt dreht sich im Fall wie ein Hubschrauber, dank der besonderen Form seines Flügels.",
+  "Pilze sind die effizientesten Recycler der Erde — sie zersetzen totes Holz schneller als alles andere.",
+  "Während der Winterruhe verlangsamt ein Igel seinen Atem von 50 auf nur noch 8 Atemzüge pro Minute und senkt seine Körpertemperatur auf 10°C.",
+  "Bäume im Wald tauschen über das Pilznetzwerk und die Luft Signale aus, wenn einer von ihnen angegriffen wird.",
+  "Jede Schneeflocke hat immer 6 Arme, weil Wassermolekule sich zu sechseckigen Strukturen kristallisieren.",
+  "Schnee ist nicht weiß — seine Kristalle sind transparent. Die Weiße entsteht durch die Reflexion des gesamten Sonnenlichts.",
+  "Ein Eisbär hat durchsichtiges Fell und schwarze Haut — das Fell leitet UV-Strahlung zum Körper.",
+  "Kaiserpinguine bilden enge Kreise und drehen sich alle paar Minuten, damit jeder eine Runde im warmen Zentrum bekommt.",
+  "Wasser ist die einzige Substanz auf der Erde, bei der Eis leichter ist als die flüssige Form — deshalb schwimmt Eis!",
+  "Die Arktis ist ein zugefrorener Ozean, während die Antarktis ein Kontinent unter bis zu 4,7 km dickem Eis ist.",
+  "Das Rentier ist das einzige Hirsch, bei dem sowohl Männchen als auch Weibchen ein Geweih haben.",
+  "Fische überleben den Winter unter dem Eis, weil das Wasser am Boden nie unter 4°C sinkt — seine dichteste Form.",
+  "Die niedrigste jemals auf der Erde gemessene Temperatur betrug −89,2°C — gemessen in der Antarktis.",
+  "Eine Ringelrobbe kann unter Wasser 45 Minuten lang die Luft anhalten und ihr Herz auf nur 4 Schläge pro Minute verlangsamen.",
+  ],
+  es: [
+  "¡En una hectárea de bosque viven más de 1.000 especies diferentes de insectos — más que en toda una ciudad!",
+  "El árbol más antiguo del mundo — un pino longevo — tiene más de 5.000 años y crece en las montañas de EE.UU.",
+  "Un roble puede producir hasta 70.000 bellotas al año, de las cuales solo unas pocas se convertirán en árboles.",
+  "Una red subterránea de hongos conecta los árboles y les transfiere agua y nutrientes — ¡es el “internet del bosque”!",
+  "¡Un búfo puede girar la cabeza 270 grados porque tiene 14 vértebras cervicales — el ser humano solo tiene 7!",
+  "Una araña produce siete tipos de seda a lo largo de su vida — cada uno para un propósito diferente: atrapar, caminar, construir.",
+  "¡Una mariquita puede comerse más de 5.000 pulgones en un solo verano — es el mejor jardinero de la naturaleza!",
+  "Las hormigas encuentran el camino a casa gracias a sus propios rastros de olor y observando la posición del sol.",
+  "El agua filtrada a través de 1 hectárea de bosque es tan pura como el agua mineral embotellada.",
+  "¡Un zorro tiene más de 20 sonidos vocales diferentes — latra, aúlla, gruñe y canta como un pájaro!",
+  "¡El hongo Armillaria de Oregón tiene más de 8.000 años y ocupa 9 km² — es el organismo vivo más grande de la Tierra!",
+  "Una abeja melífera debe visitar unos 2 millones de flores para recolectar 1 kg de miel.",
+  "Las mariposas saborean con los pies — tienen receptores gustativos en las almohadillas de sus patas.",
+  "Los hongos no son ni plantas ni animales — forman su propio reino con 1,5 millones de especies.",
+  "Un girasol es en realidad 1.000–2.000 pequeñas flores reunidas en una sola cabeza.",
+  "¡Las abejas bailan! Una danza especial informa a otras abejas exactamente dónde están las flores con néctar.",
+  "Las raíces de los árboles y los hongos forman una asociación: los árboles aportan azúcares, los hongos suministran agua y minerales.",
+  "Una lombriz procesa tierra igual a su peso corporal cada día, produciendo el mejor abono natural.",
+  "¡El diente de león, llamado mala hierba, es completamente comestible y contiene más vitamina C que un limón!",
+  "Las plantas se advierten mutuamente sobre las plagas liberando compuestos químicos al aire.",
+  "En otoño las hojas se vuelven amarillas y rojas porque los árboles retiran la clorofila verde y revelan pigmentos ocultos.",
+  "Una ardilla entierra hasta 10.000 nueces cada otoño y puede encontrar la mayoría usando su olfato.",
+  "¡La cigüeña blanca vuela desde Polonia hasta el África subsahariana — más de 10.000 km en una sola dirección!",
+  "Las bellotas solo germinan después del invierno — la semilla necesita frío para romper su letargo.",
+  "Un ciervo puede perder hasta el 20% de su peso corporal durante el celo, porque está demasiado ocupado luchando para comer.",
+  "Antes de la hibernación, un oso pardo engorda 30–40 kg — una reserva de grasa para todo el invierno.",
+  "Una hoja de arce gira al caer como un helicóptero gracias a la forma especial de su ala.",
+  "Los hongos son los recicladores más eficientes de la Tierra — descomponen la madera muerta más rápido que cualquier otra cosa.",
+  "Durante la hibernación, un erizo ralentiza su respiración de 50 a solo 8 respiraciones por minuto y reduce su temperatura corporal a 10°C.",
+  "Los árboles del bosque intercambian señales a través de la red fúngica y el aire cuando uno de ellos es atacado.",
+  "Cada copo de nieve siempre tiene 6 brazos, porque las moléculas de agua se cristalizan en estructuras hexagonales.",
+  "La nieve no es blanca — sus cristales son transparentes. El blanco proviene de reflejar toda la luz solar.",
+  "El oso polar tiene pelaje transparente y piel negra — el pelaje conduce la radiación UV al cuerpo.",
+  "Los pingüinos emperadores forman círculos compactos y rotan cada pocos minutos para que todos tengan su turno en el cálido centro.",
+  "¡El agua es la única sustancia de la Tierra en la que el hielo es más ligero que el líquido — por eso el hielo flota!",
+  "El Ártico es un océano congelado, mientras que la Antártida es un continente bajo un hielo de hasta 4,7 km de grosor.",
+  "El reno es el único ciervo en el que tanto los machos como las hembras tienen astas.",
+  "Los peces sobreviven el invierno bajo el hielo porque el agua en el fondo nunca baja de 4°C — su forma más densa.",
+  "La temperatura más baja jamás registrada en la Tierra fue de −89,2°C — medida en una estación en la Antártida.",
+  "La foca anillada puede aguantar la respiración bajo el agua durante 45 minutos, reduciendo su corazón a solo 4 latidos por minuto.",
+  ],
+  fr: [
+  "Plus de 1 000 espèces d’insectes différentes vivent dans un hectare de forêt — plus que dans une ville entière !",
+  "L’arbre le plus ancien du monde — un pin de l’Ouest — a plus de 5 000 ans et pousse dans les montagnes des États-Unis.",
+  "Un chêne pédonculé peut produire jusqu’à 70 000 glands par an, dont seulement quelques-uns deviendront des arbres.",
+  "Un réseau souterrain de champignons relie les arbres et leur transfère eau et nutriments — c’est l’« internet de la forêt » !",
+  "Une chouette peut tourner la tête à 270 degrés car elle possède 14 vertèbres cervicales — l’être humain n’en a que 7.",
+  "Une araignée produit sept types de soie au cours de sa vie — chacun pour un usage différent : capturer, se déplacer, construire.",
+  "Une coccinelle à sept points peut manger plus de 5 000 pucerons en un seul été — c’est le meilleur jardinier de la nature !",
+  "Les fourmis trouvent leur chemin grâce à leurs propres pistes olfactives et en observant la position du soleil.",
+  "L’eau filtrée par 1 hectare de forêt est aussi pure que l’eau minérale en bouteille.",
+  "Un renard possède plus de 20 sons vocaux différents — il aboie, hurle, grogne et chante comme un oiseau !",
+  "Le champignon Armillaria de l’Oregon a plus de 8 000 ans et couvre 9 km² — c’est le plus grand organisme vivant de la Terre !",
+  "Une abeille mellifère doit visiter environ 2 millions de fleurs pour collecter 1 kg de miel.",
+  "Les papillons goûtent avec leurs pieds — ils ont des récepteurs gustatifs dans les coussinets de leurs pattes.",
+  "Les champignons ne sont ni des plantes ni des animaux — ils forment leur propre règne avec 1,5 million d’espèces.",
+  "Un tournesol est en réalité 1 000 à 2 000 petites fleurs réunies dans une seule tête florale.",
+  "Les abeilles dansent ! Une danse frétillante spéciale indique aux autres abeilles exactement où se trouvent les fleurs avec du nectar.",
+  "Les racines des arbres et les champignons forment un partenariat : les arbres fournissent des sucres, les champignons apportent eau et minéraux.",
+  "Un ver de terre traite chaque jour une quantité de terre égale à son propre poids, produisant le meilleur engrais naturel.",
+  "Le pissenlit, souvent appelé mauvaise herbe, est entièrement comestible et contient plus de vitamine C qu’un citron !",
+  "Les plantes s’avertissent mutuellement de la présence de parasites en libérant des composés chimiques dans l’air.",
+  "En automne, les feuilles jaunissent et rougissent parce que les arbres retirent la chlorophylle verte et révèlent les pigments cachés.",
+  "Un écureuil enterre jusqu’à 10 000 noix chaque automne et peut retrouver la plupart grâce à son odorat.",
+  "La cigogne blanche vole de Pologne jusqu’en Afrique subsaharienne — plus de 10 000 km dans un sens !",
+  "Les glands ne germent qu’après l’hiver — la graine a besoin du froid pour sortir de sa dormance.",
+  "Un cerf peut perdre jusqu’à 20 % de sa masse corporelle pendant le rut, car il est trop occupé à se battre pour manger.",
+  "Avant l’hibernation, un ours brun prend 30 à 40 kg — une réserve de graisse pour tout l’hiver.",
+  "Une feuille d’érable tourne en tombant comme un hélicoptère grâce à la forme particulière de son aile.",
+  "Les champignons sont les recycleurs les plus efficaces de la Terre — ils décomposent le bois mort plus vite que n’importe quoi d’autre.",
+  "En hibernation, un hérisson ralentit sa respiration de 50 à seulement 8 respirations par minute et abaisse sa température corporelle à 10°C.",
+  "Les arbres de la forêt échangent des signaux via le réseau fongique et l’air lorsque l’un d’eux est attaqué.",
+  "Chaque flocon de neige a toujours 6 branches, car les molécules d’eau se cristallisent en structures hexagonales.",
+  "La neige n’est pas blanche — ses cristaux sont transparents. La blancheur vient du reflet de toute la lumière solaire.",
+  "L’ours polaire a un pelage transparent et une peau noire — le pelage conduit les rayonnements UV vers le corps.",
+  "Les manchots empereurs forment des cercles compacts et tournent toutes les quelques minutes pour que chacun ait son tour au centre chaud.",
+  "L’eau est la seule substance sur Terre dont l’état solide (glace) est plus léger que l’état liquide — c’est pourquoi la glace flotte !",
+  "L’Arctique est un océan gelé, tandis que l’Antarctique est un continent sous une glace pouvant atteindre 4,7 km d’épaisseur.",
+  "Le renne est le seul cervidé chez lequel les mâles et les femelles portent tous deux des bois.",
+  "Les poissons survivent à l’hiver sous la glace car l’eau au fond ne descend jamais en dessous de 4°C — sa forme la plus dense.",
+  "La température la plus basse jamais enregistrée sur Terre était de −89,2°C — mesurée à une station en Antarctique.",
+  "Le phoque annelé peut retenir sa respiration sous l’eau pendant 45 minutes, ralentissant son cœur à seulement 4 battements par minute.",
+  ],
+};
+function getEduFact(lvl){ const arr=EDU_FACTS_ALL[LANG_CODE]||EDU_FACTS_ALL['en']; return arr[(lvl-1)%arr.length]; }
+// Preload win bg images
+const _winBgImgs = {};
+['w1','w2','w3','w4'].forEach(w=>{
+  const img=new Image(); img.src=`assets/ui/win_${w}.png`;
+  _winBgImgs[w]=img;
+});
+function getWinBg(lvl){
+  const w = lvl<=10?'w1':lvl<=20?'w2':lvl<=30?'w3':'w4';
+  const img = _winBgImgs[w];
+  return (img&&img.complete&&img.naturalWidth) ? `assets/ui/win_${w}.png` : '';
 }
 
 function showWindIndicator(){
@@ -2516,15 +2832,40 @@ function showResultScreen(type){
     const rank = getRanking();
     const myIdx = rank.findIndex(r=>r.isMe);
     const posStr = myIdx>=0 ? `<div style="font-size:11px;color:#7aaa60;font-family:Lora,serif;margin-top:4px;">${LANG.yourPos(myIdx+1)}</div>` : '';
-    rs.style.background='linear-gradient(160deg,rgba(4,10,4,.95),rgba(10,20,10,.95))';
+    const bgUrl  = getWinBg(GS.level);
+    const fact   = getEduFact(GS.level);
+    const world  = GS.level<=10?'w1':GS.level<=20?'w2':GS.level<=30?'w3':'w4';
+    const accentColors = {w1:'#7ee840',w2:'#ff88ee',w3:'#ffaa22',w4:'#66ccff'};
+    const accent = accentColors[world]||'#b0f080';
+    rs.style.background='linear-gradient(160deg,rgba(2,6,2,.97),rgba(6,12,6,.97))';
+    rs.style.padding='0';
+    rs.style.gap='0';
     rs.innerHTML=`
-      <h1 style="color:#b0f080;font-family:'Uncial Antiqua',cursive;font-size:26px;text-align:center;">${LANG.levelDone(GS.level)}</h1>
-      <div class="sub" style="color:#78aa60">${th.name}</div>
-      <div class="big-score" style="color:#ffd080;font-family:'Uncial Antiqua',cursive;font-size:22px;margin:14px 0;">⭐ ${GS.score}</div>
-      ${posStr}
-      <button class="btn btn-green" onclick="nextLevel()">${LANG.nextLevel}</button>
-      <button class="btn" onclick="showRanking()" style="margin-top:8px;background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:8px 24px;font-size:11px;">${LANG.seeRanking}</button>
-      <button class="btn" onclick="goToMainMenu()" style="margin-top:8px;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #802020;padding:8px 24px;font-size:11px;">${LANG.mainMenu}</button>`;
+      <div style="width:100%;overflow:hidden;border-radius:14px 14px 0 0;flex-shrink:0;position:relative;height:140px;">
+        ${bgUrl
+          ? `<img src="${bgUrl}" style="width:100%;height:140px;object-fit:cover;object-position:center;display:block;" />`
+          : `<div style="width:100%;height:140px;background:linear-gradient(135deg,#0a1e08,#1a3a10);"></div>`}
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 40%,rgba(2,8,2,.95) 100%);"></div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <h1 style="color:${accent};font-family:'Uncial Antiqua',cursive;font-size:22px;text-shadow:0 0 12px ${accent}88;margin:0;">${LANG.levelDone(GS.level)}</h1>
+          <div style="color:#a8d890;font-size:11px;font-family:Lora,serif;opacity:0.85;">${th.name}</div>
+        </div>
+      </div>
+      <div style="padding:10px 16px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div style="color:#ffd080;font-family:'Uncial Antiqua',cursive;font-size:20px;">⭐ ${GS.score}</div>
+        ${posStr}
+      </div>
+      <div style="margin:10px 14px;background:rgba(255,255,255,0.06);border:1px solid ${accent}44;border-radius:10px;padding:10px 12px;flex-shrink:0;">
+        <div style="color:${accent};font-size:10px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;font-family:Lora,serif;">${LANG.eduTitle}</div>
+        <div style="color:#d8f0c0;font-size:12px;line-height:1.55;font-family:Lora,serif;">${fact}</div>
+      </div>
+      <div style="padding:0 14px 12px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+        <button class="btn btn-green" onclick="nextLevel()" style="margin:0;">${LANG.nextLevel}</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn" onclick="showRanking()" style="flex:1;margin:0;background:rgba(40,30,0,.7);color:#ffd080;border:1px solid #806020;padding:7px;font-size:10px;">${LANG.seeRanking}</button>
+          <button class="btn" onclick="goToMainMenu()" style="flex:1;margin:0;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #802020;padding:7px;font-size:10px;">${LANG.mainMenu}</button>
+        </div>
+      </div>`;
   } else if(type==='finish'){
     const rank = getRanking();
     const myIdx = rank.findIndex(r=>r.isMe);
@@ -2615,6 +2956,7 @@ function goToMainMenu(){
   }
   GS.state = 'menu';
   Audio.stopMusic();
+  _bgmStop();
   Audio.resume();
   document.getElementById('pause-screen').style.display='none';
   document.getElementById('btn-pause').textContent='⏸';
@@ -2775,13 +3117,33 @@ window.togglePause = togglePause;
 
 // ── Mute ─────────────────────────────────────────
 let isMuted = false;
+
+// ── Muzyka MP3 (world1-4.mp3) ───────────────────────────────────────────────
+let _bgmAudio = null;
+let _bgmWorld = 0;
+function _bgmPlay(level) {
+  const w = level<=10?1:level<=20?2:level<=30?3:4;
+  if (_bgmWorld === w && _bgmAudio && !_bgmAudio.paused) return;
+  if (_bgmAudio) { _bgmAudio.pause(); _bgmAudio.currentTime=0; }
+  _bgmWorld = w;
+  _bgmAudio = new window.Audio(`assets/music/world${w}.mp3`);
+  _bgmAudio.loop = true;
+  _bgmAudio.volume = isMuted ? 0 : 0.127;
+  _bgmAudio.play().catch(e=>{ console.warn('BGM blocked:', e.name, e.message); });
+}
+function _bgmStop() {
+  if (_bgmAudio) { _bgmAudio.pause(); _bgmAudio.currentTime=0; }
+  _bgmWorld = 0;
+}
+function _bgmVol(v) { if (_bgmAudio) _bgmAudio.volume = v; }
+
 function toggleMute(){
   isMuted = !isMuted;
   const btn = document.getElementById('btn-mute');
   btn.classList.toggle('muted', isMuted);
   try {
-    if(isMuted) Audio.setMusicVol(0);
-    else         Audio.setMusicVol(0.22);
+    if(isMuted){ Audio.setMusicVol(0); _bgmVol(0); }
+    else        { Audio.setMusicVol(0.22); _bgmVol(0.38); }
   } catch(e){}
   try{ localStorage.setItem('wisp_music_mute', isMuted?'1':'0'); }catch(e){}
 }
@@ -3122,7 +3484,7 @@ function updatePhysics(){
   // Spike death — P.vy>0: only deadly when falling (standing on platform sets vy=0 each frame)
   LVL.spikes.forEach(s=>{
     if(P.x+P.w>s.x && P.x<s.x+s.w &&
-       P.y+P.h>s.y-16 && P.y<s.y && P.vy>0) playerDie();
+       P.y+P.h>s.y-26 && P.y<s.y && P.vy>0) playerDie();
   });
 
   // Enemy collision
@@ -3204,6 +3566,115 @@ function updateEnemies(){
 }
 
 // ── Particles ────────────────────────────────────
+// ── Ambient background particles ─────────────────
+let bgParts = [];
+
+function bgParticleWorld(lvl){
+  if(lvl<=10) return 'forest';
+  if(lvl<=20) return 'meadow';
+  if(lvl<=30) return 'autumn';
+  return 'winter';
+}
+
+function initBgParticles(){
+  bgParts = [];
+  const world = bgParticleWorld(GS.level);
+  const count = world==='winter'?80 : world==='autumn'?50 : world==='meadow'?40 : 30;
+  for(let i=0;i<count;i++){
+    bgParts.push(newBgParticle(world, Math.random()*H));
+  }
+}
+
+function newBgParticle(world, startY){
+  const x = Math.random()*W;
+  if(world==='winter') return {
+    world, x, y:startY??(-Math.random()*H),
+    vx:(Math.random()-.5)*0.5, vy:0.6+Math.random()*0.8,
+    r:1.5+Math.random()*2, alpha:0.6+Math.random()*0.4, swing:Math.random()*Math.PI*2
+  };
+  if(world==='autumn') return {
+    world, x, y:startY??(-Math.random()*50),
+    vx:(Math.random()-.5)*1.2, vy:0.8+Math.random()*1,
+    rot:Math.random()*Math.PI*2, rotV:(Math.random()-.5)*0.1,
+    color:['#FF7A20','#FF5500','#FFAA00','#CC4400'][Math.floor(Math.random()*4)],
+    w:6+Math.random()*5, h:4+Math.random()*3,
+    alpha:0.7+Math.random()*0.3, swing:Math.random()*Math.PI*2
+  };
+  if(world==='meadow') return {
+    world, x, y:startY??(-Math.random()*50),
+    vx:(Math.random()-.5)*0.6, vy:0.5+Math.random()*0.7,
+    rot:Math.random()*Math.PI*2, rotV:(Math.random()-.5)*0.06,
+    color:['#FFB7D5','#FFCCE0','#FF88BB','#FFFFFF'][Math.floor(Math.random()*4)],
+    r:3+Math.random()*3, alpha:0.6+Math.random()*0.35, swing:Math.random()*Math.PI*2
+  };
+  // forest — fireflies/sparkles
+  return {
+    world, x, y:Math.random()*H,
+    vx:(Math.random()-.5)*0.3, vy:(Math.random()-.5)*0.3,
+    r:1.5+Math.random()*2, alpha:0, maxAlpha:0.4+Math.random()*0.5,
+    phase:Math.random()*Math.PI*2, speed:0.02+Math.random()*0.03
+  };
+}
+
+function updateBgParticles(){
+  const world = bgParticleWorld(GS.level);
+  const t = frameT * 0.01;
+  for(let i=0;i<bgParts.length;i++){
+    const p = bgParts[i];
+    if(world==='forest'){
+      p.x += p.vx; p.y += p.vy;
+      p.alpha = p.maxAlpha * (0.5 + 0.5*Math.sin(p.phase + frameT*p.speed));
+      if(p.x<0) p.x=W; if(p.x>W) p.x=0;
+      if(p.y<0) p.y=H; if(p.y>H) p.y=0;
+    } else {
+      p.swing += 0.02;
+      p.x += p.vx + Math.sin(p.swing)*0.4;
+      p.y += p.vy;
+      if(p.world==='autumn'||p.world==='meadow') p.rot += p.rotV;
+      if(p.y > H+20){
+        bgParts[i] = newBgParticle(world, -10);
+      }
+    }
+  }
+}
+
+function drawBgParticles(){
+  const world = bgParticleWorld(GS.level);
+  ctx.save();
+  for(const p of bgParts){
+    if(p.alpha<=0) continue;
+    ctx.globalAlpha = p.alpha;
+    if(world==='winter'){
+      ctx.fillStyle='#ffffff';
+      ctx.shadowColor='#aaddff'; ctx.shadowBlur=4;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    } else if(world==='autumn'){
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color; ctx.shadowBlur=3;
+      ctx.beginPath();
+      ctx.ellipse(0,0,p.w/2,p.h/2,0,0,Math.PI*2);
+      ctx.fill(); ctx.restore();
+    } else if(world==='meadow'){
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color; ctx.shadowBlur=5;
+      ctx.beginPath();
+      ctx.ellipse(0,0,p.r,p.r*0.5,0,0,Math.PI*2);
+      ctx.fill(); ctx.restore();
+    } else {
+      // forest firefly
+      ctx.fillStyle='#aaff66';
+      ctx.shadowColor='#88ff44'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1; ctx.shadowBlur=0;
+  ctx.restore();
+}
+
 function spawnBurst(x,y,color,n){
   for(let i=0;i<n;i++){
     const a=(i/n)*Math.PI*2;
@@ -3223,52 +3694,25 @@ function updateParticles(){
 
 // ── Drawing ──────────────────────────────────────
 function drawBg(){
-  const th=LVL.theme;
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,th.sky[0]);
-  g.addColorStop(0.5,th.sky[1]);
-  g.addColorStop(1,th.sky[2]);
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,W,H);
-
-  // Stars / atmosphere
-  const t=frameT/60;
-  for(let i=0;i<50;i++){
-    const sx=((i*137+50)%W);
-    const sy=((i*91+20)%(H*2))-camera.y*0.15;
-    const alpha=0.25+0.2*Math.sin(t*1.3+i*0.7);
-    const col = GS.level>=8 ? `rgba(180,220,255,${alpha})` :
-                GS.level>=6 ? `rgba(180,180,255,${alpha})` :
-                GS.level>=4 ? `rgba(220,180,255,${alpha})` :
-                              `rgba(180,255,160,${alpha})`;
-    ctx.fillStyle=col;
-    ctx.beginPath();
-    ctx.arc(sx,(sy%H+H)%H,1.2,0,Math.PI*2);
-    ctx.fill();
-  }
-
-  // Fog / atmosphere layer
-  if(GS.level>=6){
-    const fg=ctx.createLinearGradient(0,0,0,H);
-    fg.addColorStop(0,th.fog+'0)');
-    fg.addColorStop(0.5,th.fog+'0.08)');
-    fg.addColorStop(1,th.fog+'0.18)');
-    ctx.fillStyle=fg;
+  const img = getBgImg(GS.level);
+  if(img.complete && img.naturalWidth){
+    // Parallax: obraz przesuwa się lekko w górę gdy gracz wspina się
+    const parallax = camera.y * 0.25;
+    const scale = Math.max(W/img.naturalWidth, H/img.naturalHeight);
+    const sw = img.naturalWidth * scale;
+    const sh = img.naturalHeight * scale;
+    const ox = (W - sw) / 2;
+    const oy = (H - sh) / 2 - parallax;
+    ctx.drawImage(img, ox, oy, sw, sh);
+  } else {
+    // Fallback: gradient gdy obraz jeszcze się ładuje
+    const th=LVL.theme;
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,th.sky[0]);
+    g.addColorStop(0.5,th.sky[1]);
+    g.addColorStop(1,th.sky[2]);
+    ctx.fillStyle=g;
     ctx.fillRect(0,0,W,H);
-  }
-
-  // Tree silhouettes
-  const tc = GS.level>=8?'rgba(10,20,40,.6)':GS.level>=6?'rgba(5,5,20,.65)':GS.level>=4?'rgba(20,5,30,.6)':'rgba(10,30,10,.65)';
-  ctx.fillStyle=tc;
-  for(let i=0;i<7;i++){
-    const tx=(i*80+10)%W;
-    const th2=90+(i*53)%70;
-    const ty=H-th2+camera.y*0.04;
-    ctx.beginPath();
-    ctx.moveTo(tx,ty+th2);
-    ctx.lineTo(tx+25,ty);
-    ctx.lineTo(tx+50,ty+th2);
-    ctx.fill();
   }
 }
 
@@ -3277,33 +3721,61 @@ function drawPlatform(pl){
   if(py<-50||py>H+50) return;
   const px=pl.moving ? pl.origX+Math.sin(pl.t)*pl.mx : pl.x;
   const th=LVL.theme;
+  const world = getPlatWorld(GS.level);
+  const pat = getPlatPattern(world);
 
-  const g=ctx.createLinearGradient(0,py,0,py+pl.h);
-  g.addColorStop(0,pl.type==='ground'?th.platform:darken(th.platform,20));
-  g.addColorStop(1,darken(th.platform,40));
-  ctx.fillStyle=g;
+  ctx.save();
+  ctx.beginPath();
   if(pl.type==='ground'){
-    ctx.fillRect(px,py,pl.w,pl.h);
+    ctx.rect(px, py, pl.w, pl.h);
   } else {
-    ctx.beginPath();
-    ctx.roundRect(px,py,pl.w,pl.h,5);
-    ctx.fill();
+    ctx.roundRect(px, py, pl.w, pl.h, 6);
   }
-  // top edge
-  ctx.fillStyle=th.ptop;
+  ctx.clip();
+
+  if(pat){
+    // Tekstura AI — kafelkowana poziomo, wyśrodkowana pionowo
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.fillStyle = pat;
+    ctx.fillRect(0, 0, pl.w, pl.h);
+    ctx.restore();
+    // Delikatna ciemna gradientowa krawędź od dołu
+    const shadow = ctx.createLinearGradient(0,py,0,py+pl.h);
+    shadow.addColorStop(0,'rgba(0,0,0,0)');
+    shadow.addColorStop(1,'rgba(0,0,0,0.35)');
+    ctx.fillStyle=shadow; ctx.fillRect(px,py,pl.w,pl.h);
+  } else {
+    // Fallback kolorowy gdy tekstura się jeszcze ładuje
+    const g=ctx.createLinearGradient(0,py,0,py+pl.h);
+    g.addColorStop(0,th.platform); g.addColorStop(1,darken(th.platform,40));
+    ctx.fillStyle=g; ctx.fillRect(px,py,pl.w,pl.h);
+  }
+
+  ctx.restore();
+
+  // Górna krawędź — jasny pasek (wierzch platformy)
+  ctx.save();
+  if(pat){
+    ctx.fillStyle='rgba(255,255,255,0.28)';
+  } else {
+    ctx.fillStyle=th.ptop;
+  }
+  ctx.beginPath();
   if(pl.type==='ground'){
-    ctx.fillRect(px,py,pl.w,4);
+    ctx.rect(px, py, pl.w, 4);
   } else {
-    ctx.beginPath();
-    ctx.roundRect(px,py,pl.w,3,[3,3,0,0]);
-    ctx.fill();
+    ctx.roundRect(px, py, pl.w, 4, [6,6,0,0]);
   }
-  // Moving platform glow
+  ctx.fill();
+  ctx.restore();
+
+  // Ruchoma platforma — złota poświata
   if(pl.moving){
-    ctx.strokeStyle='rgba(255,200,100,0.25)';
+    ctx.strokeStyle='rgba(255,200,80,0.35)';
     ctx.lineWidth=1.5;
     ctx.beginPath();
-    ctx.roundRect(px,py,pl.w,pl.h,5);
+    ctx.roundRect(px,py,pl.w,pl.h,6);
     ctx.stroke();
   }
 }
@@ -3315,22 +3787,58 @@ function darken(hex, amt){
 }
 
 function drawSpike(s){
-  const sy=s.y-camera.y;
-  if(sy<-30||sy>H+30) return;
-  const n=Math.max(1,Math.floor(s.w/14));
-  const sw=s.w/n;
-  // Glow for higher levels
-  if(GS.level>=6){ctx.shadowColor='rgba(255,50,50,.4)';ctx.shadowBlur=8;}
-  ctx.fillStyle=GS.level>=8?'#4060aa':GS.level>=6?'#6030aa':'#8a2020';
-  for(let i=0;i<n;i++){
+  const sy = s.y - camera.y;
+  if(sy < -40 || sy > H + 40) return;
+
+  const world = getPlatWorld(GS.level);
+  const sc = SPIKE_COLORS[world] || SPIKE_COLORS.w1;
+
+  // Szerokość i wysokość jednego kolca
+  const sw = 10;   // szerokość podstawy
+  const sh = 26;   // wysokość kolca
+  const gap = 4;   // odstęp między kolcami
+  const step = sw + gap;
+  const n = Math.max(1, Math.floor(s.w / step));
+  const totalW = n * step - gap;
+  const startX = s.x + (s.w - totalW) / 2;
+
+  ctx.save();
+
+  // Glow
+  ctx.shadowColor = sc.glow;
+  ctx.shadowBlur  = 10;
+
+  for(let i = 0; i < n; i++){
+    const cx = startX + i * step + sw / 2;
+    const base = sy + 19;
+    const tip  = base - sh;
+
+    // Gradient wypełnienie: jasny kolor przy czubku, ciemny u podstawy
+    const grad = ctx.createLinearGradient(cx, tip, cx, base);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.18, sc.col);
+    grad.addColorStop(1,   sc.dark);
+
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.moveTo(s.x+i*sw,sy);
-    ctx.lineTo(s.x+i*sw+sw/2,sy-16);
-    ctx.lineTo(s.x+(i+1)*sw,sy);
+    ctx.moveTo(cx - sw/2, base);   // lewy dolny
+    ctx.lineTo(cx,        tip);    // czubek
+    ctx.lineTo(cx + sw/2, base);   // prawy dolny
     ctx.closePath();
     ctx.fill();
+
+    // Biały połysk na lewej krawędzi
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - sw/2, base);
+    ctx.lineTo(cx, tip);
+    ctx.stroke();
+    ctx.shadowBlur = 10;
   }
-  ctx.shadowBlur=0;
+
+  ctx.restore();
 }
 
 function drawGem(g){
@@ -3342,16 +3850,38 @@ function drawGem(g){
   ctx.save();
   ctx.translate(g.x,gy);
   ctx.scale(s,s);
+
+  const diamond = ()=>{
+    ctx.beginPath();
+    ctx.moveTo(0,-9);ctx.lineTo(7,0);ctx.lineTo(0,9);ctx.lineTo(-7,0);
+    ctx.closePath();
+  };
+
+  // Ciemna obwódka dla kontrastu z jasnym tłem
+  ctx.shadowColor='rgba(0,0,0,0.8)';
+  ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.scale(1.3,1.3); diamond(); ctx.fill();
+  ctx.scale(1/1.3,1/1.3);
+
+  // Jasna poświata
   ctx.shadowColor=LVL.gemColor;
-  ctx.shadowBlur=10;
+  ctx.shadowBlur=18;
   ctx.fillStyle=LVL.gemColor;
+  diamond(); ctx.fill();
+
+  // Biały blask wewnątrz
+  ctx.fillStyle='rgba(255,255,255,0.55)';
   ctx.beginPath();
-  ctx.moveTo(0,-8);ctx.lineTo(6,0);ctx.lineTo(0,8);ctx.lineTo(-6,0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,0.5)';
-  ctx.lineWidth=1;
-  ctx.stroke();
+  ctx.moveTo(0,-5);ctx.lineTo(3,-1);ctx.lineTo(0,1);ctx.lineTo(-3,-1);
+  ctx.closePath(); ctx.fill();
+
+  // Wyraźna biała obwódka
+  ctx.strokeStyle='rgba(255,255,255,0.95)';
+  ctx.lineWidth=2;
+  ctx.shadowBlur=0;
+  diamond(); ctx.stroke();
+
   ctx.restore();
 }
 
@@ -3439,39 +3969,65 @@ function drawPlayer(){
   // Invincibility flicker
   if(P.invincible>0 && frameT%6<3) return;
 
-  // Trail
-  P.trail.push({x:px+P.w/2,y:py+P.h/2,a:.45});
-  if(P.trail.length>9) P.trail.shift();
-  P.trail.forEach((tr,i)=>{
-    tr.a-=0.05;
-    if(tr.a<=0) return;
+  // Kolor smugi i poświaty zależny od świata
+  const lvl = GS.level;
+  const trailCol = lvl<=10 ? '#80ff44' : lvl<=20 ? '#ff88ee' : lvl<=30 ? '#ffaa22' : '#66ccff';
+  const trailCol2= lvl<=10 ? '#ccff88' : lvl<=20 ? '#ffccff' : lvl<=30 ? '#ffe888' : '#aaeeff';
+  const bodyCol  = lvl<=10 ? '#80ee60' : lvl<=20 ? '#ff66dd' : lvl<=30 ? '#ff9900' : '#60c0ff';
+
+  // Smuga — ogon kometarny (20 punktów, malejące kółka z poświatą)
+  const isMoving = Math.abs(P.vx)>0.3 || Math.abs(P.vy)>0.3;
+  if(isMoving){
+    P.trail.push({x:px+P.w/2, y:py+P.h/2});
+  } else {
+    if(P.trail.length>0) P.trail.shift(); // szybkie zanikanie gdy stoi
+  }
+  if(P.trail.length>20) P.trail.shift();
+  const tlen = P.trail.length;
+  P.trail.forEach((tr, i)=>{
+    const frac = i / tlen;               // 0=najstarszy, 1=najnowszy
+    const alpha = frac * frac * 0.75;    // kwadratowe zanikanie
+    const r = 3 + frac * 9;             // rozmiar rośnie ku Wispowi
+    if(alpha < 0.02) return;
     ctx.save();
-    ctx.globalAlpha=tr.a*(i/P.trail.length);
-    const tc=GS.level>=8?'#60c0ff':GS.level>=6?'#c080ff':GS.level>=4?'#d090ff':'#80ff60';
-    ctx.fillStyle=tc;
-    ctx.shadowColor=tc;
-    ctx.shadowBlur=5;
+    ctx.globalAlpha = alpha;
+    // Gradient kolor — od jasnego końca do ciemniejszego
+    const col = i % 2 === 0 ? trailCol : trailCol2;
+    ctx.fillStyle = col;
+    ctx.shadowColor = trailCol;
+    ctx.shadowBlur = 8 + frac * 14;
     ctx.beginPath();
-    ctx.arc(tr.x,tr.y,4,0,Math.PI*2);
+    ctx.arc(tr.x, tr.y, r, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
   });
 
+  // Iskierki odlatujące od smugi
+  if(frameT % 3 === 0 && tlen > 5){
+    const base = P.trail[Math.max(0, tlen-6)];
+    particles.push({
+      x: base.x + (Math.random()-0.5)*10,
+      y: base.y + (Math.random()-0.5)*10,
+      vx: (Math.random()-0.5)*1.5,
+      vy: -0.5 - Math.random()*1.5,
+      r: 1.5 + Math.random()*2,
+      life: 18 + Math.floor(Math.random()*12),
+      maxLife: 30,
+      color: trailCol2,
+    });
+  }
+
   ctx.save();
-
-  const bodyCol = GS.level>=8?'#60c0ff':GS.level>=6?'#c080ff':GS.level>=4?'#d0a0ff':'#80ee60';
-
-  // Glow wokół sprite'a
   ctx.shadowColor = bodyCol;
   ctx.shadowBlur = 22;
 
   if(_wispSprite){
     // Sprite ikony — lekko większy od hitboxa żeby glow był widoczny
-    ctx.drawImage(_wispSprite, px-6, py-10, 34, 38);
+    ctx.drawImage(_wispSprite, px-7, py-5, 41, 46);
   } else {
     // Fallback zanim sprite się załaduje
     ctx.fillStyle = bodyCol;
-    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2,12,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2,15,0,Math.PI*2);ctx.fill();
   }
 
   // Key glow
@@ -3479,7 +4035,7 @@ function drawPlayer(){
     ctx.shadowBlur=0;
     ctx.strokeStyle='rgba(255,215,0,.6)';
     ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2-2,16,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(px+P.w/2,py+P.h/2-2,19,0,Math.PI*2);ctx.stroke();
   }
 
   ctx.restore();
@@ -3532,6 +4088,7 @@ function loop(now){
       updatePhysics();
       updateEnemies();
       updateParticles();
+      updateBgParticles();
       _physAcc -= _PHYS_STEP;
       steps++;
     }
@@ -3546,6 +4103,7 @@ function loop(now){
 
   if(LVL && (GS.state==='playing'||GS.state==='win'||GS.state==='dead_anim')){
     drawBg();
+    drawBgParticles();
     drawWindEffect();
     LVL.platforms.forEach(drawPlatform);
     LVL.spikes.forEach(drawSpike);
@@ -3691,7 +4249,7 @@ try{
   if(localStorage.getItem('wisp_music_mute')==='1'){
     isMuted=true;
     document.getElementById('btn-mute').classList.add('muted');
-    Audio.setMusicVol(0);
+    Audio.setMusicVol(0); _bgmVol(0);
   }
 }catch(e){}
 try{
@@ -4203,7 +4761,7 @@ function showDeleteAccountModal() {
       if(p.x>canvas.width+10) p.x=-10;
       ctx.beginPath();
       ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(128,238,96,${p.alpha})`;
+      ctx.fillStyle=`rgba(160,255,80,${p.alpha+0.15})`;
       ctx.fill();
     });
     requestAnimationFrame(draw);
