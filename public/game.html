@@ -2460,6 +2460,7 @@ const BASE_H = 720; // oryginalna wysokość na której projektowano poziomy
 
 // ── Platform textures ────────────────────────────
 const _platTextures = {};
+const _platLoaded = {};
 const PLAT_IMGS = {
   w1: ['w1_log','w1_stone'],
   w2: ['w2_mushroom','w2_flower'],
@@ -2473,14 +2474,17 @@ function preloadPlatTextures(lvl){
   (PLAT_IMGS[world]||[]).forEach(name=>{
     if(_platTextures[name]) return;
     const img = new Image();
-    img.src = `assets/platforms/${name}.png`;
+    img.onload = () => { _platLoaded[name] = true; };
+    img.onerror = () => console.warn('[Wisp] platTex err:', name);
+    img.src = `/assets/platforms/${name}.png?v=2`;
     _platTextures[name] = img;
   });
 }
 function getPlatImg(world){
   const names = PLAT_IMGS[world]||[];
-  const img = _platTextures[names[GS.level % names.length]];
-  return (img && img.complete && img.naturalWidth) ? img : null;
+  const name = names[GS.level % names.length];
+  const img = _platTextures[name];
+  return (img && _platLoaded[name]) ? img : null;
 }
 [1,11,21,31].forEach(preloadPlatTextures);
 
@@ -3744,6 +3748,7 @@ function drawPlatform(pl){
   ctx.clip();
 
   if(img){
+    try{
     // Tekstura AI — kafelkowana drawImage (działa na każdym Android WebView)
     const scale = pl.h / img.naturalHeight;
     const tileW = Math.max(1, Math.round(img.naturalWidth * scale));
@@ -3752,6 +3757,7 @@ function drawPlatform(pl){
       const sw = Math.min(img.naturalWidth, Math.round(img.naturalWidth * dw / tileW));
       ctx.drawImage(img, 0, 0, sw, img.naturalHeight, px+x, py, dw, pl.h);
     }
+    }catch(e){ console.warn('[Wisp] drawImage err:', e.message); }
     const shadow=ctx.createLinearGradient(0,py,0,py+pl.h);
     shadow.addColorStop(0,'rgba(0,0,0,0)');
     shadow.addColorStop(1,'rgba(0,0,0,0.35)');
