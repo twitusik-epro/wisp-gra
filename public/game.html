@@ -2460,7 +2460,6 @@ const BASE_H = 720; // oryginalna wysokość na której projektowano poziomy
 
 // ── Platform textures ────────────────────────────
 const _platTextures = {};
-const _platPatterns = {};
 const PLAT_IMGS = {
   w1: ['w1_log','w1_stone'],
   w2: ['w2_mushroom','w2_flower'],
@@ -2471,34 +2470,17 @@ function getPlatWorld(lvl){ return lvl<=10?'w1':lvl<=20?'w2':lvl<=30?'w3':'w4'; 
 
 function preloadPlatTextures(lvl){
   const world = getPlatWorld(lvl);
-  if(_platPatterns[world]) return;
   (PLAT_IMGS[world]||[]).forEach(name=>{
+    if(_platTextures[name]) return;
     const img = new Image();
     img.src = `assets/platforms/${name}.png`;
-    img.onload = ()=>{ _platTextures[name]=img; _platPatterns[world]=null; };
     _platTextures[name] = img;
   });
 }
-function getPlatPattern(world){
-  if(_platPatterns[world]) return _platPatterns[world];
+function getPlatImg(world){
   const names = PLAT_IMGS[world]||[];
-  // wybierz losowo między dwoma wariantami, ale deterministycznie per poziom
-  const name = names[(GS.level) % names.length];
-  const img = _platTextures[name];
-  if(img && img.complete && img.naturalWidth){
-    // Przeskaluj do wysokości platformy przed stworzeniem wzoru
-    const ph = 24; // docelowa wysokość wzoru
-    const scale = ph / img.naturalHeight;
-    const pw = Math.round(img.naturalWidth * scale);
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = pw; offCanvas.height = ph;
-    const offCtx = offCanvas.getContext('2d');
-    offCtx.drawImage(img, 0, 0, pw, ph);
-    const pat = ctx.createPattern(offCanvas, 'repeat-x');
-    _platPatterns[world] = pat;
-    return pat;
-  }
-  return null;
+  const img = _platTextures[names[GS.level % names.length]];
+  return (img && img.complete && img.naturalWidth) ? img : null;
 }
 [1,11,21,31].forEach(preloadPlatTextures);
 
@@ -3750,7 +3732,7 @@ function drawPlatform(pl){
   const px=pl.moving ? pl.origX+Math.sin(pl.t)*pl.mx : pl.x;
   const th=LVL.theme;
   const world = getPlatWorld(GS.level);
-  const pat = getPlatPattern(world);
+  const img = getPlatImg(world);
 
   ctx.save();
   ctx.beginPath();
@@ -3761,20 +3743,20 @@ function drawPlatform(pl){
   }
   ctx.clip();
 
-  if(pat){
-    // Tekstura AI — kafelkowana poziomo, wyśrodkowana pionowo
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.fillStyle = pat;
-    ctx.fillRect(0, 0, pl.w, pl.h);
-    ctx.restore();
-    // Delikatna ciemna gradientowa krawędź od dołu
-    const shadow = ctx.createLinearGradient(0,py,0,py+pl.h);
+  if(img){
+    // Tekstura AI — kafelkowana drawImage (działa na każdym Android WebView)
+    const scale = pl.h / img.naturalHeight;
+    const tileW = Math.max(1, Math.round(img.naturalWidth * scale));
+    for(let x=0; x<pl.w; x+=tileW){
+      const dw = Math.min(tileW, pl.w-x);
+      const sw = Math.min(img.naturalWidth, Math.round(img.naturalWidth * dw / tileW));
+      ctx.drawImage(img, 0, 0, sw, img.naturalHeight, px+x, py, dw, pl.h);
+    }
+    const shadow=ctx.createLinearGradient(0,py,0,py+pl.h);
     shadow.addColorStop(0,'rgba(0,0,0,0)');
     shadow.addColorStop(1,'rgba(0,0,0,0.35)');
     ctx.fillStyle=shadow; ctx.fillRect(px,py,pl.w,pl.h);
   } else {
-    // Fallback kolorowy gdy tekstura się jeszcze ładuje
     const g=ctx.createLinearGradient(0,py,0,py+pl.h);
     g.addColorStop(0,th.platform); g.addColorStop(1,darken(th.platform,40));
     ctx.fillStyle=g; ctx.fillRect(px,py,pl.w,pl.h);
@@ -3782,13 +3764,9 @@ function drawPlatform(pl){
 
   ctx.restore();
 
-  // Górna krawędź — jasny pasek (wierzch platformy)
+  // Górna krawędź
   ctx.save();
-  if(pat){
-    ctx.fillStyle='rgba(255,255,255,0.28)';
-  } else {
-    ctx.fillStyle=th.ptop;
-  }
+  ctx.fillStyle = img ? 'rgba(255,255,255,0.28)' : th.ptop;
   ctx.beginPath();
   if(pl.type==='ground'){
     ctx.rect(px, py, pl.w, 4);
@@ -3798,7 +3776,6 @@ function drawPlatform(pl){
   ctx.fill();
   ctx.restore();
 
-  // Ruchoma platforma — złota poświata
   if(pl.moving){
     ctx.strokeStyle='rgba(255,200,80,0.35)';
     ctx.lineWidth=1.5;
