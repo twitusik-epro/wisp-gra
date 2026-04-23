@@ -4106,7 +4106,7 @@ function loop(now){
   animT += _dt;
   ctx.clearRect(0,0,W,H);
 
-  if(LVL && (GS.state==='playing'||GS.state==='win'||GS.state==='dead_anim')){
+  if(LVL && (GS.state==='playing'||GS.state==='win'||GS.state==='dead_anim'||GS.state==='transition')){
     drawBg();
     drawBgParticles();
     drawWindEffect();
