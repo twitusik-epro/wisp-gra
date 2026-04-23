@@ -2541,6 +2541,10 @@ function loadLevel(n){
   LVL.startY = Math.round(LVL.startY*scaleY);
 
   P.x=LVL.startX; P.y=LVL.startY;
+  // Snap above any platform the player starts inside (small screens: scaleY<0.9 can embed player in ground)
+  LVL.platforms.forEach(pl=>{
+    if(P.x+P.w>pl.x && P.x<pl.x+pl.w && P.y+P.h>pl.y && P.y<pl.y+pl.h) P.y=pl.y-P.h;
+  });
   P.vx=0; P.vy=0; P.dead=false; P.hasKey=false;
   P.trail=[]; P.invincible=0;
   camera.y=0; particles=[];
