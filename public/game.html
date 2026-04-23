@@ -4550,7 +4550,6 @@ const WispAuth = (function(){
       // Niezalogowany
       const loginLabel = LANG_CODE==='pl'?'🔑 Zaloguj przez Google':(LANG_CODE==='de'?'🔑 Mit Google anmelden':(LANG_CODE==='es'?'🔑 Iniciar con Google':(LANG_CODE==='fr'?'🔑 Connexion Google':'🔑 Sign in with Google')));
       if(panel) panel.innerHTML = `<button class="btn" onclick="WispAuth.login()" style="margin-top:4px;padding:6px 16px;font-size:12px;background:rgba(255,255,255,.12);color:#c0e0c0;border:1px solid #4a7a4a;">${loginLabel}</button>`;
-      if(badge){ badge.style.display='none'; }
     }
   }
 
