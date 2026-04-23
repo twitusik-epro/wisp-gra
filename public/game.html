@@ -2833,6 +2833,7 @@ function showResultScreen(type){
         :showShopButtons()
       }
       <button class="btn" onclick="goToMainMenu()" style="margin-top:10px;background:rgba(40,10,10,.7);color:#e08080;border:1px solid #802020;padding:8px 24px;font-size:11px;">${LANG.mainMenu}</button>`;
+    if(GS.lives <= 0) setTimeout(updatePlayPrices, 0);
   } else if(type==='win'){
     const rank = getRanking();
     const myIdx = rank.findIndex(r=>r.isMe);
@@ -2896,10 +2897,27 @@ function showShopButtons(){
   return `
     <div class="sub" style="color:#aa9050;margin-top:12px">${LANG.shopSub}</div>
     <div class="shop-row" style="margin-top:18px">
-      <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span>0,99 €</div>
-      <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span>1,99 €</div>
-      <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span>3,99 €</div>
+      <div class="shop-item" onclick="buyLives(10)"><span class="price">❤️ ×10</span><span id="sp10">0,99 €</span></div>
+      <div class="shop-item" onclick="buyLives(25)"><span class="price">❤️ ×25</span><span id="sp25">1,99 €</span></div>
+      <div class="shop-item best" onclick="buyLives(50)"><div class="best-badge">⭐ BEST VALUE</div><span class="price">❤️ ×50</span><span id="sp50">3,99 €</span></div>
     </div>`;
+}
+
+async function updatePlayPrices(){
+  if(!IS_TWA || !('getDigitalGoodsService' in window)) return;
+  try {
+    const svc = await window.getDigitalGoodsService('https://play.google.com/billing');
+    const details = await svc.getDetails(['wisp_pack_10','wisp_pack_25','wisp_pack_50']);
+    const idMap = {wisp_pack_10:'sp10', wisp_pack_25:'sp25', wisp_pack_50:'sp50'};
+    details.forEach(d => {
+      const el = document.getElementById(idMap[d.itemId]);
+      if(!el || !d.price) return;
+      try {
+        const fmt = new Intl.NumberFormat(navigator.language, {style:'currency', currency:d.price.currency}).format(parseFloat(d.price.value));
+        el.textContent = fmt;
+      } catch(_){ el.textContent = d.price.value + ' ' + d.price.currency; }
+    });
+  } catch(e){ /* zostaw fallback EUR */ }
 }
 
 function buyLives(n){
