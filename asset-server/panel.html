@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎨 Wisp Asset Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;font-size:14px;min-height:100vh}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:14px 24px;display:flex;align-items:center;gap:16px}
+header h1{font-size:18px;color:#58a6ff}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#3fb950;flex-shrink:0}
+.status-dot.busy{background:#f85149;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#status-text{font-size:12px;color:#8b949e}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 53px)}
+.sidebar{background:#161b22;border-right:1px solid #30363d;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+.main{padding:20px;overflow-y:auto}
+
+/* FORM */
+.card{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:16px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:#8b949e;margin-bottom:12px}
+label{display:block;font-size:12px;color:#8b949e;margin-bottom:4px;margin-top:10px}
+label:first-of-type{margin-top:0}
+input,select,textarea{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#58a6ff}
+textarea{min-height:70px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{width:100%;padding:9px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#238636;color:#fff;margin-top:14px}
+.btn-primary:hover:not(:disabled){background:#2ea043}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:5px;border:none;cursor:pointer;font-weight:600}
+.btn-approve{background:#238636;color:#fff}
+.btn-approve:hover{background:#2ea043}
+.btn-reject{background:#da3633;color:#fff}
+.btn-reject:hover{background:#f85149}
+.btn-delete{background:#30363d;color:#8b949e}
+.btn-delete:hover{background:#3d444e;color:#e6edf3}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid #30363d;margin-bottom:20px}
+.tab{padding:8px 16px;cursor:pointer;font-size:13px;color:#8b949e;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#58a6ff;border-bottom-color:#58a6ff}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* JOBS */
+.job{background:#21262d;border:1px solid #30363d;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.job-header{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #30363d;flex-wrap:wrap}
+.job-id{font-family:monospace;font-size:11px;color:#8b949e}
+.job-prompt{flex:1;font-size:13px;color:#e6edf3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job-meta{font-size:11px;color:#8b949e}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-pending{background:#1f3a1f;color:#3fb950}
+.vid-scale-btn{flex:1;padding:6px 0;background:#21262d;border:1px solid #30363d;border-radius:5px;color:#8b949e;cursor:pointer;font-size:12px;transition:all .15s}
+.vid-scale-btn:hover{border-color:#58a6ff;color:#c9d1d9}
+.vid-scale-btn.active{background:#1f3a5c;border-color:#388bfd;color:#58a6ff;font-weight:600}
+.badge-generating{background:#1a2a3a;color:#58a6ff}
+.badge-error{background:#3a1a1a;color:#f85149}
+.badge-queued{background:#2a2a1a;color:#e3b341}
+.images-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:12px}
+.img-wrap{position:relative;border-radius:6px;overflow:hidden;border:2px solid #30363d;cursor:pointer;transition:border-color .15s}
+.img-wrap:hover{border-color:#58a6ff}
+.img-wrap.approved{border-color:#3fb950}
+.img-wrap.rejected{border-color:#da3633;opacity:.5}
+.img-wrap img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
+.img-actions{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.8);padding:6px;display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.img-wrap:hover .img-actions{opacity:1}
+.img-wrap.approved .img-actions,.img-wrap.rejected .img-actions{opacity:1}
+.target-input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3;padding:4px 6px;font-size:11px;margin-bottom:4px}
+
+/* WORLD SECTIONS */
+.world-section{margin-bottom:32px}
+.world-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.world-title{font-size:15px;font-weight:700;color:#e6edf3}
+.world-count{font-size:12px;color:#8b949e;background:#21262d;border:1px solid #30363d;border-radius:20px;padding:2px 10px}
+.world-divider{border:none;border-top:1px solid #30363d;margin:0 0 28px}
+.level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.level-card{background:#21262d;border:1px solid #30363d;border-radius:8px;overflow:hidden;transition:border-color .15s}
+.level-card:hover{border-color:#58a6ff}
+.level-card.approved{border-color:#3fb950}
+.level-card.rejected{border-color:#da3633;opacity:.5}
+.level-thumb{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;cursor:pointer}
+.level-footer{padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.level-num{font-size:11px;font-weight:700;color:#58a6ff;font-family:monospace;flex-shrink:0}
+.level-target{flex:1;min-width:60px;background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3;padding:3px 6px;font-size:11px}
+.level-actions{display:flex;gap:4px;width:100%;margin-top:2px}
+.level-actions .btn-sm{flex:1;font-size:10px;padding:4px 2px}
+.level-status{font-size:10px;padding:3px 8px;border-radius:4px;width:100%;text-align:center}
+.level-status.ok{background:#1f3a1f;color:#3fb950}
+.level-status.rej{background:#3a1a1a;color:#f85149}
+
+/* GAME ASSETS */
+.ga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.ga-item{background:#21262d;border:1px solid #30363d;border-radius:8px;overflow:hidden}
+.ga-item img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block}
+.ga-label{padding:6px 10px;font-size:11px;color:#8b949e;font-family:monospace}
+
+/* MUSIC */
+.music-track{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:12px}
+.music-track.approved{border-color:#3fb950}
+.music-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.music-prompt{flex:1;font-size:13px;color:#e6edf3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.music-meta{font-size:11px;color:#8b949e}
+.music-player{width:100%;height:36px;margin-bottom:8px;border-radius:4px;accent-color:#6e40c9}
+.music-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.music-target{background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3;padding:4px 8px;font-size:12px;flex:1;min-width:80px}
+
+/* GENERATING overlay */
+#gen-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#gen-overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:4px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#gen-msg{color:#e6edf3;font-size:15px}
+#gen-sub{color:#8b949e;font-size:13px}
+
+/* LIGHTBOX */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center}
+#lightbox.show{display:flex}
+#lightbox img{max-height:90vh;max-width:90vw;border-radius:8px}
+#lightbox-close{position:absolute;top:20px;right:24px;font-size:28px;cursor:pointer;color:#8b949e}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="status-dot" id="dot"></div>
+  <h1>🎨 Wisp Asset Studio</h1>
+  <span id="status-text">Gotowy</span>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR: generate form -->
+  <div class="sidebar">
+    <div class="card">
+      <h2>🖼 Generuj asset</h2>
+
+      <label>Prompt (opis grafiki)</label>
+      <textarea id="prompt" placeholder="np. sunny enchanted forest with glowing mushrooms, sunrays through ancient trees, magical atmosphere"></textarea>
+
+      <label>Świat</label>
+      <select id="world">
+        <option value="1">🌳 Świat 1 — Sunny Forest (poz. 1-10)</option>
+        <option value="2">🌸 Świat 2 — Flower Meadow (poz. 11-20)</option>
+        <option value="3">🌅 Świat 3 — Golden Sunrise (poz. 21-30)</option>
+        <option value="4">❄️ Świat 4 — Winter Wonderland (poz. 31-40)</option>
+      </select>
+
+      <label>Warstwa</label>
+      <select id="layer">
+        <option value="full">Pełne tło (full background)</option>
+        <option value="sky">Niebo (sky layer)</option>
+        <option value="midground">Środek (midground)</option>
+        <option value="foreground">Pierwszy plan (foreground)</option>
+      </select>
+
+      <label>Orientacja / rozmiar</label>
+      <select id="size">
+        <option value="576x1024">576×1024 (9:16 portret — mobile)</option>
+        <option value="1024x576">1024×576 (16:9 landscape — desktop)</option>
+        <option value="1024x1024">1024×1024 (kwadrat)</option>
+      </select>
+
+      <div class="row2">
+        <div>
+          <label>Ilość wariantów</label>
+          <select id="count">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4" selected>4</option>
+          </select>
+        </div>
+        <div>
+          <label>Seed</label>
+          <input type="number" id="seed" value="42">
+        </div>
+      </div>
+
+      <label>Etykieta (opcjonalnie)</label>
+      <input type="text" id="label" placeholder="np. world1_bg_v3">
+
+      <button class="btn btn-primary" id="gen-btn" onclick="startGeneration()">
+        ⚡ Generuj z RTX 5090
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>⚡ Szybkie prompty</h2>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setPrompt('sunny enchanted forest, glowing ancient trees, magical sunrays piercing through canopy, vibrant green foliage, floating light particles, fairytale atmosphere')">🌳 Sunny Forest</button>
+        <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setPrompt('magical flower meadow, giant colorful mushrooms, rainbow butterflies, soft pastel colors, sparkling fairy lights, whimsical')">🌸 Flower Meadow</button>
+        <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setPrompt('warm golden sunrise forest, amber light rays, autumn leaves falling, cozy magical atmosphere, glowing fireflies')">🌅 Golden Sunrise</button>
+        <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setPrompt('bright sparkling winter forest, snow crystals floating, ice magic, crystal clear icicles, soft blue and white, wonderland')">❄️ Winter Wonder</button>
+        <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setPrompt('magical platform, mossy stone covered in glowing flowers, soft green light, top-down game platform')">🪨 Platforma</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN: tabs -->
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('pending')">⏳ Oczekujące</div>
+      <div class="tab" onclick="showTab('all')">📋 Wszystkie joby</div>
+      <div class="tab" onclick="showTab('game')">🎮 W grze</div>
+      <div class="tab" onclick="showTab('music')">🎵 Muzyka AI</div>
+      <div class="tab" onclick="showTab('video')">🎬 Wideo AI</div>
+      <div class="tab" onclick="showTab('edu')">📚 Edukacja</div>
+    </div>
+
+    <div id="tab-pending" class="tab-content active">
+      <div id="pending-list"><p style="color:#8b949e">Ładowanie...</p></div>
+    </div>
+    <div id="tab-all" class="tab-content">
+      <div id="all-list"><p style="color:#8b949e">Brak jobów.</p></div>
+    </div>
+    <div id="tab-game" class="tab-content">
+      <p style="color:#8b949e;margin-bottom:16px">Zatwierdzony assety używane w grze (/public/assets/bg/):</p>
+      <div id="game-list" class="ga-grid"></div>
+    </div>
+
+    <!-- MUZYKA AI -->
+    <div id="tab-music" class="tab-content">
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:20px">
+
+        <!-- Formularz generowania -->
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <h2>🎵 Generuj muzykę</h2>
+
+            <label>Świat</label>
+            <select id="mus-world" onchange="setMusicPreset()">
+              <option value="w1">🌳 Świat 1 — Sunny Forest</option>
+              <option value="w2">🌸 Świat 2 — Flower Meadow</option>
+              <option value="w3">🌅 Świat 3 — Golden Sunrise</option>
+              <option value="w4">❄️ Świat 4 — Winter Wonderland</option>
+              <option value="custom">✏️ Własny prompt</option>
+            </select>
+
+            <label>Prompt (opis muzyki)</label>
+            <textarea id="mus-prompt" style="min-height:80px"></textarea>
+
+            <label>Czas trwania</label>
+            <select id="mus-duration">
+              <option value="15">15 sekund</option>
+              <option value="30" selected>30 sekund</option>
+              <option value="60">60 sekund</option>
+            </select>
+
+            <label>Etykieta docelowa (np. world1, world2)</label>
+            <input type="text" id="mus-label" placeholder="np. world1">
+
+            <button class="btn btn-primary" id="mus-btn" onclick="generateMusic()" style="background:#6e40c9;margin-top:14px">
+              🎵 Generuj z RTX 5090
+            </button>
+            <div id="mus-progress" style="display:none;margin-top:10px">
+              <div style="background:#0d1117;border-radius:6px;height:6px;overflow:hidden">
+                <div id="mus-bar" style="background:#6e40c9;height:100%;width:0%;transition:width .4s"></div>
+              </div>
+              <p id="mus-status-txt" style="color:#8b949e;font-size:12px;margin-top:6px">Ładowanie modelu...</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>⚡ Presety</h2>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setMusicCustom('w1')">🌳 Sunny Forest</button>
+              <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setMusicCustom('w2')">🌸 Flower Meadow</button>
+              <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setMusicCustom('w3')">🌅 Golden Sunrise</button>
+              <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setMusicCustom('w4')">❄️ Winter Wonderland</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista wygenerowanych -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span style="font-size:13px;color:#8b949e">Wygenerowane ścieżki</span>
+            <button class="btn-sm btn-delete" onclick="loadMusicJobs()">↻ Odśwież</button>
+          </div>
+          <div id="music-list"><p style="color:#8b949e">Brak wygenerowanych ścieżek.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIDEO AI -->
+    <div id="tab-video" class="tab-content">
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:20px">
+
+        <!-- Formularz -->
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <h2>🎬 Generuj wideo</h2>
+            <p style="color:#8b949e;font-size:11px;margin-bottom:12px">Model: CogVideoX-5b · ~16GB VRAM · ładuje się tylko podczas generacji</p>
+
+            <label>Prompt (PL lub EN)</label>
+            <textarea id="vid-prompt" rows="4" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px;font-size:13px;resize:vertical" placeholder="A futuristic car transforms into a robot, cinematic, 4K, dramatic lighting"></textarea>
+
+            <label style="margin-top:10px;display:block">Rozdzielczość</label>
+            <select id="vid-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+              <option value="720x480">720×480 (16:9 poziomo)</option>
+              <option value="480x720" selected>480×720 (9:16 TikTok ↕)</option>
+              <option value="480x480">480×480 (1:1 kwadrat)</option>
+            </select>
+
+            <label style="margin-top:10px;display:block">Długość</label>
+            <select id="vid-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+              <option value="24">3s (24 klatki)</option>
+              <option value="32" selected>4s (32 klatki)</option>
+              <option value="48">6s (48 klatek)</option>
+              <option value="64">8s (64 klatki)</option>
+              <option value="80">10s (80 klatek)</option>
+              <option value="120">15s (120 klatek)</option>
+              <option value="160">20s (160 klatek)</option>
+              <option value="200">25s (200 klatek)</option>
+              <option value="240">30s (240 klatek)</option>
+            </select>
+
+            <label style="margin-top:10px;display:block">Wierność promptowi</label>
+            <input id="vid-guidance" type="range" min="3" max="9" step="0.5" value="5" style="width:100%" oninput="document.getElementById('vid-guidance-val').textContent=this.value">
+            <span id="vid-guidance-val" style="color:#8b949e;font-size:12px">5</span>
+
+            <label style="margin-top:10px;display:block">Rozdzielczość wyjściowa</label>
+            <div style="display:flex;gap:5px;margin-top:6px">
+              <button class="vid-scale-btn active" data-val="" onclick="setVidScale(this)">Oryginał</button>
+              <button class="vid-scale-btn" data-val="fhd" onclick="setVidScale(this)">Full HD</button>
+              <button class="vid-scale-btn" data-val="2k" onclick="setVidScale(this)">2K</button>
+              <button class="vid-scale-btn" data-val="4k" onclick="setVidScale(this)">4K</button>
+            </div>
+            <p id="vid-upscale-note" style="color:#6e7681;font-size:10px;margin:4px 0 0;display:none">⬆ Generacja w niskiej rozdzielczości + upscaling ffmpeg (lanczos)</p>
+
+            <label style="margin-top:10px;display:block">Etykieta (opcjonalna)</label>
+            <input id="vid-label" type="text" placeholder="np. car_robot_tiktok" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;box-sizing:border-box">
+
+            <button id="vid-btn" onclick="generateVideo()" style="width:100%;margin-top:14px;padding:10px;background:linear-gradient(135deg,#1a3a5c,#1f6feb);color:#e6edf3;border:1px solid #388bfd;border-radius:6px;cursor:pointer;font-size:14px">🎬 Generuj wideo</button>
+
+            <div id="vid-progress" style="display:none;margin-top:12px">
+              <div style="background:#21262d;border-radius:4px;height:8px;overflow:hidden">
+                <div id="vid-bar" style="height:100%;background:linear-gradient(90deg,#1f6feb,#388bfd);width:5%;transition:width .4s"></div>
+              </div>
+              <p id="vid-status-txt" style="color:#8b949e;font-size:12px;margin-top:6px">Inicjalizacja...</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ Wskazówki</h3>
+            <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
+              <li>Najlepsze wyniki z <b>angielskim promptem</b></li>
+              <li>Format <b>480×720</b> = pionowy TikTok</li>
+              <li>Generacja ~4s klipu trwa ok. 3–6 min</li>
+              <li>VRAM zwalniany automatycznie po zakończeniu</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Lista wygenerowanych wideo -->
+        <div>
+          <h2 style="color:#e6edf3;margin-bottom:16px">📹 Wygenerowane wideo</h2>
+          <div id="video-list"><p style="color:#8b949e">Brak wygenerowanych filmów. Użyj formularza po lewej.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-edu" class="tab-content">
+      <div style="max-width:860px;margin:0 auto;">
+        <h2 style="color:#58a6ff;margin-bottom:6px;">📚 Ciekawostki edukacyjne</h2>
+        <p style="color:#8b949e;font-size:12px;margin-bottom:20px;">40 prawdziwych ciekawostek wyświetlanych po ukończeniu każdego poziomu. Kliknij aby edytować.</p>
+        <div id="edu-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generating overlay -->
+<div id="gen-overlay">
+  <div class="spinner"></div>
+  <div id="gen-msg">⚡ RTX 5090 generuje...</div>
+  <div id="gen-sub">To może potrwać 15–60 sekund</div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <span id="lightbox-close">✕</span>
+  <img id="lightbox-img" src="">
+</div>
+
+<script>
+const API = '';
+let pollTimer = null;
+let activeJobId = null;
+
+function setPrompt(p){ document.getElementById('prompt').value = p; }
+
+function showTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['pending','all','game','music','video','edu'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='game') loadGameAssets();
+  if(name==='all') loadAllJobs();
+  if(name==='pending') loadPending();
+  if(name==='music'){ loadMusicJobs(); setMusicPreset(); }
+  if(name==='video') loadVideoJobs();
+  if(name==='edu') renderEdu();
+}
+
+async function startGeneration(){
+  const prompt = document.getElementById('prompt').value.trim();
+  if(!prompt){ alert('Wpisz prompt!'); return; }
+  const [w,h] = document.getElementById('size').value.split('x').map(Number);
+  const body = {
+    prompt, world: +document.getElementById('world').value,
+    layer: document.getElementById('layer').value,
+    count: +document.getElementById('count').value,
+    seed: +document.getElementById('seed').value,
+    width: w, height: h,
+    label: document.getElementById('label').value,
+  };
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('dot').classList.add('busy');
+  document.getElementById('status-text').textContent = 'Generuję...';
+  document.getElementById('gen-overlay').classList.add('show');
+
+  try {
+    const r = await fetch('/api/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    activeJobId = d.job_id;
+    document.getElementById('gen-msg').textContent = `⚡ Job ${d.job_id} — generuję ${body.count} wariantów...`;
+    pollJob(d.job_id);
+  } catch(e){
+    alert('Błąd: '+e.message);
+    resetUI();
+  }
+}
+
+function pollJob(jobId){
+  pollTimer = setInterval(async ()=>{
+    try {
+      const r = await fetch(`/api/jobs/${jobId}`);
+      const job = await r.json();
+      if(job.status==='pending'){
+        clearInterval(pollTimer);
+        resetUI();
+        loadPending();
+        showTab('pending');
+      } else if(job.status==='error'){
+        clearInterval(pollTimer);
+        resetUI();
+        alert('Błąd generowania: '+job.error);
+      }
+    } catch(e){}
+  }, 2000);
+}
+
+function resetUI(){
+  document.getElementById('gen-btn').disabled = false;
+  document.getElementById('dot').classList.remove('busy');
+  document.getElementById('status-text').textContent = 'Gotowy';
+  document.getElementById('gen-overlay').classList.remove('show');
+}
+
+const WORLDS_DEF = [
+  {key:'w1', icon:'🌳', name:'Świat 1 — Sunny Forest',     levels:'1–10'},
+  {key:'w2', icon:'🌸', name:'Świat 2 — Flower Meadow',    levels:'11–20'},
+  {key:'w3', icon:'🌅', name:'Świat 3 — Golden Sunrise',   levels:'21–30'},
+  {key:'w4', icon:'❄️', name:'Świat 4 — Winter Wonderland',levels:'31–40'},
+];
+
+async function loadPending(){
+  const r = await fetch('/api/pending-files');
+  const files = await r.json();
+  const el = document.getElementById('pending-list');
+  if(!files.length){ el.innerHTML='<p style="color:#8b949e">Brak oczekujących. Wygeneruj coś!</p>'; return; }
+
+  // Ukryj odrzucone (przeniesione do rejected/) — pokaż tylko pending i approved
+  const visible = files.filter(f => !f.rejected);
+
+  // Grupuj po świecie
+  const groups = {};
+  const others = [];
+  for(const f of visible){
+    if(f.world){ (groups[f.world]=groups[f.world]||[]).push(f); }
+    else { others.push(f); }
+  }
+
+  let html = '';
+  WORLDS_DEF.forEach((wd, wi) => {
+    const items = groups[wd.key] || [];
+    if(!items.length) return;
+    if(wi > 0) html += '<hr class="world-divider">';
+    const pending = items.filter(f=>!f.approved_as && !f.rejected).length;
+    html += `<div class="world-section">
+      <div class="world-header">
+        <span style="font-size:22px">${wd.icon}</span>
+        <span class="world-title">${wd.name}</span>
+        <span style="font-size:11px;color:#8b949e">poz. ${wd.levels}</span>
+        ${pending>0 ? `<span class="world-count">${pending} do zatwierdzenia</span>` : '<span class="world-count" style="color:#3fb950">✓ gotowe</span>'}
+      </div>
+      <div class="level-grid">
+        ${items.map(f=>renderLevelCard(f)).join('')}
+      </div>
+    </div>`;
+  });
+
+  if(others.length){
+    html += '<hr class="world-divider"><div class="world-section">';
+    html += `<div class="world-header"><span class="world-title">🎨 Pozostałe generacje</span></div>`;
+    html += `<div class="level-grid">${others.map(f=>renderLevelCard(f)).join('')}</div></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function renderLevelCard(f){
+  const cls = f.approved_as ? 'approved' : f.rejected ? 'rejected' : '';
+  const defaultTarget = f.level ? `level${String(f.level).padStart(2,'0')}` : f.name.replace('.png','');
+  const actions = f.approved_as
+    ? `<div class="level-status ok">✓ ${f.approved_as}</div>`
+    : f.rejected
+    ? `<div class="level-status rej">✗ Odrzucono</div>`
+    : `<input class="level-target" id="t_${f.name}" value="${defaultTarget}" placeholder="target">
+       <div class="level-actions">
+         <button class="btn-sm btn-approve" onclick="approveFile('${f.name}')">✓ Zatwierdź</button>
+         <button class="btn-sm btn-reject" onclick="rejectFile('${f.name}')">✗ Odrzuć</button>
+       </div>`;
+  return `<div class="level-card ${cls}" id="card_${f.name}">
+    <img class="level-thumb" src="${f.url}" loading="lazy" onclick="openLightbox('${f.url}')">
+    <div class="level-footer">
+      <span class="level-num">${f.level ? 'Lvl '+f.level : f.name}</span>
+      ${actions}
+    </div>
+  </div>`;
+}
+
+async function loadAllJobs(){
+  const r = await fetch('/api/jobs');
+  const jobs = await r.json();
+  const el = document.getElementById('all-list');
+  if(!jobs.length){ el.innerHTML='<p style="color:#8b949e">Brak jobów.</p>'; return; }
+  el.innerHTML = jobs.map(j=>renderJob(j,false)).join('');
+}
+
+async function loadGameAssets(){
+  const r = await fetch('/api/game-assets');
+  const assets = await r.json();
+  const el = document.getElementById('game-list');
+  if(!assets.length){ el.innerHTML='<p style="color:#8b949e">Brak zatwierdzonych assetów.</p>'; return; }
+  el.innerHTML = assets.map(a=>`
+    <div class="ga-item">
+      <img src="${a.url}" onclick="openLightbox('${a.url}')">
+      <div class="ga-label">${a.name}<br><span style="color:#3fb950">${(a.size/1024).toFixed(0)} KB</span></div>
+    </div>`).join('');
+}
+
+const worldNames={1:'🌳 Świat 1',2:'🌸 Świat 2',3:'🌅 Świat 3',4:'❄️ Świat 4'};
+
+function renderJob(job, showActions){
+  const approved = job.approved?.map(a=>a.index)||[];
+  const rejected = job.rejected||[];
+  const imgs = (job.files||[]).map((f,i)=>{
+    const isApp = approved.includes(i);
+    const isRej = rejected.includes(i);
+    const cls = isApp?'approved':isRej?'rejected':'';
+    return `<div class="img-wrap ${cls}" id="img_${job.job_id}_${i}">
+      <img src="/assets/pending/${f}" onclick="openLightbox('/assets/pending/${f}')" loading="lazy">
+      <div class="img-actions">
+        ${showActions && !isApp && !isRej ? `
+          <input class="target-input" id="tgt_${job.job_id}_${i}" placeholder="target: world1, level5..." value="world${job.world}">
+          <button class="btn-sm btn-approve" onclick="approveAsset('${job.job_id}',${i})">✓ Zatwierdź</button>
+          <button class="btn-sm btn-reject" onclick="rejectAsset('${job.job_id}',${i})">✗ Odrzuć</button>
+        ` : isApp ? `<span style="color:#3fb950;font-size:11px;padding:2px 6px">✓ Zatwierdzono</span>`
+          : isRej ? `<span style="color:#f85149;font-size:11px;padding:2px 6px">✗ Odrzucono</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const statusMap = {pending:'badge-pending',generating:'badge-generating',error:'badge-error',queued:'badge-queued'};
+  const ts = job.created_at ? new Date(job.created_at).toLocaleTimeString('pl') : '';
+
+  return `<div class="job">
+    <div class="job-header">
+      <span class="job-id">${job.job_id}</span>
+      <span class="job-prompt" title="${job.prompt}">${job.prompt}</span>
+      <span class="badge ${statusMap[job.status]||'badge-pending'}">${job.status}</span>
+      <span class="job-meta">${worldNames[job.world]||''} · ${job.layer} · ${ts}</span>
+      <button class="btn-sm btn-delete" onclick="deleteJob('${job.job_id}')">🗑</button>
+    </div>
+    ${job.status==='generating'||job.status==='queued'
+      ? `<div style="padding:20px;text-align:center;color:#8b949e"><div class="spinner" style="margin:0 auto 10px"></div>Generuję ${job.count} wariantów...</div>`
+      : imgs ? `<div class="images-grid">${imgs}</div>` : ''}
+  </div>`;
+}
+
+async function approveAsset(jobId, idx){
+  const tgt = document.getElementById(`tgt_${jobId}_${idx}`)?.value?.trim();
+  if(!tgt){ alert('Podaj target (np. world1, level5)'); return; }
+  const r = await fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({job_id:jobId,file_index:idx,target:tgt})});
+  const d = await r.json();
+  if(d.ok){ loadPending(); alert(`✓ Zatwierdzono! Asset: ${d.game_path}`); }
+}
+
+async function rejectAsset(jobId, idx){
+  const r = await fetch(`/api/reject/${jobId}/${idx}`,{method:'POST'});
+  const d = await r.json();
+  if(d.ok) loadPending();
+}
+
+async function approveFile(fname){
+  const tgt = document.getElementById(`t_${fname}`)?.value?.trim();
+  if(!tgt){ alert('Podaj target'); return; }
+  const r = await fetch('/api/approve-file',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({filename:fname,target:tgt})});
+  const d = await r.json();
+  if(d.ok){ loadPending(); }
+  else { alert('Błąd: '+(d.detail||'nieznany')); }
+}
+
+async function rejectFile(fname){
+  const r = await fetch('/api/reject-file',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({filename:fname})});
+  const d = await r.json();
+  if(d.ok) loadPending();
+}
+
+async function deleteJob(jobId){
+  if(!confirm('Usunąć ten job i wszystkie jego pliki?')) return;
+  await fetch(`/api/jobs/${jobId}`,{method:'DELETE'});
+  loadPending(); loadAllJobs();
+}
+
+function openLightbox(src){
+  document.getElementById('lightbox-img').src=src;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+
+// ── Music ────────────────────────────────────────
+const MUSIC_PRESETS = {
+  w1: 'cheerful magical forest adventure, children game music, playful xylophone and flute melody, happy and whimsical, bright and uplifting, fairy tale, loop-friendly',
+  w2: 'magical flower meadow, children game music, gentle bells and harp, butterflies dancing, soft and sweet, pastel colors, delightful and peaceful, fairy tale loop',
+  w3: 'warm golden autumn forest, children game music, acoustic guitar and piano, cozy and adventurous, falling leaves, nostalgic and cheerful, fairy tale loop',
+  w4: 'magical winter wonderland, children game music, sparkling ice bells and glockenspiel, soft and enchanting, snowflakes, wonder and mystery, fairy tale loop',
+};
+
+function setMusicPreset(){
+  const w = document.getElementById('mus-world').value;
+  if(MUSIC_PRESETS[w]){
+    document.getElementById('mus-prompt').value = MUSIC_PRESETS[w];
+    document.getElementById('mus-label').value = 'world'+w.replace('w','');
+  }
+}
+function setMusicCustom(w){
+  document.getElementById('mus-world').value = w;
+  setMusicPreset();
+}
+
+let musPollTimer = null;
+
+async function generateMusic(){
+  const prompt = document.getElementById('mus-prompt').value.trim();
+  if(!prompt){ alert('Wpisz prompt!'); return; }
+  const body = {
+    prompt,
+    duration: +document.getElementById('mus-duration').value,
+    world: document.getElementById('mus-world').value,
+    label: document.getElementById('mus-label').value,
+  };
+  document.getElementById('mus-btn').disabled = true;
+  document.getElementById('mus-progress').style.display = 'block';
+  document.getElementById('mus-bar').style.width = '5%';
+  document.getElementById('mus-status-txt').textContent = 'Wysyłam...';
+
+  try {
+    const r = await fetch('/api/music/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    pollMusicJob(d.job_id);
+  } catch(e){
+    alert('Błąd: '+e.message);
+    resetMusicUI();
+  }
+}
+
+function pollMusicJob(jobId){
+  musPollTimer = setInterval(async()=>{
+    try {
+      const r = await fetch(`/api/music/status/${jobId}`);
+      const s = await r.json();
+      const pct = s.progress || 0;
+      document.getElementById('mus-bar').style.width = pct+'%';
+      const labels = {loading:'Ładowanie modelu MusicGen (~30s)...',generating:'Generuję muzykę na RTX 5090...',saving:'Zapisuję...', done:'Gotowe!'};
+      document.getElementById('mus-status-txt').textContent = labels[s.status]||s.status||'...';
+      if(s.status==='done' || s.status==='pending' || s.status==='approved'){
+        clearInterval(musPollTimer);
+        resetMusicUI();
+        loadMusicJobs();
+      } else if(s.status==='error'){
+        clearInterval(musPollTimer);
+        resetMusicUI();
+        alert('Błąd generowania: '+s.error);
+      }
+    } catch(e){}
+    // fallback: poll jobs endpoint
+    const r2 = await fetch(`/api/music/jobs`).catch(()=>null);
+    if(r2){
+      const jobs = await r2.json();
+      const job = jobs.find(j=>j.job_id===jobId);
+      if(job && (job.status==='pending'||job.status==='error')){
+        clearInterval(musPollTimer);
+        resetMusicUI();
+        if(job.status==='error') alert('Błąd: '+job.error);
+        loadMusicJobs();
+      }
+    }
+  }, 2000);
+}
+
+function resetMusicUI(){
+  document.getElementById('mus-btn').disabled = false;
+  document.getElementById('mus-progress').style.display = 'none';
+  document.getElementById('mus-bar').style.width = '0%';
+}
+
+async function loadMusicJobs(){
+  const r = await fetch('/api/music/jobs');
+  const jobs = await r.json();
+  const el = document.getElementById('music-list');
+  if(!jobs.length){ el.innerHTML='<p style="color:#8b949e">Brak wygenerowanych ścieżek. Użyj formularza po lewej.</p>'; return; }
+  el.innerHTML = jobs.map(j=>renderMusicJob(j)).join('');
+}
+
+const worldMusLabel={w1:'🌳 Świat 1',w2:'🌸 Świat 2',w3:'🌅 Świat 3',w4:'❄️ Świat 4'};
+
+function renderMusicJob(j){
+  const ts = j.created_at ? new Date(j.created_at).toLocaleTimeString('pl') : '';
+  const statusMap={pending:'badge-pending',generating:'badge-generating',error:'badge-error',queued:'badge-queued',approved:'badge-pending'};
+  const audioUrl = j.file ? `/music-assets/pending/${j.file}` : null;
+
+  const player = audioUrl && (j.status==='pending'||j.status==='approved')
+    ? `<audio class="music-player" controls src="${audioUrl}"></audio>` : '';
+
+  const actions = j.status==='pending'
+    ? `<input class="music-target" id="mtgt_${j.job_id}" value="${j.label||''}" placeholder="world1">
+       <button class="btn-sm btn-approve" onclick="approveMusic('${j.job_id}')">✓ Zatwierdź</button>
+       <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')">🗑</button>`
+    : j.status==='approved'
+    ? `<span style="color:#3fb950;font-size:11px">✓ ${j.approved_as}</span>
+       <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')" style="margin-left:auto">🗑</button>`
+    : j.status==='error'
+    ? `<span style="color:#f85149;font-size:12px" title="${j.error||''}">✗ Błąd</span>
+       <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')" style="margin-left:auto">🗑</button>`
+    : `<span style="color:#8b949e;font-size:12px">⏳ ${j.status}</span>`;
+
+  return `<div class="music-track ${j.status==='approved'?'approved':''}">
+    <div class="music-header">
+      <span class="badge ${statusMap[j.status]||'badge-pending'}">${j.status}</span>
+      <span class="music-prompt" title="${j.prompt}">${j.prompt}</span>
+      <span class="music-meta">${worldMusLabel[j.world]||''} · ${j.duration}s · ${ts}</span>
+    </div>
+    ${player}
+    <div class="music-actions">${actions}</div>
+  </div>`;
+}
+
+async function approveMusic(jobId){
+  const tgt = document.getElementById(`mtgt_${jobId}`)?.value?.trim();
+  if(!tgt){ alert('Podaj etykietę docelową (np. world1)'); return; }
+  const r = await fetch(`/api/music/approve/${jobId}?target=${encodeURIComponent(tgt)}`,{method:'POST'});
+  const d = await r.json();
+  if(d.ok) loadMusicJobs();
+  else alert('Błąd: '+(d.detail||'nieznany'));
+}
+
+async function deleteMusic(jobId){
+  if(!confirm('Usunąć tę ścieżkę?')) return;
+  await fetch(`/api/music/jobs/${jobId}`,{method:'DELETE'});
+  loadMusicJobs();
+}
+
+// ── Wideo AI ──────────────────────────────────────────────────────────────
+let vidPollTimer = null;
+
+function setVidScale(btn){
+  document.querySelectorAll('.vid-scale-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vid-upscale-note').style.display = btn.dataset.val ? 'block' : 'none';
+}
+
+async function generateVideo(){
+  const prompt = document.getElementById('vid-prompt').value.trim();
+  if(!prompt){ alert('Wpisz prompt!'); return; }
+  const [width, height] = document.getElementById('vid-res').value.split('x').map(Number);
+  const num_frames = parseInt(document.getElementById('vid-frames').value);
+  const guidance_scale = parseFloat(document.getElementById('vid-guidance').value);
+  const label = document.getElementById('vid-label').value.trim();
+  const upscale = document.querySelector('.vid-scale-btn.active')?.dataset.val || '';
+
+  document.getElementById('vid-btn').disabled = true;
+  document.getElementById('vid-progress').style.display = 'block';
+  document.getElementById('vid-bar').style.width = '5%';
+  document.getElementById('vid-status-txt').textContent = 'Wysyłam...';
+
+  try {
+    const r = await fetch('/api/video/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({prompt, num_frames, width, height, guidance_scale, label, upscale})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    pollVideoJob(d.job_id);
+  } catch(e){
+    alert('Błąd: '+e.message);
+    resetVideoUI();
+  }
+}
+
+function pollVideoJob(jobId){
+  document.getElementById('dot').classList.add('busy');
+  document.getElementById('status-text').textContent = 'Generuję wideo...';
+  vidPollTimer = setInterval(async()=>{
+    try {
+      const r = await fetch(`/api/video/status/${jobId}`);
+      const s = await r.json();
+      const pct = s.progress || 0;
+      document.getElementById('vid-bar').style.width = pct+'%';
+      const labels = {
+        loading:    'Ładowanie modelu CogVideoX-5b (~90s pierwsza generacja)...',
+        generating: `Generuję wideo na RTX 5090... ${pct}%`,
+        saving:     'Zapisuję MP4...',
+        upscaling:  'Upscaling do wyższej rozdzielczości (ffmpeg)...',
+        done:       'Gotowe!'
+      };
+      const lbl = labels[s.status]||s.status||'...';
+      document.getElementById('vid-status-txt').textContent = lbl;
+      document.getElementById('status-text').textContent = lbl;
+      if(s.status==='done'||s.status==='pending'){
+        clearInterval(vidPollTimer);
+        document.getElementById('dot').classList.remove('busy');
+        document.getElementById('status-text').textContent = 'Gotowy';
+        resetVideoUI();
+        loadVideoJobs();
+      } else if(s.status==='error'){
+        clearInterval(vidPollTimer);
+        document.getElementById('dot').classList.remove('busy');
+        document.getElementById('status-text').textContent = 'Gotowy';
+        resetVideoUI();
+        alert('Błąd generowania: '+(s.error||'nieznany'));
+      }
+    } catch(e){}
+    // fallback — sprawdź meta
+    try {
+      const r2 = await fetch('/api/video/jobs');
+      const jobs = await r2.json();
+      const job = jobs.find(j=>j.job_id===jobId);
+      if(job&&(job.status==='pending'||job.status==='error')){
+        clearInterval(vidPollTimer);
+        resetVideoUI();
+        if(job.status==='error') alert('Błąd: '+job.error);
+        loadVideoJobs();
+      }
+    } catch(e){}
+  }, 2000);
+}
+
+function resetVideoUI(){
+  document.getElementById('vid-btn').disabled = false;
+  document.getElementById('vid-progress').style.display = 'none';
+}
+
+async function loadVideoJobs(){
+  const r = await fetch('/api/video/jobs');
+  const jobs = await r.json();
+  const el = document.getElementById('video-list');
+  // Wykryj trwającą generację i wznów polling jeśli nie jest aktywny
+  const active = jobs.find(j=>j.status==='generating'||j.status==='loading'||j.status==='queued');
+  if(active && !vidPollTimer){
+    document.getElementById('dot').classList.add('busy');
+    document.getElementById('status-text').textContent = 'Generuję wideo...';
+    pollVideoJob(active.job_id);
+  }
+  if(!jobs.length){ el.innerHTML='<p style="color:#8b949e">Brak wygenerowanych filmów.</p>'; return; }
+  el.innerHTML = jobs.map(j=>{
+    const ts = j.created_at ? new Date(j.created_at).toLocaleString('pl') : '';
+    const statusColors = {pending:'#3fb950',generating:'#d29922',error:'#f85149',queued:'#8b949e'};
+    const color = statusColors[j.status]||'#8b949e';
+    const videoUrl = j.file ? `/video-assets/pending/${j.file}` : null;
+    const player = videoUrl && j.status==='pending'
+      ? `<video controls style="width:100%;border-radius:6px;margin:10px 0;max-height:300px" src="${videoUrl}"></video>`
+      : j.status==='generating'||j.status==='loading'||j.status==='queued'
+      ? `<p style="color:#d29922;font-size:12px">⏳ Generacja w toku...</p>` : '';
+    const actions = j.status==='pending'
+      ? `<a href="${videoUrl}" download style="background:#1f6feb;color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;text-decoration:none">⬇️ Pobierz MP4</a>
+         <button onclick="deleteVideo('${j.job_id}')" style="background:#3d1a1a;color:#f85149;border:1px solid #f85149;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:6px">🗑 Usuń</button>`
+      : j.status==='error'
+      ? `<span style="color:#f85149;font-size:12px" title="${j.error||''}">✗ Błąd generacji</span>`
+      : '';
+    return `<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="color:${color};font-size:11px;font-weight:bold;text-transform:uppercase">${j.status}</span>
+        <span style="color:#8b949e;font-size:11px">${(()=>{
+          const scales={fhd:{landscape:'1920×1080',portrait:'1080×1920',square:'1080×1080'},
+                        '2k':{landscape:'2560×1440',portrait:'1440×2560',square:'1440×1440'},
+                        '4k':{landscape:'3840×2160',portrait:'2160×3840',square:'2160×2160'}};
+          const o=j.width>j.height?'landscape':j.height>j.width?'portrait':'square';
+          const res=j.upscale&&scales[j.upscale]?scales[j.upscale][o]+' (upscaled)':j.width+'×'+j.height;
+          return res;
+        })()} · ${j.num_frames}kl · ${ts}</span>
+      </div>
+      <p style="color:#e6edf3;font-size:13px;margin:0 0 8px">${j.prompt}</p>
+      ${player}
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">${actions}</div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteVideo(jobId){
+  if(!confirm('Usunąć ten film?')) return;
+  await fetch(`/api/video/jobs/${jobId}`, {method:'DELETE'});
+  loadVideoJobs();
+}
+
+// ── Edukacja ──────────────────────────────────────────────────────────────
+const EDU_WORLDS = [
+  {id:'w1', label:'🌲 Świat 1 — Zaczarowany Las', color:'#4caf50', levels:[1,10]},
+  {id:'w2', label:'🍄 Świat 2 — Magiczne Grzyby',  color:'#e040fb', levels:[11,20]},
+  {id:'w3', label:'🍂 Świat 3 — Złota Jesień',      color:'#ff9800', levels:[21,30]},
+  {id:'w4', label:'❄️ Świat 4 — Zimowe Królestwo', color:'#29b6f6', levels:[31,40]},
+];
+
+const EDU_FACTS_PANEL = [
+  "W jednym hektarze lasu żyje ponad 1000 różnych gatunków owadów — więcej niż w całym mieście!",
+  "Najstarsze drzewo na świecie — sosna oścista — ma ponad 5000 lat i rośnie w górach USA.",
+  "Dąb szypułkowy może produkować nawet 70 000 żołędzi rocznie, z których wyrośnie zaledwie kilka drzew.",
+  "Leśna sieć grzybni pod ziemią łączy drzewa i przekazuje im wodę i składniki odżywcze — to „leśny Internet”!",
+  "Sowa obraca głowę o 270 stopni, bo ma aż 14 kręgów szyjnych — człowiek ma tylko 7.",
+  "Pająk przez całe życie wytwarza siedem rodzajów jedwabiu — każdy do innego celu: łapania, chodzenia, budowania.",
+  "Biedronka siedmiokropka w ciągu jednego lata może zjeść ponad 5000 mszyc — jest najlepszym ogrodnikiem!",
+  "Mrówki znają drogę do mrowiska dzięki własnym śladom zapachowym i obserwacji położenia słońca.",
+  "Woda przesączona przez 1 hektar lasu jest tak czysta jak woda mineralna z butelki.",
+  "Lis posiada ponad 20 różnych dźwięków głosowych — szczeka, wyje, chrypi i śpiewa jak ptak!",
+  "Grzyb Armillaria w Oregonie żyje ponad 8000 lat i zajmuje 9 km² — to największy żywy organizm na Ziemi!",
+  "Pszczoła miodna musi odwiedzić około 2 milionów kwiatów, żeby zebrać 1 kg miodu.",
+  "Motyle wyczuwają smak stopami — mają receptory smakowe w przylgach na nogach.",
+  "Grzyby nie są ani roślinami, ani zwierzętami — tworzą osobne królestwo liczące 1,5 miliona gatunków.",
+  "Słonecznik to w rzeczywistości 1000–2000 małych kwiatów zebranych razem w jeden koszyczek.",
+  "Pszczoły tańczą! Specjalny taniec kolisty informuje inne pszczoły, gdzie leżą kwiaty z nektarem.",
+  "Korzenie drzew i grzyby tworzą partnerstwo: drzewa dają cukry, grzyby dostarczają wodę i minerały.",
+  "Dżdżownica przetwarza glebę swojego ciężaru każdej doby i produkuje najlepszy naturalny nawóz.",
+  "Mlecz, zwany chwastem, jest w pełni jadalny i zawiera więcej witaminy C niż cytryna!",
+  "Rośliny ostrzegają się nawzajem przed szkodnikami — wydzielają związki chemiczne w powietrzu.",
+  "Jesienią liście żółkną i czerwienieją, bo drzewo wycofuje zielony chlorofil i odkrywa ukryte barwniki.",
+  "Wiewiórka zakopuje do 10 000 orzechów każdej jesieni i potrafi odnaleźć większość dzięki węchowi.",
+  "Bocian biały przelata z Polski do Afryki Subsaharyjskiej — ponad 10 000 km w jedną stronę!",
+  "Żołędzie dębu kiełkują dopiero po zimie — nasionko potrzebuje chłodu, żeby przerwać uśpienie.",
+  "Jeleń podczas rykowiska traci nawet 20% masy ciała, bo jest zbyt zajęty walkami, żeby jeść.",
+  "Niedźwiedź brunatny przed hibernacją tyje o 30–40 kg — to zapas tłuszczu na całą zimę.",
+  "Liść klonu wiruje opadając jak helikopter dzięki specjalnemu kształtowi skrzydełka.",
+  "Grzyby są najskuteczniejszymi recyklerami na Ziemi — rozkładają martwe drewno szybciej niż cokolwiek innego.",
+  "Jeż w hibernacji zwalnia oddech z 50 do zaledwie 8 oddechów na minutę i obniża ciepłotę ciała do 10°C.",
+  "Drzewa w lesie przekazują sobie sygnały przez grzybnię i powietrze, gdy jedno z nich jest zaatakowane.",
+  "Każdy płatek śniegu ma zawsze 6 ramion, bo cząsteczki wody krystalizują w struktury sześciokątne.",
+  "Śnieg nie jest biały — jego kryształki są przezroczyste. Biel pochodzi od odbicia całego światła słonecznego.",
+  "Niedźwiedź polarny ma przeźroczystą sierść i czarną skórę — sierść przewodzi promieniowanie UV do ciała.",
+  "Pingwiny cesarskie tworzą zwarte kręgi i obracają się co kilka minut, żeby każdy miał kolej w ciepłym środku.",
+  "Woda jest jedyną substancją na Ziemi, która jako lód jest lżejsza niż w stanie ciekłym — dlatego lód pływa!",
+  "Arktyka to zamarznięty ocean, a Antarktyka to kontynent pod lodem grubości nawet 4,7 km.",
+  "Renifer jest jedynym jeleniem, u którego poroże mają zarówno samce, jak i samice.",
+  "Ryby przeżywają zimę pod lodem, bo woda przy dnie nigdy nie spada poniżej 4°C — to jej najgęstsza forma.",
+  "Najniższa temperatura zmierzona na Ziemi wyniosła −89,2°C — zanotowano ją na stacji w Antarktydzie.",
+  "Foka obrączkowana może wstrzymać oddech pod wodą przez 45 minut, spowalniając serce do 4 uderzeń na minutę.",
+];
+
+function renderEdu(){
+  const el = document.getElementById('edu-list');
+  if(!el) return;
+  let html = '';
+  EDU_WORLDS.forEach(world=>{
+    html += `<div style="margin-bottom:24px;">
+      <h3 style="color:${world.color};font-size:13px;border-bottom:1px solid ${world.color}44;padding-bottom:6px;margin-bottom:12px;">${world.label}</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;">`;
+    for(let lvl=world.levels[0]; lvl<=world.levels[1]; lvl++){
+      const idx = lvl-1;
+      const fact = EDU_FACTS_PANEL[idx];
+      html += `<div style="display:flex;gap:8px;align-items:flex-start;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px 10px;">
+        <div style="min-width:28px;color:${world.color};font-weight:bold;font-size:12px;padding-top:1px;">Poz. ${lvl}</div>
+        <div style="flex:1;color:#c9d1d9;font-size:12px;line-height:1.5;" id="edu-fact-${lvl}">${fact}</div>
+        <button class="btn-sm" onclick="editFact(${lvl})" style="flex-shrink:0;padding:2px 8px;font-size:10px;">✏️</button>
+      </div>`;
+    }
+    html += `</div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function editFact(lvl){
+  const el = document.getElementById(`edu-fact-${lvl}`);
+  if(!el) return;
+  const cur = el.textContent;
+  const ta = document.createElement('textarea');
+  ta.value = cur;
+  ta.style.cssText = 'width:100%;background:#0d1117;color:#c9d1d9;border:1px solid #58a6ff;border-radius:4px;padding:4px;font-size:12px;line-height:1.5;resize:vertical;min-height:56px;';
+  const save = document.createElement('button');
+  save.textContent = '💾 Zapisz';
+  save.className = 'btn-sm';
+  save.style.cssText = 'margin-top:4px;padding:3px 10px;font-size:10px;';
+  save.onclick = ()=>{ el.innerHTML = ta.value; el.parentNode.removeChild(ta); el.parentNode.removeChild(save); };
+  el.style.display='none';
+  el.parentNode.insertBefore(ta, el.nextSibling);
+  el.parentNode.insertBefore(save, ta.nextSibling);
+  ta.focus();
+}
+
+// Init
+loadPending();
+setMusicPreset();
+setInterval(()=>{
+  const el=document.getElementById('tab-pending');
+  if(el.classList.contains('active')) loadPending();
+}, 5000);
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+assets/
+music/
+videos/
+*_status.json
+video_meta.json
+music_meta.json
+__pycache__/
+*.pyc
