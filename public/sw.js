@@ -1,5 +1,5 @@
 // Service Worker — Wisp: Duch Lasu
-const CACHE = 'wisp-v6';
+const CACHE = 'wisp-v7';
 const STATIC = ['./manifest.json'];
 
 self.addEventListener('install', e => {
