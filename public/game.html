@@ -1160,6 +1160,7 @@ const LANGS = {
     finishSub:    'Przywróciłeś światło do wszystkich zakątków<br>zaczarowanego lasu. Jesteś legendą.',
     playAgain:    '▶ Zagraj Ponownie',
     shopSub:      'Zakup dodatkowe życia, aby kontynuować!',
+    shopMobile:   'W celu zakupu żyć zainstaluj naszą grę na telefonie, gdzie zakupisz życia w sklepie Play. Po zakupie żyć możesz powrócić i grać nadal na komputerze.',
     rankTitle:    '🏆 Ranking',
     rankSub:      'Globalny ranking — Top 20',
     rankEmpty:    'Brak wyników — zagraj i zostaw ślad w lesie! 🌿',
@@ -1253,6 +1254,7 @@ const LANGS = {
     finishSub:    'You restored light to every corner<br>of the enchanted forest. You are a legend.',
     playAgain:    '▶ Play Again',
     shopSub:      'Buy extra lives to keep going!',
+    shopMobile:   'To buy lives, install our game on your phone and purchase them in the Play Store. After buying lives you can return and continue playing on your computer.',
     rankTitle:    '🏆 Ranking',
     rankSub:      'Global ranking — Top 20',
     rankEmpty:    'No scores yet — play and leave your mark! 🌿',
@@ -1347,6 +1349,7 @@ const LANGS = {
     finishSub:    'Du hast das Licht in jeden Winkel<br>des verzauberten Waldes zurückgebracht. Du bist eine Legende.',
     playAgain:    '▶ Nochmal spielen',
     shopSub:      'Kauf zusätzliche Leben um weiterzumachen!',
+    shopMobile:   'Um Leben zu kaufen, installiere unser Spiel auf deinem Handy und kaufe sie im Play Store. Nach dem Kauf kannst du zurückkehren und weiter am Computer spielen.',
     rankTitle:    '🏆 Rangliste',
     rankSub:      'Globales Ranking — Top 20',
     rankEmpty:    'Noch keine Ergebnisse — spiel und hinterlasse eine Spur! 🌿',
@@ -1441,6 +1444,7 @@ const LANGS = {
     finishSub:    'Restauraste la luz en cada rincón<br>del bosque encantado. Eres una leyenda.',
     playAgain:    '▶ Jugar de nuevo',
     shopSub:      '¡Compra vidas extra para continuar!',
+    shopMobile:   'Para comprar vidas, instala nuestro juego en tu móvil y cómpralas en la Play Store. Tras la compra puedes volver y seguir jugando en tu ordenador.',
     rankTitle:    '🏆 Clasificación',
     rankSub:      'Clasificación global — Top 20',
     rankEmpty:    '¡Sin puntuaciones aún — juega y deja tu huella! 🌿',
@@ -1535,6 +1539,7 @@ const LANGS = {
     finishSub:    'Vous avez restauré la lumière dans chaque recoin<br>de la forêt enchantée. Vous êtes une légende.',
     playAgain:    '▶ Rejouer',
     shopSub:      'Achetez des vies supplémentaires pour continuer !',
+    shopMobile:   'Pour acheter des vies, installez notre jeu sur votre téléphone et achetez-les dans le Play Store. Après l\'achat, vous pouvez revenir et continuer à jouer sur votre ordinateur.',
     rankTitle:    '🏆 Classement',
     rankSub:      'Classement mondial — Top 20',
     rankEmpty:    'Aucun score — jouez et laissez votre trace ! 🌿',
@@ -2894,6 +2899,14 @@ function hideResultScreen(){
 function showOverlay(type){ showResultScreen(type); }
 
 function showShopButtons(){
+  if(!IS_TWA){
+    return `
+      <div class="sub" style="color:#aa9050;margin-top:16px;line-height:1.6;max-width:300px;margin-left:auto;margin-right:auto">${LANG.shopMobile}</div>
+      <a href="https://play.google.com/store/apps/details?id=com.epro.wisp" target="_blank" rel="noopener"
+         style="display:inline-block;margin-top:16px;padding:10px 22px;background:rgba(30,20,0,.8);border:1px solid #604010;border-radius:10px;color:#ffd070;font-size:14px;text-decoration:none;">
+        📱 Google Play
+      </a>`;
+  }
   return `
     <div class="sub" style="color:#aa9050;margin-top:12px">${LANG.shopSub}</div>
     <div class="shop-row" style="margin-top:18px">
