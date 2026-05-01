@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -55,8 +55,11 @@ VIDEO_DIR         = ASSETS_DIR / "video"
 VIDEO_PENDING_DIR = VIDEO_DIR / "pending"
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_PENDING_DIR.mkdir(parents=True, exist_ok=True)
-VIDEO_SCRIPT = BASE_DIR / "generate_video.py"
-ASSETS_PYTHON = "/root/miniconda3/envs/eagleai-photos/bin/python3"
+VIDEO_SCRIPT   = BASE_DIR / "generate_video.py"
+SVD_SCRIPT     = BASE_DIR / "generate_video_svd.py"
+ASSETS_PYTHON  = "/root/miniconda3/envs/eagleai-photos/bin/python3"
+UPLOADS_DIR    = VIDEO_DIR / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 _video_generating = False
 
 app = FastAPI(title="Wisp Asset Server")
@@ -394,7 +397,8 @@ async def pending_files():
 
 class MusicGenerateRequest(BaseModel):
     prompt: str
-    duration: int = 30
+    duration: float = 5
+    top_k: int = 250
     world: str = "w1"
     label: str = ""
 
@@ -405,7 +409,7 @@ def load_music_meta() -> dict:
 def save_music_meta(meta: dict):
     (MUSIC_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
 
-async def run_music_generation(job_id: str, prompt: str, duration: int, world: str, label: str):
+async def run_music_generation(job_id: str, prompt: str, duration: float, top_k: int, world: str, label: str):
     global _music_generating
     out_path = str(MUSIC_PENDING_DIR / f"{job_id}.mp3")
     status_path = str(MUSIC_DIR / f"{job_id}_status.json")
@@ -417,7 +421,7 @@ async def run_music_generation(job_id: str, prompt: str, duration: int, world: s
     try:
         proc = await asyncio.create_subprocess_exec(
             CONDA_PYTHON, str(MUSIC_SCRIPT),
-            job_id, prompt, str(duration), out_path, status_path,
+            job_id, prompt, str(duration), str(top_k), out_path, status_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -451,12 +455,12 @@ async def music_generate(req: MusicGenerateRequest, background_tasks: Background
     meta = load_music_meta()
     meta[job_id] = {
         "job_id": job_id, "prompt": req.prompt, "duration": req.duration,
-        "world": req.world, "label": req.label,
+        "top_k": req.top_k, "world": req.world, "label": req.label,
         "status": "queued", "file": None,
         "created_at": datetime.now().isoformat(),
     }
     save_music_meta(meta)
-    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.world, req.label)
+    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.top_k, req.world, req.label)
     return {"job_id": job_id}
 
 @app.get("/api/music/jobs")
@@ -515,13 +519,17 @@ def save_video_meta(meta: dict):
     (VIDEO_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
 
 class VideoGenRequest(BaseModel):
-    prompt: str
-    num_frames: int = 49
-    width: int = 832
-    height: int = 480
+    model: str = "wan"        # "wan" | "svd"
+    prompt: str = ""
+    image_path: str = ""      # SVD only — server-side path after upload
+    num_frames: int = 81      # wan: 4k+1 format; svd: 14 or 25
+    width: int = 480
+    height: int = 832
     guidance_scale: float = 5.0
+    motion_bucket: int = 127  # SVD only, 0-255
     label: str = ""
-    upscale: str = ""   # "" | "fhd" | "2k" | "4k"
+    upscale: str = ""         # "" | "fhd" | "2k" | "4k"
+    seed: int = -1            # -1 = random
 
 async def run_video_generation(job_id: str, req: VideoGenRequest):
     global _video_generating
@@ -533,14 +541,25 @@ async def run_video_generation(job_id: str, req: VideoGenRequest):
     save_video_meta(meta)
 
     try:
-        proc = await asyncio.create_subprocess_exec(
-            ASSETS_PYTHON, str(VIDEO_SCRIPT),
-            job_id, req.prompt,
-            str(req.num_frames), str(req.width), str(req.height),
-            str(req.guidance_scale), out_path, status_path, req.upscale,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
+        if req.model == "svd":
+            proc = await asyncio.create_subprocess_exec(
+                ASSETS_PYTHON, str(SVD_SCRIPT),
+                job_id, req.image_path,
+                str(req.num_frames), str(req.width), str(req.height),
+                str(req.motion_bucket), str(req.seed),
+                out_path, status_path, req.upscale,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        else:
+            proc = await asyncio.create_subprocess_exec(
+                ASSETS_PYTHON, str(VIDEO_SCRIPT),
+                job_id, req.prompt,
+                str(req.num_frames), str(req.width), str(req.height),
+                str(req.guidance_scale), out_path, status_path, req.upscale, str(req.seed),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
         stdout, stderr = await proc.communicate()
         if proc.returncode == 0:
             meta = load_video_meta()
@@ -571,12 +590,16 @@ async def video_generate(req: VideoGenRequest, background_tasks: BackgroundTasks
     meta = load_video_meta()
     meta[job_id] = {
         "job_id": job_id,
+        "model": req.model,
         "prompt": req.prompt,
+        "image_path": req.image_path,
         "num_frames": req.num_frames,
         "width": req.width,
         "height": req.height,
+        "motion_bucket": req.motion_bucket,
         "label": req.label,
         "upscale": req.upscale,
+        "seed": req.seed,
         "status": "queued",
         "created_at": datetime.now().isoformat(),
         "finished_at": None,
@@ -598,6 +621,36 @@ async def video_status(job_id: str):
     meta = load_video_meta()
     return meta.get(job_id, {"status": "unknown"})
 
+@app.post("/api/video/upload-image")
+async def upload_image(file: UploadFile = File(...)):
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    if ext not in {".jpg", ".jpeg", ".png", ".webp"}:
+        raise HTTPException(400, "Nieobsługiwany format. Użyj JPG, PNG lub WEBP.")
+    fname = f"upload_{uuid.uuid4().hex[:8]}{ext}"
+    dest = UPLOADS_DIR / fname
+    dest.write_bytes(await file.read())
+    return {"path": str(dest), "url": f"/video-assets/uploads/{fname}"}
+
+@app.get("/api/video/frame/{job_id}")
+async def extract_frame(job_id: str):
+    meta = load_video_meta()
+    if job_id not in meta:
+        raise HTTPException(404)
+    job = meta[job_id]
+    if job.get("status") != "pending" or not job.get("file"):
+        raise HTTPException(400, "Film nie jest gotowy")
+    video_path = VIDEO_PENDING_DIR / job["file"]
+    if not video_path.exists():
+        raise HTTPException(404, "Plik nie istnieje")
+    frame_fname = f"frame_{job_id}.jpg"
+    frame_path = UPLOADS_DIR / frame_fname
+    import subprocess
+    subprocess.run([
+        "ffmpeg", "-y", "-i", str(video_path),
+        "-vframes", "1", "-q:v", "2", str(frame_path)
+    ], capture_output=True, check=True)
+    return {"path": str(frame_path), "url": f"/video-assets/uploads/{frame_fname}"}
+
 @app.delete("/api/video/jobs/{job_id}")
 async def video_delete(job_id: str):
     meta = load_video_meta()
@@ -609,6 +662,85 @@ async def video_delete(job_id: str):
     del meta[job_id]
     save_video_meta(meta)
     return {"ok": True}
+
+class MergeRequest(BaseModel):
+    video_job_id: str
+    music_job_id: str
+    crossfade: bool = False
+
+@app.post("/api/video/merge")
+async def video_merge(req: MergeRequest):
+    vmeta = load_video_meta()
+    mmeta = load_music_meta()
+    vj = vmeta.get(req.video_job_id)
+    mj = mmeta.get(req.music_job_id)
+    if not vj or vj.get("status") != "pending" or not vj.get("file"):
+        raise HTTPException(400, "Wideo nie jest gotowe")
+    if not mj or mj.get("status") not in ("pending", "approved") or not mj.get("file"):
+        raise HTTPException(400, "Muzyka nie jest gotowa")
+    video_path = VIDEO_PENDING_DIR / vj["file"]
+    music_path = MUSIC_PENDING_DIR / mj["file"]
+    if not video_path.exists():
+        raise HTTPException(404, "Plik wideo nie istnieje")
+    if not music_path.exists():
+        raise HTTPException(404, "Plik muzyki nie istnieje")
+
+    # get video duration for crossfade fade-out start point
+    probe = subprocess.run([
+        "ffprobe", "-v", "error", "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1", str(video_path)
+    ], capture_output=True, text=True)
+    duration = float(probe.stdout.strip()) if probe.returncode == 0 else None
+
+    merged_id = "mrg_" + uuid.uuid4().hex[:8]
+    out_path = VIDEO_PENDING_DIR / f"{merged_id}.mp4"
+
+    if req.crossfade and duration:
+        fade_dur = 0.5
+        fade_out_start = max(0.0, duration - fade_dur)
+        audio_filter = (
+            f"[1:a]afade=t=in:st=0:d={fade_dur},"
+            f"afade=t=out:st={fade_out_start:.3f}:d={fade_dur}[aout]"
+        )
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", str(video_path),
+            "-stream_loop", "-1", "-i", str(music_path),
+            "-filter_complex", audio_filter,
+            "-map", "0:v:0", "-map", "[aout]",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-shortest", str(out_path)
+        ]
+    else:
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", str(video_path),
+            "-stream_loop", "-1", "-i", str(music_path),
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-shortest", "-map", "0:v:0", "-map", "1:a:0",
+            str(out_path)
+        ]
+
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        raise HTTPException(500, result.stderr.decode()[-300:])
+    vmeta[merged_id] = {
+        "job_id": merged_id,
+        "model": vj.get("model", "wan"),
+        "prompt": f"[MONTAŻ] {vj.get('prompt','')} + {mj.get('prompt','')[:40]}",
+        "num_frames": vj.get("num_frames", 0),
+        "width": vj.get("width", 0),
+        "height": vj.get("height", 0),
+        "upscale": vj.get("upscale", ""),
+        "seed": vj.get("seed", -1),
+        "label": vj.get("label", ""),
+        "status": "pending",
+        "file": f"{merged_id}.mp4",
+        "created_at": datetime.now().isoformat(),
+        "finished_at": datetime.now().isoformat(),
+    }
+    save_video_meta(vmeta)
+    return {"job_id": merged_id, "url": f"/video-assets/pending/{merged_id}.mp4"}
 
 if __name__ == "__main__":
     import uvicorn

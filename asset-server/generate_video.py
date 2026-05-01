@@ -1,11 +1,13 @@
 """
-Generuje wideo CogVideoX-2b.
-Uruchamiany przez server.py jako subprocess w środowisku eagleai-photos.
-Argumenty: job_id prompt num_frames width height guidance_scale out_path status_path
+Wan2.1-T2V-1.3B video generation.
+Args: job_id prompt num_frames width height guidance_scale out_path status_path [upscale]
 """
 import sys, json, time, warnings, threading, os
 warnings.filterwarnings("ignore")
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
+MODEL_DIR = "/opt/models/Wan2.1-T2V-1.3B"
+FPS = 16
 
 job_id         = sys.argv[1]
 prompt         = sys.argv[2]
@@ -15,7 +17,8 @@ height         = int(sys.argv[5])
 guidance_scale = float(sys.argv[6])
 out_path       = sys.argv[7]
 status_f       = sys.argv[8]
-upscale        = sys.argv[9] if len(sys.argv) > 9 else ""  # "" | "fhd" | "2k" | "4k"
+upscale        = sys.argv[9] if len(sys.argv) > 9 else ""
+seed_arg       = int(sys.argv[10]) if len(sys.argv) > 10 else -1
 
 def upd(s):
     with open(status_f, 'w') as f:
@@ -30,53 +33,77 @@ def ticker(label, p_start, p_end, interval, stop_evt):
         p = min(p_end, p + step)
         upd({"status": label, "progress": p})
 
+import random as _random
+actual_seed = seed_arg if seed_arg >= 0 else _random.randint(0, 2**32 - 1)
+
+def snap_frames(n):
+    """Snap to nearest valid Wan2.1 frame count (4k+1)."""
+    k = max(2, round((n - 1) / 4))
+    return 4 * k + 1
+
 upd({"status": "loading", "progress": 5})
 
 import torch
-from diffusers import CogVideoXPipeline
-from diffusers.utils import export_to_video
-
-upd({"status": "loading", "progress": 15})
+import numpy as np
 
 _stop_load = threading.Event()
-threading.Thread(target=ticker, args=("loading", 15, 38, 2, _stop_load), daemon=True).start()
+threading.Thread(target=ticker, args=("loading", 5, 38, 2, _stop_load), daemon=True).start()
 
-pipe = CogVideoXPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b",
-    torch_dtype=torch.bfloat16,
+import wan
+from wan.configs import WAN_CONFIGS
+
+# dtype comes from config.param_dtype — no dtype arg in constructor
+# t5_cpu=True: T5 text encoder stays on CPU (~6GB VRAM saved), needed since autophotos.ai uses ~10GB
+model = wan.WanT2V(
+    config=WAN_CONFIGS['t2v-1.3B'],
+    checkpoint_dir=MODEL_DIR,
+    device_id=0,
+    t5_fsdp=False,
+    dit_fsdp=False,
+    use_usp=False,
+    t5_cpu=True,
 )
-# Sequential offload: każdy moduł ładowany do GPU tylko na czas forward pass → szczyt ~4-6 GB VRAM
-pipe.enable_sequential_cpu_offload()
-pipe.vae.enable_slicing()    # dekoduje wideo w plasterkach
-pipe.vae.enable_tiling()     # przetwarza w kafelkach
 
 _stop_load.set()
-upd({"status": "generating", "progress": 40})
 
+valid_frames = snap_frames(num_frames)
+
+upd({"status": "generating", "progress": 40, "seed": actual_seed})
 _stop_gen = threading.Event()
-threading.Thread(target=ticker, args=("generating", 40, 85, 3, _stop_gen), daemon=True).start()
+threading.Thread(target=ticker, args=("generating", 40, 85, 4, _stop_gen), daemon=True).start()
 
-output = pipe(
-    prompt=prompt,
-    height=height,
-    width=width,
-    num_frames=num_frames,
-    guidance_scale=guidance_scale,
-    num_inference_steps=50,
-    use_dynamic_cfg=True,
+# size=(width, height) tuple, returns tensor (C, N, H, W) in range [-1, 1]
+video = model.generate(
+    prompt,
+    size=(width, height),
+    frame_num=valid_frames,
+    sampling_steps=50,
+    sample_solver='unipc',
+    shift=5.0,
+    guide_scale=guidance_scale,
+    seed=actual_seed,
+    offload_model=True,
 )
 
 _stop_gen.set()
 upd({"status": "saving", "progress": 90})
 
-export_to_video(output.frames[0], out_path, fps=8)
+# (C, N, H, W) [-1,1] → (N, H, W, C) uint8
+video = video.cpu()
+video = (video.clamp(-1, 1) + 1) / 2          # → [0, 1]
+video = (video * 255).to(torch.uint8)          # → [0, 255]
+video = video.permute(1, 2, 3, 0).numpy()      # → (N, H, W, C)
+out_frames = [video[i] for i in range(video.shape[0])]
 
-del pipe
+import imageio.v2 as imageio
+imageio.mimwrite(out_path, out_frames, fps=FPS, codec='libx264', quality=7, pixelformat='yuv420p')
+
+del model
 import gc
 gc.collect()
 torch.cuda.empty_cache()
 
-# ─── Upscaling ffmpeg (lanczos) ───────────────────────────────────
+# ─── Upscaling ffmpeg (lanczos) ───────────────────────────────────────────────
 if upscale:
     upd({"status": "upscaling", "progress": 92})
     SCALES = {
@@ -98,5 +125,5 @@ if upscale:
         ], capture_output=True, check=True)
         os.unlink(tmp)
 
-upd({"status": "done", "progress": 100, "file": out_path})
+upd({"status": "done", "progress": 100, "file": out_path, "seed": actual_seed})
 print(f"OK: {out_path}")

@@ -8,9 +8,10 @@ warnings.filterwarnings("ignore")
 
 job_id   = sys.argv[1]
 prompt   = sys.argv[2]
-duration = int(sys.argv[3])
-out_path = sys.argv[4]
-status_f = sys.argv[5]  # plik statusu JSON
+duration = float(sys.argv[3])
+top_k    = int(sys.argv[4])
+out_path = sys.argv[5]
+status_f = sys.argv[6]  # plik statusu JSON
 
 def update_status(s):
     with open(status_f, 'w') as f:
@@ -42,7 +43,7 @@ _t_load = threading.Thread(target=progress_ticker,
 _t_load.start()
 
 model = MusicGen.get_pretrained('facebook/musicgen-small')
-model.set_generation_params(duration=duration)
+model.set_generation_params(duration=duration, top_k=top_k)
 
 _stop_load.set()
 

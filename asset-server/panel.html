@@ -102,9 +102,18 @@ textarea{min-height:70px}
 .music-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .music-prompt{flex:1;font-size:13px;color:#e6edf3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .music-meta{font-size:11px;color:#8b949e}
-.music-player{width:100%;height:36px;margin-bottom:8px;border-radius:4px;accent-color:#6e40c9}
+.music-player{width:100%;max-width:100%;height:36px;margin-bottom:8px;border-radius:4px;accent-color:#6e40c9;box-sizing:border-box}
 .music-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .music-target{background:#0d1117;border:1px solid #30363d;border-radius:4px;color:#e6edf3;padding:4px 8px;font-size:12px;flex:1;min-width:80px}
+
+/* VIDEO MODE TOGGLE */
+.mode-btn{flex:1;padding:9px 6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.mode-btn.active{background:#1f6feb;color:#e6edf3}
+.mode-btn:not(.active){background:#21262d;color:#8b949e}
+/* I2V DROP ZONE */
+.drop-zone{border:2px dashed #30363d;border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:#0d1117;transition:border-color .15s;min-height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.drop-zone:hover,.drop-zone.dragover{border-color:#388bfd}
+.drop-zone img{max-height:140px;border-radius:6px;display:none}
 
 /* GENERATING overlay */
 #gen-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px}
@@ -204,6 +213,7 @@ textarea{min-height:70px}
       <div class="tab" onclick="showTab('game')">🎮 W grze</div>
       <div class="tab" onclick="showTab('music')">🎵 Muzyka AI</div>
       <div class="tab" onclick="showTab('video')">🎬 Wideo AI</div>
+      <div class="tab" onclick="showTab('montaz')">🎵🎬 Montaż</div>
       <div class="tab" onclick="showTab('edu')">📚 Edukacja</div>
     </div>
 
@@ -241,9 +251,21 @@ textarea{min-height:70px}
 
             <label>Czas trwania</label>
             <select id="mus-duration">
+              <option value="5" selected>5 sekund</option>
+              <option value="7.5">7,5 sekundy</option>
+              <option value="10">10 sekund</option>
               <option value="15">15 sekund</option>
-              <option value="30" selected>30 sekund</option>
+              <option value="30">30 sekund</option>
               <option value="60">60 sekund</option>
+            </select>
+
+            <label>Top-k <span id="mus-topk-val" style="color:#58a6ff;font-size:11px">250 — domyślny</span></label>
+            <select id="mus-topk">
+              <option value="50">50 — bardzo spójny, mało zróżnicowany</option>
+              <option value="100">100 — spójny</option>
+              <option value="250" selected>250 — domyślny (balans)</option>
+              <option value="500">500 — bardziej zróżnicowany</option>
+              <option value="0">0 — wyłączony (sampling bez ograniczeń)</option>
             </select>
 
             <label>Etykieta docelowa (np. world1, world2)</label>
@@ -272,7 +294,7 @@ textarea{min-height:70px}
         </div>
 
         <!-- Lista wygenerowanych -->
-        <div>
+        <div style="min-width:0;overflow:hidden">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
             <span style="font-size:13px;color:#8b949e">Wygenerowane ścieżki</span>
             <button class="btn-sm btn-delete" onclick="loadMusicJobs()">↻ Odśwież</button>
@@ -290,36 +312,81 @@ textarea{min-height:70px}
         <div>
           <div class="card" style="margin-bottom:16px">
             <h2>🎬 Generuj wideo</h2>
-            <p style="color:#8b949e;font-size:11px;margin-bottom:12px">Model: CogVideoX-5b · ~16GB VRAM · ładuje się tylko podczas generacji</p>
 
-            <label>Prompt (PL lub EN)</label>
-            <textarea id="vid-prompt" rows="4" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px;font-size:13px;resize:vertical" placeholder="A futuristic car transforms into a robot, cinematic, 4K, dramatic lighting"></textarea>
+            <!-- Model toggle -->
+            <div style="display:flex;gap:0;border:1px solid #30363d;border-radius:8px;overflow:hidden;margin-bottom:14px">
+              <button id="mode-t2v" class="mode-btn active" onclick="setVidMode('t2v')">🎬 T2V — Wan2.1 <span style="font-size:10px;opacity:.7">tekst→wideo</span></button>
+              <button id="mode-i2v" class="mode-btn" onclick="setVidMode('i2v')">🖼 I2V — SVD-xt <span style="font-size:10px;opacity:.7">obraz→wideo</span></button>
+            </div>
 
-            <label style="margin-top:10px;display:block">Rozdzielczość</label>
-            <select id="vid-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
-              <option value="720x480">720×480 (16:9 poziomo)</option>
-              <option value="480x720" selected>480×720 (9:16 TikTok ↕)</option>
-              <option value="480x480">480×480 (1:1 kwadrat)</option>
-            </select>
+            <!-- T2V section -->
+            <div id="t2v-section">
+              <p style="color:#8b949e;font-size:11px;margin-bottom:10px">Wan2.1-T2V-1.3B · ~8GB VRAM · 16fps · ładuje się tylko podczas generacji</p>
+              <label>Prompt (PL lub EN)</label>
+              <textarea id="vid-prompt" rows="4" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px;font-size:13px;resize:vertical" placeholder="A futuristic car transforms into a robot, cinematic, 4K, dramatic lighting"></textarea>
 
-            <label style="margin-top:10px;display:block">Długość</label>
-            <select id="vid-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
-              <option value="24">3s (24 klatki)</option>
-              <option value="32" selected>4s (32 klatki)</option>
-              <option value="48">6s (48 klatek)</option>
-              <option value="64">8s (64 klatki)</option>
-              <option value="80">10s (80 klatek)</option>
-              <option value="120">15s (120 klatek)</option>
-              <option value="160">20s (160 klatek)</option>
-              <option value="200">25s (200 klatek)</option>
-              <option value="240">30s (240 klatek)</option>
-            </select>
+              <label style="margin-top:10px;display:block">Rozdzielczość</label>
+              <select id="vid-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                <option value="832x480">832×480 (16:9 poziomo)</option>
+                <option value="480x832" selected>480×832 (9:16 TikTok/Reels ↕)</option>
+                <option value="480x480">480×480 (1:1 kwadrat)</option>
+                <option value="1280x720">1280×720 (HD poziomo, wolniejsze)</option>
+                <option value="720x1280">720×1280 (HD TikTok ↕, wolniejsze)</option>
+              </select>
 
-            <label style="margin-top:10px;display:block">Wierność promptowi</label>
-            <input id="vid-guidance" type="range" min="3" max="9" step="0.5" value="5" style="width:100%" oninput="document.getElementById('vid-guidance-val').textContent=this.value">
-            <span id="vid-guidance-val" style="color:#8b949e;font-size:12px">5</span>
+              <label style="margin-top:10px;display:block">Długość</label>
+              <select id="vid-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                <option value="17">~1s (17 klatek) — szybki test</option>
+                <option value="33">~2s (33 klatki)</option>
+                <option value="49">~3s (49 klatek)</option>
+                <option value="81" selected>~5s (81 klatek) — rekomendowane</option>
+                <option value="121">~7.5s (121 klatek)</option>
+                <option value="161">~10s (161 klatek)</option>
+              </select>
 
-            <label style="margin-top:10px;display:block">Rozdzielczość wyjściowa</label>
+              <label style="margin-top:10px;display:block">Wierność promptowi</label>
+              <input id="vid-guidance" type="range" min="3" max="9" step="0.5" value="5" style="width:100%" oninput="document.getElementById('vid-guidance-val').textContent=this.value">
+              <span id="vid-guidance-val" style="color:#8b949e;font-size:12px">5</span>
+            </div>
+
+            <!-- I2V section -->
+            <div id="i2v-section" style="display:none">
+              <p style="color:#8b949e;font-size:11px;margin-bottom:10px">SVD-xt 1.1 · ~6GB VRAM · 7fps · pierwsze uruchomienie pobiera model ~10GB</p>
+
+              <label>Obraz startowy (pierwsza klatka)</label>
+              <div class="drop-zone" id="i2v-drop"
+                   onclick="document.getElementById('i2v-file').click()"
+                   ondragover="event.preventDefault();this.classList.add('dragover')"
+                   ondragleave="this.classList.remove('dragover')"
+                   ondrop="handleImageDrop(event)">
+                <img id="i2v-preview" src="" alt="">
+                <p id="i2v-hint" style="color:#8b949e;font-size:12px;margin:0">🖼 Przeciągnij obraz lub kliknij aby wybrać<br><span style="font-size:10px;color:#6e7681">JPG, PNG, WEBP</span></p>
+                <input type="file" id="i2v-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleImageSelect(event)">
+              </div>
+              <p id="i2v-path-info" style="color:#6e7681;font-size:10px;margin:4px 0 0"></p>
+
+              <label style="margin-top:10px;display:block">Rozdzielczość</label>
+              <select id="i2v-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                <option value="1024x576">1024×576 (16:9 poziomo) — najlepiej wytrenowany</option>
+                <option value="576x1024" selected>576×1024 (9:16 TikTok/Reels ↕)</option>
+                <option value="512x512">512×512 (1:1 kwadrat)</option>
+              </select>
+
+              <label style="margin-top:10px;display:block">Długość</label>
+              <select id="i2v-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                <option value="14">~2s (14 klatek @ 7fps)</option>
+                <option value="25" selected>~3.5s (25 klatek @ 7fps) — standard SVD</option>
+              </select>
+
+              <label style="margin-top:10px;display:block">Intensywność ruchu <span id="i2v-motion-val" style="color:#58a6ff;font-size:11px">127 — średni</span></label>
+              <input id="i2v-motion" type="range" min="1" max="255" value="127" style="width:100%;accent-color:#388bfd" oninput="updateMotionLabel(this.value)">
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:#6e7681;margin-top:2px">
+                <span>Subtelny</span><span>Intensywny</span>
+              </div>
+            </div>
+
+            <!-- Wspólne ustawienia -->
+            <label style="margin-top:12px;display:block">Rozdzielczość wyjściowa</label>
             <div style="display:flex;gap:5px;margin-top:6px">
               <button class="vid-scale-btn active" data-val="" onclick="setVidScale(this)">Oryginał</button>
               <button class="vid-scale-btn" data-val="fhd" onclick="setVidScale(this)">Full HD</button>
@@ -327,6 +394,12 @@ textarea{min-height:70px}
               <button class="vid-scale-btn" data-val="4k" onclick="setVidScale(this)">4K</button>
             </div>
             <p id="vid-upscale-note" style="color:#6e7681;font-size:10px;margin:4px 0 0;display:none">⬆ Generacja w niskiej rozdzielczości + upscaling ffmpeg (lanczos)</p>
+
+            <label style="margin-top:10px;display:block">Seed <span style="color:#6e7681;font-size:10px">(-1 = losowy przy każdej generacji)</span></label>
+            <div style="display:flex;gap:6px">
+              <input id="vid-seed" type="number" value="-1" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;box-sizing:border-box">
+              <button onclick="document.getElementById('vid-seed').value=-1" title="Losowy seed" style="background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;padding:6px 10px;cursor:pointer;font-size:14px">🎲</button>
+            </div>
 
             <label style="margin-top:10px;display:block">Etykieta (opcjonalna)</label>
             <input id="vid-label" type="text" placeholder="np. car_robot_tiktok" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;box-sizing:border-box">
@@ -341,13 +414,23 @@ textarea{min-height:70px}
             </div>
           </div>
 
-          <div class="card">
-            <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ Wskazówki</h3>
+          <div class="card" id="tips-t2v">
+            <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ T2V — Wan2.1</h3>
             <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
               <li>Najlepsze wyniki z <b>angielskim promptem</b></li>
-              <li>Format <b>480×720</b> = pionowy TikTok</li>
-              <li>Generacja ~4s klipu trwa ok. 3–6 min</li>
-              <li>VRAM zwalniany automatycznie po zakończeniu</li>
+              <li>Format <b>480×832</b> = pionowy TikTok/Reels</li>
+              <li>Generacja ~5s klipu trwa ok. 3–6 min</li>
+              <li>VRAM ~8GB, zwalniany po zakończeniu</li>
+            </ul>
+          </div>
+          <div class="card" id="tips-i2v" style="display:none">
+            <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ I2V — SVD-xt</h3>
+            <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
+              <li>Wgraj obraz lub kliknij <b>📸 I2V</b> na filmie T2V</li>
+              <li>Pierwsze użycie: pobiera model ~10GB z HuggingFace</li>
+              <li>Generacja ~3.5s klipu trwa ok. 1–3 min</li>
+              <li>VRAM ~6GB, zwalniany po zakończeniu</li>
+              <li>Ruch subtelny (1–80) / średni (127) / intensywny (200+)</li>
             </ul>
           </div>
         </div>
@@ -356,6 +439,37 @@ textarea{min-height:70px}
         <div>
           <h2 style="color:#e6edf3;margin-bottom:16px">📹 Wygenerowane wideo</h2>
           <div id="video-list"><p style="color:#8b949e">Brak wygenerowanych filmów. Użyj formularza po lewej.</p></div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-montaz" class="tab-content">
+      <div style="display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start">
+        <div class="card" style="border-color:#6e40c9">
+          <h2 style="color:#c084fc">🎵🎬 Montaż</h2>
+          <label>Wideo</label>
+          <select id="merge-video" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;margin-bottom:10px">
+            <option value="">— wybierz wideo —</option>
+          </select>
+          <label>Muzyka</label>
+          <select id="merge-music" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;margin-bottom:14px">
+            <option value="">— wybierz ścieżkę —</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px">
+            <input type="checkbox" id="merge-crossfade" style="width:16px;height:16px;accent-color:#6e40c9;cursor:pointer">
+            <span>
+              <span style="color:#c084fc;font-weight:600;font-size:13px">🔀 Crossfade — przenikanie pętli (0.5s)</span><br>
+              <span style="color:#8b949e;font-size:11px">Fade-out na końcu + fade-in na początku → pętla TikTok brzmi jak jeden niekończący się utwór</span>
+            </span>
+          </label>
+          <p style="color:#8b949e;font-size:11px;margin:0 0 14px">Muzyka zostanie zapętlona jeśli jest krótsza od wideo.</p>
+          <button onclick="mergeVideoMusic()" style="background:#6e40c9;color:#fff;border:none;border-radius:6px;padding:9px 22px;font-size:14px;cursor:pointer;font-weight:600">🎬 Połącz</button>
+          <span id="merge-status" style="color:#8b949e;font-size:12px;margin-left:14px"></span>
+        </div>
+        <div style="min-width:0">
+          <h2 style="color:#e6edf3;margin-bottom:16px">🎬 Gotowe montaże</h2>
+          <div id="merge-list"><p style="color:#8b949e">Brak gotowych montaży.</p></div>
         </div>
       </div>
     </div>
@@ -392,7 +506,7 @@ function setPrompt(p){ document.getElementById('prompt').value = p; }
 
 function showTab(name){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    const names=['pending','all','game','music','video','edu'];
+    const names=['pending','all','game','music','video','montaz','edu'];
     t.classList.toggle('active', names[i]===name);
   });
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
@@ -402,6 +516,7 @@ function showTab(name){
   if(name==='pending') loadPending();
   if(name==='music'){ loadMusicJobs(); setMusicPreset(); }
   if(name==='video') loadVideoJobs();
+  if(name==='montaz'){ populateMergeSelects(); loadMergeList(); }
   if(name==='edu') renderEdu();
 }
 
@@ -665,6 +780,7 @@ async function generateMusic(){
   const body = {
     prompt,
     duration: +document.getElementById('mus-duration').value,
+    top_k: +document.getElementById('mus-topk').value,
     world: document.getElementById('mus-world').value,
     label: document.getElementById('mus-label').value,
   };
@@ -782,6 +898,80 @@ async function deleteMusic(jobId){
 
 // ── Wideo AI ──────────────────────────────────────────────────────────────
 let vidPollTimer = null;
+let _vidMode = 't2v';         // 't2v' | 'i2v'
+let _i2vServerPath = '';      // server-side path po uploadzoe
+
+function setVidMode(mode){
+  _vidMode = mode;
+  document.getElementById('mode-t2v').classList.toggle('active', mode==='t2v');
+  document.getElementById('mode-i2v').classList.toggle('active', mode==='i2v');
+  document.getElementById('t2v-section').style.display = mode==='t2v' ? '' : 'none';
+  document.getElementById('i2v-section').style.display = mode==='i2v' ? '' : 'none';
+  document.getElementById('tips-t2v').style.display = mode==='t2v' ? '' : 'none';
+  document.getElementById('tips-i2v').style.display = mode==='i2v' ? '' : 'none';
+  const btn = document.getElementById('vid-btn');
+  btn.textContent = mode==='t2v' ? '🎬 Generuj wideo' : '🖼 Animuj obraz';
+  btn.style.background = mode==='t2v'
+    ? 'linear-gradient(135deg,#1a3a5c,#1f6feb)'
+    : 'linear-gradient(135deg,#1a3a1a,#238636)';
+  btn.style.borderColor = mode==='t2v' ? '#388bfd' : '#3fb950';
+}
+
+function updateMotionLabel(v){
+  const labels = {1:'bardzo subtelny',60:'subtelny',127:'średni',180:'intensywny',230:'bardzo intensywny'};
+  const closest = Object.keys(labels).reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a);
+  document.getElementById('i2v-motion-val').textContent = `${v} — ${labels[closest]}`;
+}
+
+function handleImageDrop(e){
+  e.preventDefault();
+  document.getElementById('i2v-drop').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(file) uploadI2VImage(file);
+}
+
+function handleImageSelect(e){
+  const file = e.target.files[0];
+  if(file) uploadI2VImage(file);
+}
+
+async function uploadI2VImage(file){
+  const fd = new FormData();
+  fd.append('file', file);
+  document.getElementById('i2v-hint').textContent = '⏳ Wysyłam...';
+  try {
+    const r = await fetch('/api/video/upload-image', {method:'POST', body:fd});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    _i2vServerPath = d.path;
+    const preview = document.getElementById('i2v-preview');
+    preview.src = d.url;
+    preview.style.display = 'block';
+    document.getElementById('i2v-hint').style.display = 'none';
+    document.getElementById('i2v-path-info').textContent = '✓ ' + file.name;
+  } catch(e){
+    document.getElementById('i2v-hint').textContent = '🖼 Przeciągnij obraz lub kliknij aby wybrać';
+    alert('Błąd uploadu: '+e.message);
+  }
+}
+
+async function useAsI2V(jobId){
+  try {
+    const r = await fetch(`/api/video/frame/${jobId}`);
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    _i2vServerPath = d.path;
+    setVidMode('i2v');
+    const preview = document.getElementById('i2v-preview');
+    preview.src = d.url + '?t=' + Date.now();
+    preview.style.display = 'block';
+    document.getElementById('i2v-hint').style.display = 'none';
+    document.getElementById('i2v-path-info').textContent = '✓ Pierwsza klatka z ' + jobId;
+    document.getElementById('tab-video').scrollIntoView({behavior:'smooth'});
+  } catch(e){
+    alert('Błąd: '+e.message);
+  }
+}
 
 function setVidScale(btn){
   document.querySelectorAll('.vid-scale-btn').forEach(b=>b.classList.remove('active'));
@@ -790,13 +980,35 @@ function setVidScale(btn){
 }
 
 async function generateVideo(){
-  const prompt = document.getElementById('vid-prompt').value.trim();
-  if(!prompt){ alert('Wpisz prompt!'); return; }
-  const [width, height] = document.getElementById('vid-res').value.split('x').map(Number);
-  const num_frames = parseInt(document.getElementById('vid-frames').value);
-  const guidance_scale = parseFloat(document.getElementById('vid-guidance').value);
-  const label = document.getElementById('vid-label').value.trim();
   const upscale = document.querySelector('.vid-scale-btn.active')?.dataset.val || '';
+  const seed = parseInt(document.getElementById('vid-seed').value) || -1;
+  const label = document.getElementById('vid-label').value.trim();
+  let body;
+
+  if(_vidMode === 'i2v'){
+    if(!_i2vServerPath){ alert('Wgraj najpierw obraz startowy!'); return; }
+    const [width, height] = document.getElementById('i2v-res').value.split('x').map(Number);
+    body = {
+      model: 'svd',
+      image_path: _i2vServerPath,
+      num_frames: parseInt(document.getElementById('i2v-frames').value),
+      width, height,
+      motion_bucket: parseInt(document.getElementById('i2v-motion').value),
+      label, upscale, seed,
+    };
+  } else {
+    const prompt = document.getElementById('vid-prompt').value.trim();
+    if(!prompt){ alert('Wpisz prompt!'); return; }
+    const [width, height] = document.getElementById('vid-res').value.split('x').map(Number);
+    body = {
+      model: 'wan',
+      prompt,
+      num_frames: parseInt(document.getElementById('vid-frames').value),
+      width, height,
+      guidance_scale: parseFloat(document.getElementById('vid-guidance').value),
+      label, upscale, seed,
+    };
+  }
 
   document.getElementById('vid-btn').disabled = true;
   document.getElementById('vid-progress').style.display = 'block';
@@ -807,7 +1019,7 @@ async function generateVideo(){
     const r = await fetch('/api/video/generate', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({prompt, num_frames, width, height, guidance_scale, label, upscale})
+      body: JSON.stringify(body)
     });
     const d = await r.json();
     if(!r.ok) throw new Error(d.detail||'Błąd');
@@ -828,10 +1040,12 @@ function pollVideoJob(jobId){
       const pct = s.progress || 0;
       document.getElementById('vid-bar').style.width = pct+'%';
       const labels = {
-        loading:    'Ładowanie modelu CogVideoX-5b (~90s pierwsza generacja)...',
+        loading:    _vidMode==='i2v'
+                      ? 'Ładowanie SVD-xt (pierwsze użycie: pobiera ~10GB)...'
+                      : 'Ładowanie Wan2.1-T2V-1.3B (~30s)...',
         generating: `Generuję wideo na RTX 5090... ${pct}%`,
         saving:     'Zapisuję MP4...',
-        upscaling:  'Upscaling do wyższej rozdzielczości (ffmpeg)...',
+        upscaling:  'Upscaling ffmpeg (lanczos)...',
         done:       'Gotowe!'
       };
       const lbl = labels[s.status]||s.status||'...';
@@ -894,20 +1108,24 @@ async function loadVideoJobs(){
       ? `<p style="color:#d29922;font-size:12px">⏳ Generacja w toku...</p>` : '';
     const actions = j.status==='pending'
       ? `<a href="${videoUrl}" download style="background:#1f6feb;color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;text-decoration:none">⬇️ Pobierz MP4</a>
+         <button onclick="useAsI2V('${j.job_id}')" style="background:#1a2a1a;color:#3fb950;border:1px solid #3fb950;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:6px" title="Użyj pierwszej klatki jako I2V">📸 I2V</button>
          <button onclick="deleteVideo('${j.job_id}')" style="background:#3d1a1a;color:#f85149;border:1px solid #f85149;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:6px">🗑 Usuń</button>`
       : j.status==='error'
-      ? `<span style="color:#f85149;font-size:12px" title="${j.error||''}">✗ Błąd generacji</span>`
+      ? `<span style="color:#f85149;font-size:12px" title="${j.error||''}">✗ Błąd generacji</span>
+         <button onclick="deleteVideo('${j.job_id}')" style="background:#3d1a1a;color:#f85149;border:1px solid #f85149;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:6px">🗑 Usuń</button>`
       : '';
     return `<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="color:${color};font-size:11px;font-weight:bold;text-transform:uppercase">${j.status}</span>
+        <span style="background:${j.model==='svd'?'#1a2a1a':'#1a2232'};color:${j.model==='svd'?'#3fb950':'#58a6ff'};font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">${j.model==='svd'?'I2V SVD':'T2V Wan'}</span>
         <span style="color:#8b949e;font-size:11px">${(()=>{
           const scales={fhd:{landscape:'1920×1080',portrait:'1080×1920',square:'1080×1080'},
                         '2k':{landscape:'2560×1440',portrait:'1440×2560',square:'1440×1440'},
                         '4k':{landscape:'3840×2160',portrait:'2160×3840',square:'2160×2160'}};
           const o=j.width>j.height?'landscape':j.height>j.width?'portrait':'square';
           const res=j.upscale&&scales[j.upscale]?scales[j.upscale][o]+' (upscaled)':j.width+'×'+j.height;
-          return res;
+          const seedInfo = j.seed !== undefined ? ` · seed ${j.seed}` : '';
+          return res + seedInfo;
         })()} · ${j.num_frames}kl · ${ts}</span>
       </div>
       <p style="color:#e6edf3;font-size:13px;margin:0 0 8px">${j.prompt}</p>
@@ -921,6 +1139,83 @@ async function deleteVideo(jobId){
   if(!confirm('Usunąć ten film?')) return;
   await fetch(`/api/video/jobs/${jobId}`, {method:'DELETE'});
   loadVideoJobs();
+}
+
+async function populateMergeSelects(){
+  const [vr, mr] = await Promise.all([
+    fetch('/api/video/jobs'),
+    fetch('/api/music/jobs'),
+  ]);
+  const videos = await vr.json();
+  const musics = await mr.json();
+
+  const vs = document.getElementById('merge-video');
+  const ms = document.getElementById('merge-music');
+  const prev_v = vs.value, prev_m = ms.value;
+
+  vs.innerHTML = '<option value="">— wybierz wideo —</option>' +
+    videos.filter(j=>j.status==='pending'&&j.file&&!j.job_id.startsWith('mrg_'))
+      .map(j=>`<option value="${j.job_id}">${j.job_id} · ${j.width}×${j.height} · ${(j.prompt||'').slice(0,40)}</option>`)
+      .join('');
+  ms.innerHTML = '<option value="">— wybierz ścieżkę —</option>' +
+    musics.filter(j=>j.status==='pending'||j.status==='approved')
+      .map(j=>`<option value="${j.job_id}">${j.job_id} · ${j.duration}s · ${(j.prompt||'').slice(0,40)}</option>`)
+      .join('');
+
+  if(prev_v) vs.value = prev_v;
+  if(prev_m) ms.value = prev_m;
+}
+
+async function mergeVideoMusic(){
+  const video_job_id = document.getElementById('merge-video').value;
+  const music_job_id = document.getElementById('merge-music').value;
+  if(!video_job_id){ alert('Wybierz wideo!'); return; }
+  if(!music_job_id){ alert('Wybierz ścieżkę muzyczną!'); return; }
+  const crossfade = document.getElementById('merge-crossfade').checked;
+  const st = document.getElementById('merge-status');
+  st.textContent = '⏳ Łączę...';
+  try {
+    const r = await fetch('/api/video/merge', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({video_job_id, music_job_id, crossfade}),
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.detail||'Błąd');
+    st.textContent = '✓ Gotowe!';
+    loadMergeList();
+    populateMergeSelects();
+  } catch(e){
+    st.textContent = '✗ ' + e.message;
+  }
+}
+
+async function loadMergeList(){
+  const r = await fetch('/api/video/jobs');
+  const jobs = await r.json();
+  const merges = jobs.filter(j => j.job_id.startsWith('mrg_'));
+  const el = document.getElementById('merge-list');
+  if(!merges.length){ el.innerHTML='<p style="color:#8b949e">Brak gotowych montaży.</p>'; return; }
+  el.innerHTML = merges.map(j => {
+    const ts = j.created_at ? new Date(j.created_at).toLocaleString('pl') : '';
+    const videoUrl = j.file ? `/video-assets/pending/${j.file}` : null;
+    return `<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="color:#c084fc;font-size:11px;font-weight:bold">${j.job_id}</span>
+        <span style="color:#8b949e;font-size:11px">${j.width}×${j.height} · ${ts}</span>
+      </div>
+      <video controls style="width:100%;border-radius:6px;margin-bottom:10px;max-height:320px" src="${videoUrl}"></video>
+      <div style="display:flex;gap:8px">
+        <a href="${videoUrl}" download style="background:#1f6feb;color:#fff;padding:6px 14px;border-radius:5px;font-size:12px;text-decoration:none">⬇️ Pobierz MP4</a>
+        <button onclick="deleteMerge('${j.job_id}')" style="background:#3d1a1a;color:#f85149;border:1px solid #f85149;border-radius:5px;padding:6px 12px;font-size:12px;cursor:pointer">🗑 Usuń</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteMerge(jobId){
+  if(!confirm('Usunąć ten montaż?')) return;
+  await fetch(`/api/video/jobs/${jobId}`, {method:'DELETE'});
+  loadMergeList();
 }
 
 // ── Edukacja ──────────────────────────────────────────────────────────────
