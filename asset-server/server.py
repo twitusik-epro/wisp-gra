@@ -47,7 +47,7 @@ GAME_MUSIC_DIR    = Path("/opt/gry/Wisp - NOWA wersja w budowie/public/assets/mu
 for d in [MUSIC_PENDING_DIR, MUSIC_APPROVED_DIR, GAME_MUSIC_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
-MUSIC_SCRIPT = BASE_DIR / "generate_music.py"
+MUSIC_SCRIPT = BASE_DIR / "generate_music_acestep.py"
 CONDA_PYTHON = "/root/miniconda3/envs/wisp-music/bin/python3"
 _music_generating = False
 
@@ -55,8 +55,10 @@ VIDEO_DIR         = ASSETS_DIR / "video"
 VIDEO_PENDING_DIR = VIDEO_DIR / "pending"
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_PENDING_DIR.mkdir(parents=True, exist_ok=True)
-VIDEO_SCRIPT   = BASE_DIR / "generate_video.py"
-SVD_SCRIPT     = BASE_DIR / "generate_video_svd.py"
+VIDEO_SCRIPT    = BASE_DIR / "generate_video.py"
+VIDEO_14B_SCRIPT= BASE_DIR / "generate_video_14b.py"
+VIDEO_I2V_SCRIPT= BASE_DIR / "generate_video_i2v.py"
+SVD_SCRIPT      = BASE_DIR / "generate_video_svd.py"
 ASSETS_PYTHON  = "/root/miniconda3/envs/eagleai-photos/bin/python3"
 UPLOADS_DIR    = VIDEO_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
@@ -519,17 +521,75 @@ def save_video_meta(meta: dict):
     (VIDEO_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
 
 class VideoGenRequest(BaseModel):
-    model: str = "wan"        # "wan" | "svd"
+    model: str = "wan"        # "wan" | "wan_i2v" | "svd"
+    wan_quality: str = "1.3B" # "1.3B" | "14B"
     prompt: str = ""
-    image_path: str = ""      # SVD only — server-side path after upload
+    image_path: str = ""      # I2V/SVD — server-side path after upload
     num_frames: int = 81      # wan: 4k+1 format; svd: 14 or 25
     width: int = 480
     height: int = 832
+    max_area: int = 399360    # I2V: 480*832=399360 | 720P: 921600
     guidance_scale: float = 5.0
+    negative_prompt: str = "blurry, low quality, distorted, watermark, text, static, ugly, deformed, flickering"
     motion_bucket: int = 127  # SVD only, 0-255
     label: str = ""
     upscale: str = ""         # "" | "fhd" | "2k" | "4k"
     seed: int = -1            # -1 = random
+
+async def _release_ollama():
+    """Tell Ollama to evict all loaded models from VRAM, then wait until free."""
+    import json as _json
+    import urllib.request as _ur
+    try:
+        # Get list of currently loaded models
+        resp = _ur.urlopen("http://localhost:11434/api/ps", timeout=5)
+        ps = _json.loads(resp.read())
+        models = [m["model"] for m in ps.get("models", [])]
+    except Exception:
+        models = []
+
+    for model_name in models:
+        try:
+            data = _json.dumps({"model": model_name, "keep_alive": 0}).encode()
+            req_http = _ur.Request(
+                "http://localhost:11434/api/generate",
+                data=data, method="POST",
+                headers={"Content-Type": "application/json"}
+            )
+            _ur.urlopen(req_http, timeout=10)
+        except Exception:
+            pass
+
+    if models:
+        # Wait up to 15s for Ollama to actually release VRAM
+        import subprocess as _sp
+        for _ in range(15):
+            await asyncio.sleep(1)
+            try:
+                resp = _ur.urlopen("http://localhost:11434/api/ps", timeout=3)
+                still = _json.loads(resp.read()).get("models", [])
+                if not still:
+                    break
+            except Exception:
+                break
+
+async def _free_vram_for_14b():
+    """Stop eagleai-photos to free ~13GB VRAM, release Ollama."""
+    await _release_ollama()
+    proc = await asyncio.create_subprocess_exec(
+        "systemctl", "stop", "eagleai-photos.service",
+        stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL
+    )
+    await proc.wait()
+    await asyncio.sleep(2)
+
+async def _restore_after_14b():
+    """Restart eagleai-photos after 14B generation finishes."""
+    proc = await asyncio.create_subprocess_exec(
+        "systemctl", "start", "eagleai-photos.service",
+        stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL
+    )
+    await proc.wait()
 
 async def run_video_generation(job_id: str, req: VideoGenRequest):
     global _video_generating
@@ -551,12 +611,33 @@ async def run_video_generation(job_id: str, req: VideoGenRequest):
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
+        elif req.model == "wan_i2v":
+            await _release_ollama()
+            proc = await asyncio.create_subprocess_exec(
+                ASSETS_PYTHON, str(VIDEO_I2V_SCRIPT),
+                job_id, req.prompt, req.image_path,
+                str(req.num_frames), str(req.max_area),
+                str(req.guidance_scale), req.negative_prompt,
+                out_path, status_path, req.upscale, str(req.seed),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        elif req.wan_quality == "14B":
+            await _release_ollama()
+            proc = await asyncio.create_subprocess_exec(
+                ASSETS_PYTHON, str(VIDEO_14B_SCRIPT),
+                job_id, req.prompt,
+                str(req.num_frames), str(req.width), str(req.height),
+                str(req.guidance_scale), req.negative_prompt, out_path, status_path, req.upscale, str(req.seed),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
         else:
             proc = await asyncio.create_subprocess_exec(
                 ASSETS_PYTHON, str(VIDEO_SCRIPT),
                 job_id, req.prompt,
                 str(req.num_frames), str(req.width), str(req.height),
-                str(req.guidance_scale), out_path, status_path, req.upscale, str(req.seed),
+                str(req.guidance_scale), req.negative_prompt, out_path, status_path, req.upscale, str(req.seed),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -579,6 +660,67 @@ async def run_video_generation(job_id: str, req: VideoGenRequest):
     finally:
         _video_generating = False
         Path(status_path).unlink(missing_ok=True)
+        pass  # eagleai-photos stays running (14B uses only ~4GB VRAM via block offloading)
+
+
+async def _monitor_orphan_video(job_id: str, pid: int):
+    """Wait for orphaned video subprocess (survived server restart) and update meta."""
+    global _video_generating
+    _video_generating = True
+    logger.info(f"Monitoring orphan PID={pid} for video job {job_id}")
+    try:
+        while True:
+            try:
+                os.kill(pid, 0)
+                await asyncio.sleep(5)
+            except ProcessLookupError:
+                break
+        await asyncio.sleep(1)
+        mp4 = VIDEO_PENDING_DIR / f"{job_id}.mp4"
+        meta = load_video_meta()
+        (VIDEO_DIR / f"{job_id}_status.json").unlink(missing_ok=True)
+        if mp4.exists() and mp4.stat().st_size > 100_000:
+            meta[job_id]["status"] = "pending"
+            meta[job_id]["file"] = f"{job_id}.mp4"
+            meta[job_id]["finished_at"] = datetime.now().isoformat()
+            logger.info(f"Orphan job {job_id} recovered successfully")
+        else:
+            meta[job_id]["status"] = "error"
+            meta[job_id]["error"] = "Generation failed (orphaned process)"
+            logger.info(f"Orphan job {job_id} failed")
+        save_video_meta(meta)
+    except Exception:
+        logger.exception(f"Error monitoring orphan {job_id}")
+    finally:
+        _video_generating = False
+
+
+@app.on_event("startup")
+async def startup_recovery():
+    """On startup, recover video jobs stuck in 'generating' (server was restarted mid-job)."""
+    import subprocess as _sp2
+    meta = load_video_meta()
+    changed = False
+    for job_id, job in list(meta.items()):
+        if job.get("status") != "generating":
+            continue
+        try:
+            result = _sp2.run(["pgrep", "-f", job_id], capture_output=True, text=True)
+            if result.returncode == 0:
+                pid = int(result.stdout.strip().split("\n")[0])
+                asyncio.ensure_future(_monitor_orphan_video(job_id, pid))
+                logger.info(f"Startup recovery: monitoring orphan PID={pid} for {job_id}")
+            else:
+                meta[job_id]["status"] = "error"
+                meta[job_id]["error"] = "Server restarted during generation"
+                (VIDEO_DIR / f"{job_id}_status.json").unlink(missing_ok=True)
+                changed = True
+                logger.info(f"Startup recovery: marked {job_id} as error (process gone)")
+        except Exception:
+            logger.exception(f"Startup recovery error for {job_id}")
+    if changed:
+        save_video_meta(meta)
+
 
 @app.post("/api/video/generate")
 async def video_generate(req: VideoGenRequest, background_tasks: BackgroundTasks):
@@ -591,6 +733,7 @@ async def video_generate(req: VideoGenRequest, background_tasks: BackgroundTasks
     meta[job_id] = {
         "job_id": job_id,
         "model": req.model,
+        "wan_quality": req.wan_quality,
         "prompt": req.prompt,
         "image_path": req.image_path,
         "num_frames": req.num_frames,

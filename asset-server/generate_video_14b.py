@@ -1,12 +1,15 @@
 """
-Wan2.1-T2V-1.3B video generation.
+Wan2.1-T2V-14B video generation with dit_cpu=True block offloading.
+DiT blocks stay on CPU and move to GPU one at a time via accelerate hooks.
+Peak VRAM: ~4-6GB (VAE + 1 block + activations).
 Args: job_id prompt num_frames width height guidance_scale negative_prompt out_path status_path [upscale] [seed]
 """
-import sys, json, time, warnings, threading, os
+import sys, json, time, warnings, threading, os, gc
 warnings.filterwarnings("ignore")
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+sys.path.insert(0, "/opt/Wan2.1")
 
-MODEL_DIR = "/opt/models/Wan2.1-T2V-1.3B"
+MODEL_DIR = "/opt/models/Wan2.1-T2V-14B"
 FPS = 16
 
 job_id         = sys.argv[1]
@@ -38,32 +41,62 @@ import random as _random
 actual_seed = seed_arg if seed_arg >= 0 else _random.randint(0, 2**32 - 1)
 
 def snap_frames(n):
-    """Snap to nearest valid Wan2.1 frame count (4k+1)."""
     k = max(2, round((n - 1) / 4))
     return 4 * k + 1
 
-upd({"status": "loading", "progress": 5})
+upd({"status": "loading", "progress": 3})
 
 import torch
-import numpy as np
 
 _stop_load = threading.Event()
-threading.Thread(target=ticker, args=("loading", 5, 38, 2, _stop_load), daemon=True).start()
+threading.Thread(target=ticker, args=("loading", 3, 38, 3, _stop_load), daemon=True).start()
 
 import wan
 from wan.configs import WAN_CONFIGS
 
-# dtype comes from config.param_dtype — no dtype arg in constructor
-# t5_cpu=True: T5 text encoder stays on CPU (~6GB VRAM saved), needed since autophotos.ai uses ~10GB
+# Load model with dit_cpu=True — DiT blocks stay on CPU, never loaded to GPU
+# patch_embedding / text_embedding / head etc. will be moved to GPU manually
 model = wan.WanT2V(
-    config=WAN_CONFIGS['t2v-1.3B'],
+    config=WAN_CONFIGS['t2v-14B'],
     checkpoint_dir=MODEL_DIR,
     device_id=0,
     t5_fsdp=False,
     dit_fsdp=False,
     use_usp=False,
     t5_cpu=True,
+    dit_cpu=True,   # patched into text2video.py — keeps blocks on CPU
 )
+
+# Move non-block parts of WanModel to GPU (they're small: ~500MB total)
+# WanModel.forward() uses self.patch_embedding.weight.device to detect device
+# and auto-moves self.freqs to match.
+gpu = torch.device("cuda:0")
+m = model.model  # WanModel instance (on CPU)
+m.patch_embedding.to(gpu)
+m.text_embedding.to(gpu)
+m.time_embedding.to(gpu)
+m.time_projection.to(gpu)
+m.head.to(gpu)
+
+# Manual block offloading via PyTorch hooks (no accelerate — avoids meta-device conflicts).
+# pre_forward: CPU → GPU; post_forward: GPU → CPU + empty cache.
+# Each block stays on CPU between calls; peak VRAM ≈ VAE + 1 block + activations (~4-6 GB).
+_block_call_counter = [0]
+
+def _apply_offload_hooks(block, device):
+    def _pre(module, args):
+        module.to(device)
+    def _post(module, args, output):
+        module.to('cpu')
+        _block_call_counter[0] += 1
+        if _block_call_counter[0] % 40 == 0:
+            torch.cuda.empty_cache()
+        return output
+    block.register_forward_pre_hook(_pre)
+    block.register_forward_hook(_post)
+
+for block in m.blocks:
+    _apply_offload_hooks(block, gpu)
 
 _stop_load.set()
 
@@ -71,9 +104,10 @@ valid_frames = snap_frames(num_frames)
 
 upd({"status": "generating", "progress": 40, "seed": actual_seed})
 _stop_gen = threading.Event()
-threading.Thread(target=ticker, args=("generating", 40, 85, 4, _stop_gen), daemon=True).start()
+threading.Thread(target=ticker, args=("generating", 40, 85, 8, _stop_gen), daemon=True).start()
 
-# size=(width, height) tuple, returns tensor (C, N, H, W) in range [-1, 1]
+# generate() will NOT call self.model.to(self.device) (patched out via dit_cpu=True)
+# Accelerate hooks on each block handle GPU movement per-block
 video = model.generate(
     prompt,
     size=(width, height),
@@ -84,28 +118,26 @@ video = model.generate(
     guide_scale=guidance_scale,
     n_prompt=negative_prompt,
     seed=actual_seed,
-    offload_model=True,
+    offload_model=False,
 )
 
 _stop_gen.set()
 upd({"status": "saving", "progress": 90})
 
-# (C, N, H, W) [-1,1] → (N, H, W, C) uint8
 video = video.cpu()
-video = (video.clamp(-1, 1) + 1) / 2          # → [0, 1]
-video = (video * 255).to(torch.uint8)          # → [0, 255]
-video = video.permute(1, 2, 3, 0).numpy()      # → (N, H, W, C)
+video = (video.clamp(-1, 1) + 1) / 2
+video = (video * 255).to(torch.uint8)
+video = video.permute(1, 2, 3, 0).numpy()
 out_frames = [video[i] for i in range(video.shape[0])]
 
 import imageio.v2 as imageio
 imageio.mimwrite(out_path, out_frames, fps=FPS, codec='libx264', quality=7, pixelformat='yuv420p')
 
 del model
-import gc
 gc.collect()
 torch.cuda.empty_cache()
 
-# ─── Upscaling ffmpeg (lanczos) ───────────────────────────────────────────────
+# ─── Upscaling ────────────────────────────────────────────────────────────────
 if upscale:
     upd({"status": "upscaling", "progress": 92})
     SCALES = {

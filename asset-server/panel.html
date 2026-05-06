@@ -251,7 +251,8 @@ textarea{min-height:70px}
 
             <label>Czas trwania</label>
             <select id="mus-duration">
-              <option value="5" selected>5 sekund</option>
+              <option value="3" selected>3 sekundy</option>
+              <option value="5">5 sekund</option>
               <option value="7.5">7,5 sekundy</option>
               <option value="10">10 sekund</option>
               <option value="15">15 sekund</option>
@@ -259,13 +260,12 @@ textarea{min-height:70px}
               <option value="60">60 sekund</option>
             </select>
 
-            <label>Top-k <span id="mus-topk-val" style="color:#58a6ff;font-size:11px">250 — domyślny</span></label>
+            <label>Jakość <span id="mus-topk-val" style="color:#58a6ff;font-size:11px">30 kroków — domyślny</span></label>
             <select id="mus-topk">
-              <option value="50">50 — bardzo spójny, mało zróżnicowany</option>
-              <option value="100">100 — spójny</option>
-              <option value="250" selected>250 — domyślny (balans)</option>
-              <option value="500">500 — bardziej zróżnicowany</option>
-              <option value="0">0 — wyłączony (sampling bez ograniczeń)</option>
+              <option value="20">20 kroków — szybko (~15s)</option>
+              <option value="30" selected>30 kroków — domyślny (~20s)</option>
+              <option value="50">50 kroków — wysoka jakość (~35s)</option>
+              <option value="100">100 kroków — maksymalna jakość (~70s)</option>
             </select>
 
             <label>Etykieta docelowa (np. world1, world2)</label>
@@ -321,7 +321,12 @@ textarea{min-height:70px}
 
             <!-- T2V section -->
             <div id="t2v-section">
-              <p style="color:#8b949e;font-size:11px;margin-bottom:10px">Wan2.1-T2V-1.3B · ~8GB VRAM · 16fps · ładuje się tylko podczas generacji</p>
+              <label style="display:block;margin-bottom:4px">Model jakości</label>
+              <select id="vid-quality" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;margin-bottom:8px" onchange="document.getElementById('vid-quality-info').textContent=this.value==='14B'?'Wan2.1-T2V-14B · ~14GB VRAM · wolniejsze · znacznie lepsza jakość':'Wan2.1-T2V-1.3B · ~8GB VRAM · szybki · podstawowa jakość';_checkFrameWarn()">
+                <option value="1.3B">Speed (1.3B) — szybki, ~1.5min/5s</option>
+                <option value="14B">Quality (14B) — lepsza jakość, ~4min/5s</option>
+              </select>
+              <p id="vid-quality-info" style="color:#8b949e;font-size:11px;margin-bottom:10px">Wan2.1-T2V-1.3B · ~8GB VRAM · szybki · podstawowa jakość</p>
               <label>Prompt (PL lub EN)</label>
               <textarea id="vid-prompt" rows="4" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px;font-size:13px;resize:vertical" placeholder="A futuristic car transforms into a robot, cinematic, 4K, dramatic lighting"></textarea>
 
@@ -335,23 +340,31 @@ textarea{min-height:70px}
               </select>
 
               <label style="margin-top:10px;display:block">Długość</label>
-              <select id="vid-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+              <select id="vid-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px" onchange="_checkFrameWarn()">
                 <option value="17">~1s (17 klatek) — szybki test</option>
                 <option value="33">~2s (33 klatki)</option>
-                <option value="49">~3s (49 klatek)</option>
-                <option value="81" selected>~5s (81 klatek) — rekomendowane</option>
-                <option value="121">~7.5s (121 klatek)</option>
-                <option value="161">~10s (161 klatek)</option>
+                <option value="49" selected>~3s (49 klatek)</option>
+                <option value="81">~5s (81 klatek) — tylko 1.3B</option>
+                <option value="121">~7.5s (121 klatek) — tylko 1.3B</option>
+                <option value="161">~10s (161 klatek) — tylko 1.3B</option>
               </select>
+              <p id="vid-frames-warn" style="display:none;color:#f85149;font-size:11px;margin:4px 0 0">⚠ Model 14B: maks ~3s (49 klatek) przy tej rozdzielczości — więcej spowoduje OOM.</p>
 
-              <label style="margin-top:10px;display:block">Wierność promptowi</label>
+              <label style="margin-top:10px;display:block">Wierność promptowi (CFG Scale)</label>
               <input id="vid-guidance" type="range" min="3" max="9" step="0.5" value="5" style="width:100%" oninput="document.getElementById('vid-guidance-val').textContent=this.value">
               <span id="vid-guidance-val" style="color:#8b949e;font-size:12px">5</span>
+
+              <label style="margin-top:10px;display:block">Prompt negatywny</label>
+              <textarea id="vid-neg-prompt" rows="2" placeholder="Czego unikać w generowanym wideo..." style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;box-sizing:border-box;resize:vertical;font-size:12px">blurry, low quality, distorted, watermark, text, static, ugly, deformed, flickering</textarea>
             </div>
 
             <!-- I2V section -->
             <div id="i2v-section" style="display:none">
-              <p style="color:#8b949e;font-size:11px;margin-bottom:10px">SVD-xt 1.1 · ~6GB VRAM · 7fps · pierwsze uruchomienie pobiera model ~10GB</p>
+              <!-- I2V model selector -->
+              <div style="display:flex;gap:0;border:1px solid #30363d;border-radius:6px;overflow:hidden;margin-bottom:12px">
+                <button id="i2v-model-svd" class="mode-btn active" onclick="setI2VModel('svd')" style="font-size:12px;padding:6px 10px">SVD-xt 1.1</button>
+                <button id="i2v-model-wan" class="mode-btn" onclick="setI2VModel('wan')" style="font-size:12px;padding:6px 10px">Wan2.1 I2V 14B ✨</button>
+              </div>
 
               <label>Obraz startowy (pierwsza klatka)</label>
               <div class="drop-zone" id="i2v-drop"
@@ -365,23 +378,44 @@ textarea{min-height:70px}
               </div>
               <p id="i2v-path-info" style="color:#6e7681;font-size:10px;margin:4px 0 0"></p>
 
-              <label style="margin-top:10px;display:block">Rozdzielczość</label>
-              <select id="i2v-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
-                <option value="1024x576">1024×576 (16:9 poziomo) — najlepiej wytrenowany</option>
-                <option value="576x1024" selected>576×1024 (9:16 TikTok/Reels ↕)</option>
-                <option value="512x512">512×512 (1:1 kwadrat)</option>
-              </select>
+              <!-- SVD-xt params -->
+              <div id="i2v-svd-params">
+                <p style="color:#8b949e;font-size:11px;margin:8px 0 8px">SVD-xt 1.1 · ~6GB VRAM · 7fps · pierwsze uruchomienie pobiera model ~10GB</p>
+                <label>Rozdzielczość</label>
+                <select id="i2v-res" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                  <option value="1024x576">1024×576 (16:9 poziomo)</option>
+                  <option value="576x1024" selected>576×1024 (9:16 TikTok/Reels ↕)</option>
+                  <option value="512x512">512×512 (1:1 kwadrat)</option>
+                </select>
+                <label style="margin-top:10px;display:block">Długość</label>
+                <select id="i2v-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                  <option value="14">~2s (14 klatek @ 7fps)</option>
+                  <option value="25" selected>~3.5s (25 klatek @ 7fps)</option>
+                </select>
+                <label style="margin-top:10px;display:block">Intensywność ruchu <span id="i2v-motion-val" style="color:#58a6ff;font-size:11px">127 — średni</span></label>
+                <input id="i2v-motion" type="range" min="1" max="255" value="127" style="width:100%;accent-color:#388bfd" oninput="updateMotionLabel(this.value)">
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:#6e7681;margin-top:2px"><span>Subtelny</span><span>Intensywny</span></div>
+              </div>
 
-              <label style="margin-top:10px;display:block">Długość</label>
-              <select id="i2v-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
-                <option value="14">~2s (14 klatek @ 7fps)</option>
-                <option value="25" selected>~3.5s (25 klatek @ 7fps) — standard SVD</option>
-              </select>
-
-              <label style="margin-top:10px;display:block">Intensywność ruchu <span id="i2v-motion-val" style="color:#58a6ff;font-size:11px">127 — średni</span></label>
-              <input id="i2v-motion" type="range" min="1" max="255" value="127" style="width:100%;accent-color:#388bfd" oninput="updateMotionLabel(this.value)">
-              <div style="display:flex;justify-content:space-between;font-size:10px;color:#6e7681;margin-top:2px">
-                <span>Subtelny</span><span>Intensywny</span>
+              <!-- Wan I2V 14B params -->
+              <div id="i2v-wan-params" style="display:none">
+                <p style="color:#8b949e;font-size:11px;margin:8px 0 8px">Wan2.1-I2V-14B · block offloading · obraz + opis ruchu → wideo</p>
+                <label>Opis ruchu (prompt)</label>
+                <textarea id="i2v-wan-prompt" rows="3" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px;font-size:13px;resize:vertical" placeholder="The camera slowly zooms in, cinematic lighting, smooth motion"></textarea>
+                <label style="margin-top:10px;display:block">Jakość / rozdzielczość wyjściowa</label>
+                <select id="i2v-wan-quality" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                  <option value="399360">480P (480×832) — szybszy ~25min</option>
+                  <option value="921600">720P (720×1280) — wyższa jakość ~40min</option>
+                </select>
+                <label style="margin-top:10px;display:block">Długość</label>
+                <select id="i2v-wan-frames" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+                  <option value="17">~1s (17 klatek)</option>
+                  <option value="33">~2s (33 klatki)</option>
+                  <option value="49" selected>~3s (49 klatek)</option>
+                  <option value="81">~5s (81 klatek) — wolniej</option>
+                </select>
+                <label style="margin-top:10px;display:block">Prompt negatywny</label>
+                <textarea id="i2v-wan-neg" rows="2" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;font-size:12px;resize:vertical">blurry, low quality, distorted, watermark, text, static, ugly, deformed, flickering</textarea>
               </div>
             </div>
 
@@ -424,14 +458,24 @@ textarea{min-height:70px}
             </ul>
           </div>
           <div class="card" id="tips-i2v" style="display:none">
-            <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ I2V — SVD-xt</h3>
-            <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
-              <li>Wgraj obraz lub kliknij <b>📸 I2V</b> na filmie T2V</li>
-              <li>Pierwsze użycie: pobiera model ~10GB z HuggingFace</li>
-              <li>Generacja ~3.5s klipu trwa ok. 1–3 min</li>
-              <li>VRAM ~6GB, zwalniany po zakończeniu</li>
-              <li>Ruch subtelny (1–80) / średni (127) / intensywny (200+)</li>
-            </ul>
+            <div id="tips-i2v-svd">
+              <h3 style="color:#8b949e;font-size:12px;margin-bottom:8px">ℹ️ I2V — SVD-xt</h3>
+              <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
+                <li>Wgraj obraz lub kliknij <b>📸 I2V</b> na filmie T2V</li>
+                <li>Pierwsze użycie: pobiera model ~10GB z HuggingFace</li>
+                <li>Generacja ~3.5s klipu trwa ok. 1–3 min</li>
+                <li>Ruch subtelny (1–80) / średni (127) / intensywny (200+)</li>
+              </ul>
+            </div>
+            <div id="tips-i2v-wan" style="display:none">
+              <h3 style="color:#c084fc;font-size:12px;margin-bottom:8px">ℹ️ I2V — Wan2.1 14B</h3>
+              <ul style="color:#8b949e;font-size:11px;line-height:1.8;margin:0;padding-left:16px">
+                <li>Obraz + opis ruchu → wideo wysokiej jakości</li>
+                <li>Block offloading: ~4-6GB VRAM, eagleai.ai działa równolegle</li>
+                <li>480P (~25min) / 720P (~40min) na 49 klatek</li>
+                <li>Prompt opisuje <b>ruch i atmosferę</b>, nie wygląd (to dyktuje obraz)</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -899,6 +943,29 @@ async function deleteMusic(jobId){
 // ── Wideo AI ──────────────────────────────────────────────────────────────
 let vidPollTimer = null;
 let _vidMode = 't2v';         // 't2v' | 'i2v'
+let _i2vModel = 'svd';        // 'svd' | 'wan'
+
+function setI2VModel(model){
+  _i2vModel = model;
+  document.getElementById('i2v-model-svd').classList.toggle('active', model==='svd');
+  document.getElementById('i2v-model-wan').classList.toggle('active', model==='wan');
+  document.getElementById('i2v-svd-params').style.display = model==='svd' ? '' : 'none';
+  document.getElementById('i2v-wan-params').style.display = model==='wan' ? '' : 'none';
+  document.getElementById('tips-i2v-svd').style.display = model==='svd' ? '' : 'none';
+  document.getElementById('tips-i2v-wan').style.display = model==='wan' ? '' : 'none';
+  const btn = document.getElementById('vid-btn');
+  btn.style.background = model==='wan'
+    ? 'linear-gradient(135deg,#2a1a3a,#7c3aed)'
+    : 'linear-gradient(135deg,#1a3a1a,#238636)';
+  btn.style.borderColor = model==='wan' ? '#c084fc' : '#3fb950';
+}
+
+function _checkFrameWarn(){
+  const is14B = document.getElementById('vid-quality').value === '14B';
+  const frames = parseInt(document.getElementById('vid-frames').value);
+  const warn = document.getElementById('vid-frames-warn');
+  if(warn) warn.style.display = (is14B && frames > 49) ? 'block' : 'none';
+}
 let _i2vServerPath = '';      // server-side path po uploadzoe
 
 function setVidMode(mode){
@@ -987,25 +1054,41 @@ async function generateVideo(){
 
   if(_vidMode === 'i2v'){
     if(!_i2vServerPath){ alert('Wgraj najpierw obraz startowy!'); return; }
-    const [width, height] = document.getElementById('i2v-res').value.split('x').map(Number);
-    body = {
-      model: 'svd',
-      image_path: _i2vServerPath,
-      num_frames: parseInt(document.getElementById('i2v-frames').value),
-      width, height,
-      motion_bucket: parseInt(document.getElementById('i2v-motion').value),
-      label, upscale, seed,
-    };
+    if(_i2vModel === 'wan'){
+      body = {
+        model: 'wan_i2v',
+        prompt: document.getElementById('i2v-wan-prompt').value.trim() || 'Cinematic smooth motion, high quality',
+        image_path: _i2vServerPath,
+        num_frames: parseInt(document.getElementById('i2v-wan-frames').value),
+        max_area: parseInt(document.getElementById('i2v-wan-quality').value),
+        guidance_scale: 5.0,
+        negative_prompt: document.getElementById('i2v-wan-neg').value,
+        label, upscale, seed,
+      };
+    } else {
+      const [width, height] = document.getElementById('i2v-res').value.split('x').map(Number);
+      body = {
+        model: 'svd',
+        image_path: _i2vServerPath,
+        num_frames: parseInt(document.getElementById('i2v-frames').value),
+        width, height,
+        motion_bucket: parseInt(document.getElementById('i2v-motion').value),
+        label, upscale, seed,
+      };
+    }
   } else {
     const prompt = document.getElementById('vid-prompt').value.trim();
     if(!prompt){ alert('Wpisz prompt!'); return; }
     const [width, height] = document.getElementById('vid-res').value.split('x').map(Number);
+    const wan_quality = document.getElementById('vid-quality').value;
     body = {
       model: 'wan',
+      wan_quality,
       prompt,
       num_frames: parseInt(document.getElementById('vid-frames').value),
       width, height,
       guidance_scale: parseFloat(document.getElementById('vid-guidance').value),
+      negative_prompt: document.getElementById('vid-neg-prompt').value,
       label, upscale, seed,
     };
   }
@@ -1041,8 +1124,10 @@ function pollVideoJob(jobId){
       document.getElementById('vid-bar').style.width = pct+'%';
       const labels = {
         loading:    _vidMode==='i2v'
-                      ? 'Ładowanie SVD-xt (pierwsze użycie: pobiera ~10GB)...'
-                      : 'Ładowanie Wan2.1-T2V-1.3B (~30s)...',
+                      ? (_i2vModel==='wan' ? 'Ładowanie Wan2.1-I2V-14B (~90s)...' : 'Ładowanie SVD-xt (pierwsze użycie: pobiera ~10GB)...')
+                      : (document.getElementById('vid-quality').value==='14B'
+                          ? 'Ładowanie Wan2.1-T2V-14B (~60s)...'
+                          : 'Ładowanie Wan2.1-T2V-1.3B (~30s)...'),
         generating: `Generuję wideo na RTX 5090... ${pct}%`,
         saving:     'Zapisuję MP4...',
         upscaling:  'Upscaling ffmpeg (lanczos)...',
@@ -1117,7 +1202,7 @@ async function loadVideoJobs(){
     return `<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="color:${color};font-size:11px;font-weight:bold;text-transform:uppercase">${j.status}</span>
-        <span style="background:${j.model==='svd'?'#1a2a1a':'#1a2232'};color:${j.model==='svd'?'#3fb950':'#58a6ff'};font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">${j.model==='svd'?'I2V SVD':'T2V Wan'}</span>
+        <span style="background:${j.model==='svd'?'#1a2a1a':j.model==='wan_i2v'?'#1a0a2e':j.wan_quality==='14B'?'#1f1a2e':'#1a2232'};color:${j.model==='svd'?'#3fb950':j.model==='wan_i2v'?'#e879f9':j.wan_quality==='14B'?'#c084fc':'#58a6ff'};font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">${j.model==='svd'?'I2V SVD':j.model==='wan_i2v'?'I2V 14B':j.wan_quality==='14B'?'T2V 14B':'T2V 1.3B'}</span>
         <span style="color:#8b949e;font-size:11px">${(()=>{
           const scales={fhd:{landscape:'1920×1080',portrait:'1080×1920',square:'1080×1080'},
                         '2k':{landscape:'2560×1440',portrait:'1440×2560',square:'1440×1440'},
