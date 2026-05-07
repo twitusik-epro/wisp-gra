@@ -813,6 +813,8 @@ class MergeRequest(BaseModel):
     video_job_id: str
     music_job_id: str
     crossfade: bool = False
+    loop_video: bool = False
+    loop_duration: float = 0.0
 
 @app.post("/api/video/merge")
 async def video_merge(req: MergeRequest):
@@ -841,7 +843,36 @@ async def video_merge(req: MergeRequest):
     merged_id = "mrg_" + uuid.uuid4().hex[:8]
     out_path = VIDEO_PENDING_DIR / f"{merged_id}.mp4"
 
-    if req.crossfade and duration:
+    if req.loop_video and req.loop_duration > 0:
+        t = req.loop_duration
+        fade_dur = 0.5
+        if req.crossfade:
+            fade_out_start = max(0.0, t - fade_dur)
+            audio_filter = (
+                f"[1:a]afade=t=in:st=0:d={fade_dur},"
+                f"afade=t=out:st={fade_out_start:.3f}:d={fade_dur}[aout]"
+            )
+            cmd = [
+                "ffmpeg", "-y",
+                "-stream_loop", "-1", "-t", str(t), "-i", str(video_path),
+                "-stream_loop", "-1", "-t", str(t), "-i", str(music_path),
+                "-filter_complex", audio_filter,
+                "-map", "0:v:0", "-map", "[aout]",
+                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                "-c:a", "aac", "-b:a", "192k",
+                "-t", str(t), str(out_path)
+            ]
+        else:
+            cmd = [
+                "ffmpeg", "-y",
+                "-stream_loop", "-1", "-t", str(t), "-i", str(video_path),
+                "-stream_loop", "-1", "-t", str(t), "-i", str(music_path),
+                "-map", "0:v:0", "-map", "1:a:0",
+                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                "-c:a", "aac", "-b:a", "192k",
+                "-t", str(t), str(out_path)
+            ]
+    elif req.crossfade and duration:
         fade_dur = 0.5
         fade_out_start = max(0.0, duration - fade_dur)
         audio_filter = (

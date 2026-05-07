@@ -512,6 +512,18 @@ textarea{min-height:70px}
           <select id="merge-music" style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;margin-bottom:14px">
             <option value="">— wybierz ścieżkę —</option>
           </select>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px">
+            <input type="checkbox" id="merge-loop" style="width:16px;height:16px;accent-color:#6e40c9;cursor:pointer" onchange="document.getElementById('merge-loop-dur-row').style.display=this.checked?'block':'none'">
+            <span>
+              <span style="color:#c084fc;font-weight:600;font-size:13px">🔁 Zapętl wideo do docelowej długości</span><br>
+              <span style="color:#8b949e;font-size:11px">Wideo i muzyka zostaną zapętlone do podanej liczby sekund</span>
+            </span>
+          </label>
+          <div id="merge-loop-dur-row" style="display:none;margin-bottom:10px">
+            <label>Docelowa długość (sekundy)</label>
+            <input type="number" id="merge-loop-dur" value="30" min="1" max="3600" step="1"
+              style="width:100%;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px">
+          </div>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px">
             <input type="checkbox" id="merge-crossfade" style="width:16px;height:16px;accent-color:#6e40c9;cursor:pointer">
             <span>
@@ -1271,12 +1283,14 @@ async function mergeVideoMusic(){
   if(!video_job_id){ alert('Wybierz wideo!'); return; }
   if(!music_job_id){ alert('Wybierz ścieżkę muzyczną!'); return; }
   const crossfade = document.getElementById('merge-crossfade').checked;
+  const loop_video = document.getElementById('merge-loop').checked;
+  const loop_duration = loop_video ? +document.getElementById('merge-loop-dur').value : 0;
   const st = document.getElementById('merge-status');
   st.textContent = '⏳ Łączę...';
   try {
     const r = await fetch('/api/video/merge', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({video_job_id, music_job_id, crossfade}),
+      body: JSON.stringify({video_job_id, music_job_id, crossfade, loop_video, loop_duration}),
     });
     const d = await r.json();
     if(!r.ok) throw new Error(d.detail||'Błąd');
