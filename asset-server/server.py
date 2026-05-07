@@ -400,7 +400,9 @@ async def pending_files():
 class MusicGenerateRequest(BaseModel):
     prompt: str
     duration: float = 5
-    top_k: int = 250
+    top_k: int = 30
+    guidance_scale: float = 7.0
+    cfg_type: str = "apg"
     world: str = "w1"
     label: str = ""
 
@@ -411,7 +413,7 @@ def load_music_meta() -> dict:
 def save_music_meta(meta: dict):
     (MUSIC_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
 
-async def run_music_generation(job_id: str, prompt: str, duration: float, top_k: int, world: str, label: str):
+async def run_music_generation(job_id: str, prompt: str, duration: float, top_k: int, guidance_scale: float, cfg_type: str, world: str, label: str):
     global _music_generating
     out_path = str(MUSIC_PENDING_DIR / f"{job_id}.mp3")
     status_path = str(MUSIC_DIR / f"{job_id}_status.json")
@@ -423,7 +425,7 @@ async def run_music_generation(job_id: str, prompt: str, duration: float, top_k:
     try:
         proc = await asyncio.create_subprocess_exec(
             CONDA_PYTHON, str(MUSIC_SCRIPT),
-            job_id, prompt, str(duration), str(top_k), out_path, status_path,
+            job_id, prompt, str(duration), str(top_k), str(guidance_scale), cfg_type, out_path, status_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -457,12 +459,13 @@ async def music_generate(req: MusicGenerateRequest, background_tasks: Background
     meta = load_music_meta()
     meta[job_id] = {
         "job_id": job_id, "prompt": req.prompt, "duration": req.duration,
-        "top_k": req.top_k, "world": req.world, "label": req.label,
+        "top_k": req.top_k, "guidance_scale": req.guidance_scale, "cfg_type": req.cfg_type,
+        "world": req.world, "label": req.label,
         "status": "queued", "file": None,
         "created_at": datetime.now().isoformat(),
     }
     save_music_meta(meta)
-    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.top_k, req.world, req.label)
+    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.top_k, req.guidance_scale, req.cfg_type, req.world, req.label)
     return {"job_id": job_id}
 
 @app.get("/api/music/jobs")

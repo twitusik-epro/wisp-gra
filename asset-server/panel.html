@@ -268,7 +268,19 @@ textarea{min-height:70px}
               <option value="100">100 kroków — maksymalna jakość (~70s)</option>
             </select>
 
-            <label>Etykieta docelowa (np. world1, world2)</label>
+            <label>CFG — siła prowadzenia <span id="mus-cfg-val" style="color:#58a6ff;font-size:11px">7.0</span></label>
+            <input type="range" id="mus-cfg" min="1" max="20" step="0.5" value="7"
+              style="width:100%;accent-color:#6e40c9"
+              oninput="document.getElementById('mus-cfg-val').textContent=this.value">
+
+            <label style="margin-top:6px">Typ CFG</label>
+            <select id="mus-cfgtype">
+              <option value="apg" selected>APG — domyślny (lepszy)</option>
+              <option value="cfg">CFG — klasyczny</option>
+              <option value="cfg_star">CFG* — eksperymentalny</option>
+            </select>
+
+            <label style="margin-top:6px">Etykieta docelowa (np. world1, world2)</label>
             <input type="text" id="mus-label" placeholder="np. world1">
 
             <button class="btn btn-primary" id="mus-btn" onclick="generateMusic()" style="background:#6e40c9;margin-top:14px">
@@ -825,6 +837,8 @@ async function generateMusic(){
     prompt,
     duration: +document.getElementById('mus-duration').value,
     top_k: +document.getElementById('mus-topk').value,
+    guidance_scale: +document.getElementById('mus-cfg').value,
+    cfg_type: document.getElementById('mus-cfgtype').value,
     world: document.getElementById('mus-world').value,
     label: document.getElementById('mus-label').value,
   };
@@ -851,7 +865,7 @@ function pollMusicJob(jobId){
       const s = await r.json();
       const pct = s.progress || 0;
       document.getElementById('mus-bar').style.width = pct+'%';
-      const labels = {loading:'Ładowanie modelu MusicGen (~30s)...',generating:'Generuję muzykę na RTX 5090...',saving:'Zapisuję...', done:'Gotowe!'};
+      const labels = {loading:'Ładowanie modelu ACE-Step (~5s)...',generating:'Generuję muzykę na RTX 5090...',saving:'Zapisuję...', done:'Gotowe!'};
       document.getElementById('mus-status-txt').textContent = labels[s.status]||s.status||'...';
       if(s.status==='done' || s.status==='pending' || s.status==='approved'){
         clearInterval(musPollTimer);

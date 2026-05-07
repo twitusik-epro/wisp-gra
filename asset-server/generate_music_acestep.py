@@ -5,12 +5,14 @@ Args: job_id prompt duration_sec infer_steps out_path status_path
 import sys, json, os, subprocess, gc, threading, time
 sys.path.insert(0, "/opt/ACE-Step")
 
-job_id     = sys.argv[1]
-prompt     = sys.argv[2]
-duration   = float(sys.argv[3])
-infer_steps= int(sys.argv[4]) if len(sys.argv) > 4 else 30
-out_path   = sys.argv[5]
-status_f   = sys.argv[6]
+job_id         = sys.argv[1]
+prompt         = sys.argv[2]
+duration       = float(sys.argv[3])
+infer_steps    = int(sys.argv[4]) if len(sys.argv) > 4 else 30
+guidance_scale = float(sys.argv[5]) if len(sys.argv) > 5 else 7.0
+cfg_type       = sys.argv[6] if len(sys.argv) > 6 else "apg"
+out_path       = sys.argv[7]
+status_f       = sys.argv[8]
 
 def upd(s):
     with open(status_f, 'w') as f:
@@ -54,9 +56,9 @@ pipe(
     prompt=prompt,
     lyrics="[instrumental]",
     infer_step=infer_steps,
-    guidance_scale=7.0,
+    guidance_scale=guidance_scale,
     scheduler_type="euler",
-    cfg_type="apg",
+    cfg_type=cfg_type,
     omega_scale=10.0,
     manual_seeds="-1",
     guidance_interval=0.5,
