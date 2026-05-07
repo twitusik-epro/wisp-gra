@@ -76,6 +76,7 @@ m.text_embedding.to(gpu)
 m.time_embedding.to(gpu)
 m.time_projection.to(gpu)
 m.head.to(gpu)
+m.img_emb.to(gpu)  # I2V-only: MLPProj(CLIP features → model dim), has LayerNorm inside
 
 # Block offloading: CPU → GPU per forward, back to CPU; empty_cache co krok (nie co blok)
 _block_call_counter = [0]
