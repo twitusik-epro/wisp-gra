@@ -230,60 +230,121 @@ textarea{min-height:70px}
 
     <!-- MUZYKA AI -->
     <div id="tab-music" class="tab-content">
-      <div style="display:grid;grid-template-columns:320px 1fr;gap:20px">
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:20px">
 
         <!-- Formularz generowania -->
         <div>
           <div class="card" style="margin-bottom:16px">
-            <h2>🎵 Generuj muzykę</h2>
 
-            <label>Świat</label>
-            <select id="mus-world" onchange="setMusicPreset()">
-              <option value="w1">🌳 Świat 1 — Sunny Forest</option>
-              <option value="w2">🌸 Świat 2 — Flower Meadow</option>
-              <option value="w3">🌅 Świat 3 — Golden Sunrise</option>
-              <option value="w4">❄️ Świat 4 — Winter Wonderland</option>
-              <option value="custom">✏️ Własny prompt</option>
-            </select>
+            <!-- Przełącznik trybu -->
+            <div style="display:flex;border:1px solid #30363d;border-radius:8px;overflow:hidden;margin-bottom:16px">
+              <button id="mus-mode-new" onclick="setMusicMode('new')"
+                style="flex:1;padding:8px;border:none;cursor:pointer;font-size:13px;background:#6e40c9;color:#fff;transition:background .15s">
+                🎵 Nowa muzyka
+              </button>
+              <button id="mus-mode-ext" onclick="setMusicMode('extend')"
+                style="flex:1;padding:8px;border:none;cursor:pointer;font-size:13px;background:#21262d;color:#8b949e;transition:background .15s">
+                🔗 Przedłuż istniejącą
+              </button>
+            </div>
 
-            <label>Prompt (opis muzyki)</label>
-            <textarea id="mus-prompt" style="min-height:80px"></textarea>
+            <!-- TRYB: Nowa muzyka -->
+            <div id="mus-section-new">
+              <label>Świat</label>
+              <select id="mus-world" onchange="setMusicPreset()">
+                <option value="w1">🌳 Świat 1 — Sunny Forest</option>
+                <option value="w2">🌸 Świat 2 — Flower Meadow</option>
+                <option value="w3">🌅 Świat 3 — Golden Sunrise</option>
+                <option value="w4">❄️ Świat 4 — Winter Wonderland</option>
+                <option value="custom">✏️ Własny prompt</option>
+              </select>
+              <label>Prompt (opis muzyki)</label>
+              <textarea id="mus-prompt" style="min-height:70px"></textarea>
+            </div>
 
-            <label>Czas trwania</label>
-            <select id="mus-duration">
-              <option value="3" selected>3 sekundy</option>
-              <option value="5">5 sekund</option>
-              <option value="7.5">7,5 sekundy</option>
-              <option value="10">10 sekund</option>
-              <option value="15">15 sekund</option>
-              <option value="30">30 sekund</option>
-              <option value="60">60 sekund</option>
-            </select>
+            <!-- TRYB: Przedłuż -->
+            <div id="mus-section-ext" style="display:none">
+              <div id="mus-ext-drop"
+                style="border:2px dashed #6e40c9;border-radius:8px;padding:22px 12px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:10px">
+                <div style="font-size:28px;margin-bottom:6px;pointer-events:none">🎵</div>
+                <div style="font-size:13px;color:#c9a0dc;font-weight:600;pointer-events:none">Przeciągnij plik MP3 tutaj</div>
+                <div style="font-size:11px;color:#8b949e;margin-top:4px;pointer-events:none">lub kliknij aby wybrać (MP3/WAV/OGG/FLAC)</div>
+              </div>
+              <div id="mus-ext-info" style="display:none;background:#0d1117;border:1px solid #3fb950;border-radius:8px;padding:10px;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                  <span style="font-size:18px">🎵</span>
+                  <div style="flex:1;min-width:0">
+                    <div id="mus-ext-name" style="font-size:12px;color:#3fb950;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+                    <div id="mus-ext-dur-info" style="font-size:11px;color:#8b949e;margin-top:2px"></div>
+                  </div>
+                  <button onclick="clearMusicRef()" style="background:#3d1a1a;border:1px solid #f85149;border-radius:4px;color:#f85149;padding:3px 8px;cursor:pointer;font-size:11px;white-space:nowrap">✕ Usuń</button>
+                </div>
+                <audio id="mus-ref-player" controls style="width:100%;height:32px;accent-color:#6e40c9"></audio>
+              </div>
+              <label>Docelowa długość <span id="mus-ext-warn" style="color:#f85149;font-size:11px;display:none">— musi być dłuższa niż oryginał!</span></label>
+              <select id="mus-ext-duration" onchange="_validateExtDuration()">
+                <option value="15">15 sekund</option>
+                <option value="30" selected>30 sekund</option>
+                <option value="45">45 sekund</option>
+                <option value="60">60 sekund</option>
+                <option value="90">90 sekund</option>
+                <option value="120">2 minuty</option>
+              </select>
+              <div style="background:#0d3320;border:1px solid #3fb950;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:11px;color:#3fb950">
+                ⚡ Przetwarzanie przez ffmpeg — błyskawicznie, bez AI, 100% wierność oryginałowi
+              </div>
+            </div>
 
-            <label>Jakość <span id="mus-topk-val" style="color:#58a6ff;font-size:11px">30 kroków — domyślny</span></label>
-            <select id="mus-topk">
-              <option value="20">20 kroków — szybko (~15s)</option>
-              <option value="30" selected>30 kroków — domyślny (~20s)</option>
-              <option value="50">50 kroków — wysoka jakość (~35s)</option>
-              <option value="100">100 kroków — maksymalna jakość (~70s)</option>
-            </select>
+            <!-- Wspólne ustawienia -->
+            <div id="mus-section-quality">
+              <label style="margin-top:10px">Jakość</label>
+              <select id="mus-topk">
+                <option value="20">20 kroków — szybko (~15s)</option>
+                <option value="30" selected>30 kroków — domyślny (~20s)</option>
+                <option value="50">50 kroków — wysoka jakość (~35s)</option>
+                <option value="100">100 kroków — maksymalna jakość (~70s)</option>
+              </select>
+            </div>
 
-            <label>CFG — siła prowadzenia <span id="mus-cfg-val" style="color:#58a6ff;font-size:11px">7.0</span></label>
-            <input type="range" id="mus-cfg" min="1" max="20" step="0.5" value="7"
-              style="width:100%;accent-color:#6e40c9"
-              oninput="document.getElementById('mus-cfg-val').textContent=this.value">
+            <div id="mus-section-cfg-seed">
+              <label style="margin-top:6px">CFG <span id="mus-cfg-val" style="color:#58a6ff;font-size:11px">7.0</span></label>
+              <input type="range" id="mus-cfg" min="1" max="20" step="0.5" value="7"
+                style="width:100%;accent-color:#6e40c9"
+                oninput="document.getElementById('mus-cfg-val').textContent=this.value">
 
-            <label style="margin-top:6px">Typ CFG</label>
-            <select id="mus-cfgtype">
-              <option value="apg" selected>APG — domyślny (lepszy)</option>
-              <option value="cfg">CFG — klasyczny</option>
-              <option value="cfg_star">CFG* — eksperymentalny</option>
-            </select>
+              <label style="margin-top:6px">Typ CFG</label>
+              <select id="mus-cfgtype">
+                <option value="apg" selected>APG — domyślny (lepszy)</option>
+                <option value="cfg">CFG — klasyczny</option>
+                <option value="cfg_star">CFG* — eksperymentalny</option>
+              </select>
 
-            <label style="margin-top:6px">Etykieta docelowa (np. world1, world2)</label>
+              <label style="margin-top:6px">Seed <span style="color:#8b949e;font-size:11px">(-1 = losowy)</span></label>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="number" id="mus-seed" value="-1" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:6px;box-sizing:border-box">
+                <button onclick="document.getElementById('mus-seed').value=-1" title="Losowy seed" style="background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;padding:6px 10px;cursor:pointer;font-size:14px">🎲</button>
+              </div>
+            </div>
+
+            <label style="margin-top:6px">Etykieta docelowa</label>
             <input type="text" id="mus-label" placeholder="np. world1">
 
-            <button class="btn btn-primary" id="mus-btn" onclick="generateMusic()" style="background:#6e40c9;margin-top:14px">
+            <!-- Ukryty file input + ukryte pola trybu nowa (duration) -->
+            <input type="file" id="mus-ref-file" accept=".mp3,.wav,.ogg,.flac,.m4a" style="display:none" onchange="handleMusicRefUpload(this)">
+            <div id="mus-section-new-dur">
+              <label style="margin-top:6px">Czas trwania</label>
+              <select id="mus-duration">
+                <option value="3" selected>3 sekundy</option>
+                <option value="5">5 sekund</option>
+                <option value="7.5">7,5 sekundy</option>
+                <option value="10">10 sekund</option>
+                <option value="15">15 sekund</option>
+                <option value="30">30 sekund</option>
+                <option value="60">60 sekund</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="mus-btn" onclick="generateMusic()" style="background:#6e40c9;margin-top:14px;width:100%">
               🎵 Generuj z RTX 5090
             </button>
             <div id="mus-progress" style="display:none;margin-top:10px">
@@ -294,7 +355,7 @@ textarea{min-height:70px}
             </div>
           </div>
 
-          <div class="card">
+          <div id="mus-presets-card" class="card">
             <h2>⚡ Presety</h2>
             <div style="display:flex;flex-direction:column;gap:6px">
               <button class="btn-sm btn-delete" style="width:100%;text-align:left;padding:7px 10px" onclick="setMusicCustom('w1')">🌳 Sunny Forest</button>
@@ -828,6 +889,26 @@ const MUSIC_PRESETS = {
   w4: 'magical winter wonderland, children game music, sparkling ice bells and glockenspiel, soft and enchanting, snowflakes, wonder and mystery, fairy tale loop',
 };
 
+let _musMode = 'new';
+let _musRefPath = '';
+let _musRefDuration = 0;
+
+function setMusicMode(mode){
+  _musMode = mode;
+  const isNew = mode === 'new';
+  document.getElementById('mus-mode-new').style.background = isNew ? '#6e40c9' : '#21262d';
+  document.getElementById('mus-mode-new').style.color = isNew ? '#fff' : '#8b949e';
+  document.getElementById('mus-mode-ext').style.background = isNew ? '#21262d' : '#6e40c9';
+  document.getElementById('mus-mode-ext').style.color = isNew ? '#8b949e' : '#fff';
+  document.getElementById('mus-section-new').style.display = isNew ? '' : 'none';
+  document.getElementById('mus-section-new-dur').style.display = isNew ? '' : 'none';
+  document.getElementById('mus-section-ext').style.display = isNew ? 'none' : '';
+  document.getElementById('mus-presets-card').style.display = isNew ? '' : 'none';
+  document.getElementById('mus-section-cfg-seed').style.display = isNew ? '' : 'none';
+  document.getElementById('mus-section-quality').style.display = isNew ? '' : 'none';
+  document.getElementById('mus-btn').textContent = isNew ? '🎵 Generuj z RTX 5090' : '🔗 Przedłuż z RTX 5090';
+}
+
 function setMusicPreset(){
   const w = document.getElementById('mus-world').value;
   if(MUSIC_PRESETS[w]){
@@ -842,17 +923,105 @@ function setMusicCustom(w){
 
 let musPollTimer = null;
 
+function _isAudioFile(file){
+  const allowed = ['audio/mpeg','audio/wav','audio/ogg','audio/flac','audio/x-flac','audio/mp4','audio/m4a','audio/x-m4a'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  return allowed.includes(file.type) || ['mp3','wav','ogg','flac','m4a'].includes(ext);
+}
+
+function handleMusicRefDrop(event){
+  const file = event.dataTransfer.files[0];
+  if(!file) return;
+  if(!_isAudioFile(file)){ alert('Nieobsługiwany format. Użyj MP3, WAV, OGG, FLAC lub M4A.'); return; }
+  _uploadMusicRef(file);
+}
+
+async function _uploadMusicRef(file){
+  const fd = new FormData();
+  fd.append('file', file);
+  const r = await fetch('/api/music/upload-ref', {method:'POST', body:fd});
+  if(!r.ok){ alert('Błąd uploadu audio'); return; }
+  const d = await r.json();
+  _musRefPath = d.path;
+
+  // Get duration from audio element
+  const url = URL.createObjectURL(file);
+  const tmpAudio = new Audio(url);
+  tmpAudio.onloadedmetadata = () => {
+    _musRefDuration = tmpAudio.duration;
+    const durTxt = _musRefDuration > 0 ? `${_musRefDuration.toFixed(1)}s — wybierz docelową długość powyżej` : '';
+    const el = document.getElementById('mus-ext-dur-info');
+    if(el) el.textContent = durTxt;
+    _validateExtDuration();
+  };
+  tmpAudio.src = url;
+
+  // Show appropriate UI based on mode
+  if(_musMode === 'extend'){
+    document.getElementById('mus-ext-drop').style.display = 'none';
+    document.getElementById('mus-ext-info').style.display = 'block';
+    document.getElementById('mus-ext-name').textContent = file.name;
+  }
+  document.getElementById('mus-ref-player').src = url;
+}
+
+async function handleMusicRefUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  await _uploadMusicRef(file);
+}
+
+function clearMusicRef(){
+  _musRefPath = '';
+  _musRefDuration = 0;
+  document.getElementById('mus-ref-file').value = '';
+  document.getElementById('mus-ref-player').src = '';
+  // Reset extend UI
+  document.getElementById('mus-ext-drop').style.display = '';
+  document.getElementById('mus-ext-info').style.display = 'none';
+  document.getElementById('mus-ext-warn').style.display = 'none';
+}
+
+function _validateExtDuration(){
+  if(_musRefDuration <= 0) return true;
+  const target = +document.getElementById('mus-ext-duration').value;
+  const warn = document.getElementById('mus-ext-warn');
+  if(target <= _musRefDuration){
+    warn.style.display = '';
+    return false;
+  }
+  warn.style.display = 'none';
+  return true;
+}
+
 async function generateMusic(){
-  const prompt = document.getElementById('mus-prompt').value.trim();
-  if(!prompt){ alert('Wpisz prompt!'); return; }
+  const isExt = _musMode === 'extend';
+  let prompt, duration, world;
+
+  if(isExt){
+    if(!_musRefPath){ alert('Najpierw wgraj plik MP3 do przedłużenia!'); return; }
+    if(!_validateExtDuration()){ alert('Docelowa długość musi być większa niż długość oryginału!'); return; }
+    prompt = '';
+    duration = +document.getElementById('mus-ext-duration').value;
+    world = 'custom';
+  } else {
+    prompt = document.getElementById('mus-prompt').value.trim();
+    if(!prompt){ alert('Wpisz prompt!'); return; }
+    duration = +document.getElementById('mus-duration').value;
+    world = document.getElementById('mus-world').value;
+  }
+
   const body = {
     prompt,
-    duration: +document.getElementById('mus-duration').value,
+    duration,
     top_k: +document.getElementById('mus-topk').value,
     guidance_scale: +document.getElementById('mus-cfg').value,
     cfg_type: document.getElementById('mus-cfgtype').value,
-    world: document.getElementById('mus-world').value,
+    world,
     label: document.getElementById('mus-label').value,
+    seed: parseInt(document.getElementById('mus-seed').value) || -1,
+    ref_audio: isExt ? _musRefPath : '',
+    ref_audio_strength: 0.5,
   };
   document.getElementById('mus-btn').disabled = true;
   document.getElementById('mus-progress').style.display = 'block';
@@ -928,13 +1097,10 @@ function renderMusicJob(j){
   const player = audioUrl && (j.status==='pending'||j.status==='approved')
     ? `<audio class="music-player" controls src="${audioUrl}"></audio>` : '';
 
-  const actions = j.status==='pending'
-    ? `<input class="music-target" id="mtgt_${j.job_id}" value="${j.label||''}" placeholder="world1">
-       <button class="btn-sm btn-approve" onclick="approveMusic('${j.job_id}')">✓ Zatwierdź</button>
-       <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')">🗑</button>`
-    : j.status==='approved'
-    ? `<span style="color:#3fb950;font-size:11px">✓ ${j.approved_as}</span>
-       <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')" style="margin-left:auto">🗑</button>`
+  const dlBtn = audioUrl ? `<a href="${audioUrl}" download="${j.file||'music.mp3'}" style="background:#1f6feb;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;text-decoration:none;white-space:nowrap">⬇️ Pobierz</a>` : '';
+
+  const actions = (j.status==='pending'||j.status==='approved')
+    ? `${dlBtn}<button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')" style="margin-left:auto">🗑 Usuń</button>`
     : j.status==='error'
     ? `<span style="color:#f85149;font-size:12px" title="${j.error||''}">✗ Błąd</span>
        <button class="btn-sm btn-delete" onclick="deleteMusic('${j.job_id}')" style="margin-left:auto">🗑</button>`
@@ -944,7 +1110,7 @@ function renderMusicJob(j){
     <div class="music-header">
       <span class="badge ${statusMap[j.status]||'badge-pending'}">${j.status}</span>
       <span class="music-prompt" title="${j.prompt}">${j.prompt}</span>
-      <span class="music-meta">${worldMusLabel[j.world]||''} · ${j.duration}s · ${ts}</span>
+      <span class="music-meta">${worldMusLabel[j.world]||''} · ${j.duration}s${j.seed!=null&&j.seed>=0?' · seed:'+j.seed:''} · ${ts}</span>
     </div>
     ${player}
     <div class="music-actions">${actions}</div>
@@ -961,7 +1127,6 @@ async function approveMusic(jobId){
 }
 
 async function deleteMusic(jobId){
-  if(!confirm('Usunąć tę ścieżkę?')) return;
   await fetch(`/api/music/jobs/${jobId}`,{method:'DELETE'});
   loadMusicJobs();
 }
@@ -1247,7 +1412,6 @@ async function loadVideoJobs(){
 }
 
 async function deleteVideo(jobId){
-  if(!confirm('Usunąć ten film?')) return;
   await fetch(`/api/video/jobs/${jobId}`, {method:'DELETE'});
   loadVideoJobs();
 }
@@ -1326,7 +1490,6 @@ async function loadMergeList(){
 }
 
 async function deleteMerge(jobId){
-  if(!confirm('Usunąć ten montaż?')) return;
   await fetch(`/api/video/jobs/${jobId}`, {method:'DELETE'});
   loadMergeList();
 }
@@ -1429,6 +1592,24 @@ setInterval(()=>{
   const el=document.getElementById('tab-pending');
   if(el.classList.contains('active')) loadPending();
 }, 5000);
+
+// Music drop zone — addEventListener (bardziej niezawodne niż inline)
+(function(){
+  const zone = document.getElementById('mus-ext-drop');
+  if(!zone) return;
+  zone.addEventListener('click', () => document.getElementById('mus-ref-file').click());
+  zone.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); zone.style.background='#1a1230'; zone.style.borderColor='#a78bfa'; });
+  zone.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); });
+  zone.addEventListener('dragleave', e => { e.preventDefault(); e.stopPropagation(); zone.style.background=''; zone.style.borderColor='#6e40c9'; });
+  zone.addEventListener('drop',      e => {
+    e.preventDefault(); e.stopPropagation();
+    zone.style.background=''; zone.style.borderColor='#6e40c9';
+    const file = e.dataTransfer.files[0];
+    if(!file) return;
+    if(!_isAudioFile(file)){ alert('Użyj MP3, WAV, OGG, FLAC lub M4A.'); return; }
+    _uploadMusicRef(file);
+  });
+})();
 </script>
 </body>
 </html>

@@ -40,11 +40,12 @@ for d in [PENDING_DIR, APPROVED_DIR, REJECTED_DIR]:
 GAME_BG_DIR = Path("/opt/gry/Wisp/public/assets/bg")
 GAME_BG_DIR.mkdir(parents=True, exist_ok=True)
 
-MUSIC_DIR         = ASSETS_DIR / "music"
-MUSIC_PENDING_DIR = MUSIC_DIR / "pending"
-MUSIC_APPROVED_DIR= MUSIC_DIR / "approved"
-GAME_MUSIC_DIR    = Path("/opt/gry/Wisp - NOWA wersja w budowie/public/assets/music")
-for d in [MUSIC_PENDING_DIR, MUSIC_APPROVED_DIR, GAME_MUSIC_DIR]:
+MUSIC_DIR          = ASSETS_DIR / "music"
+MUSIC_PENDING_DIR  = MUSIC_DIR / "pending"
+MUSIC_APPROVED_DIR = MUSIC_DIR / "approved"
+MUSIC_UPLOADS_DIR  = MUSIC_DIR / "uploads"
+GAME_MUSIC_DIR     = Path("/opt/gry/Wisp - NOWA wersja w budowie/public/assets/music")
+for d in [MUSIC_PENDING_DIR, MUSIC_APPROVED_DIR, MUSIC_UPLOADS_DIR, GAME_MUSIC_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 MUSIC_SCRIPT = BASE_DIR / "generate_music_acestep.py"
@@ -405,6 +406,9 @@ class MusicGenerateRequest(BaseModel):
     cfg_type: str = "apg"
     world: str = "w1"
     label: str = ""
+    seed: int = -1
+    ref_audio: str = ""
+    ref_audio_strength: float = 0.5
 
 def load_music_meta() -> dict:
     mf = MUSIC_DIR / "meta.json"
@@ -413,7 +417,7 @@ def load_music_meta() -> dict:
 def save_music_meta(meta: dict):
     (MUSIC_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
 
-async def run_music_generation(job_id: str, prompt: str, duration: float, top_k: int, guidance_scale: float, cfg_type: str, world: str, label: str):
+async def run_music_generation(job_id: str, prompt: str, duration: float, top_k: int, guidance_scale: float, cfg_type: str, world: str, label: str, seed: int = -1, ref_audio: str = "", ref_audio_strength: float = 0.5):
     global _music_generating
     out_path = str(MUSIC_PENDING_DIR / f"{job_id}.mp3")
     status_path = str(MUSIC_DIR / f"{job_id}_status.json")
@@ -425,7 +429,8 @@ async def run_music_generation(job_id: str, prompt: str, duration: float, top_k:
     try:
         proc = await asyncio.create_subprocess_exec(
             CONDA_PYTHON, str(MUSIC_SCRIPT),
-            job_id, prompt, str(duration), str(top_k), str(guidance_scale), cfg_type, out_path, status_path,
+            job_id, prompt, str(duration), str(top_k), str(guidance_scale), cfg_type,
+            str(seed), ref_audio, str(ref_audio_strength), out_path, status_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -460,13 +465,23 @@ async def music_generate(req: MusicGenerateRequest, background_tasks: Background
     meta[job_id] = {
         "job_id": job_id, "prompt": req.prompt, "duration": req.duration,
         "top_k": req.top_k, "guidance_scale": req.guidance_scale, "cfg_type": req.cfg_type,
-        "world": req.world, "label": req.label,
+        "world": req.world, "label": req.label, "seed": req.seed,
         "status": "queued", "file": None,
         "created_at": datetime.now().isoformat(),
     }
     save_music_meta(meta)
-    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.top_k, req.guidance_scale, req.cfg_type, req.world, req.label)
+    background_tasks.add_task(run_music_generation, job_id, req.prompt, req.duration, req.top_k, req.guidance_scale, req.cfg_type, req.world, req.label, req.seed, req.ref_audio, req.ref_audio_strength)
     return {"job_id": job_id}
+
+@app.post("/api/music/upload-ref")
+async def upload_ref_audio(file: UploadFile = File(...)):
+    ext = Path(file.filename).suffix.lower() if file.filename else ".mp3"
+    if ext not in {".mp3", ".wav", ".ogg", ".flac", ".m4a"}:
+        raise HTTPException(400, "Nieobsługiwany format. Użyj MP3, WAV, OGG, FLAC lub M4A.")
+    fname = f"ref_{uuid.uuid4().hex[:8]}{ext}"
+    dest = MUSIC_UPLOADS_DIR / fname
+    dest.write_bytes(await file.read())
+    return {"path": str(dest), "filename": fname}
 
 @app.get("/api/music/jobs")
 async def music_jobs():
@@ -616,6 +631,12 @@ async def run_video_generation(job_id: str, req: VideoGenRequest):
             )
         elif req.model == "wan_i2v":
             await _release_ollama()
+            # Kill any zombie I2V subprocesses left from previous failed attempts
+            _kill_proc = await asyncio.create_subprocess_exec(
+                "pkill", "-9", "-f", "generate_video_i2v.py",
+                stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+            await _kill_proc.wait()
+            await asyncio.sleep(1)  # Let VRAM release before starting new subprocess
             proc = await asyncio.create_subprocess_exec(
                 ASSETS_PYTHON, str(VIDEO_I2V_SCRIPT),
                 job_id, req.prompt, req.image_path,
@@ -652,13 +673,19 @@ async def run_video_generation(job_id: str, req: VideoGenRequest):
             meta[job_id]["finished_at"] = datetime.now().isoformat()
             save_video_meta(meta)
         else:
-            raise RuntimeError(stderr.decode()[-800:])
+            err_raw = stderr.decode(errors='replace')
+            # Strip tqdm progress bars (they flood stderr and hide the real traceback)
+            err_lines = [l for l in err_raw.split('\n')
+                         if l.strip() and not ('%|' in l and ('█' in l or '▌' in l or '▏' in l or '▊' in l or 'it/s' in l or '?it/s' in l))]
+            err_clean = '\n'.join(err_lines)
+            logger.error(f"Video job {job_id} stderr:\n{err_raw[-4000:]}")
+            raise RuntimeError(err_clean[-3000:] if err_clean else err_raw[-800:])
     except Exception as e:
         logger.exception("Video generation failed")
         meta = load_video_meta()
         if job_id in meta:
             meta[job_id]["status"] = "error"
-            meta[job_id]["error"] = str(e)[-400:]
+            meta[job_id]["error"] = str(e)[-2000:]
             save_video_meta(meta)
     finally:
         _video_generating = False

@@ -116,7 +116,7 @@ video = model.generate(
     guide_scale=guidance_scale,
     n_prompt=negative_prompt,
     seed=actual_seed,
-    offload_model=False,
+    offload_model=True,
 )
 
 _stop_gen.set()
