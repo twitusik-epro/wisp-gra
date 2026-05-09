@@ -3,5 +3,8 @@ Allow: /
 Disallow: /api/
 Disallow: /auth/
 Disallow: /webhook/
+Disallow: /admin.html
+Disallow: /game-alpha.html
+Disallow: /delete-account.html
 
 Sitemap: https://wispplay.com/sitemap.xml
